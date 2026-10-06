@@ -1,6 +1,6 @@
-# Prevent Discord Idle
+# Mac Idle Keeper
 
-Prevent Discord Idle is a macOS background monitor that detects extended system inactivity and generates a small, physical mouse movement so desktop applications such as Discord can recognize renewed activity.
+Mac Idle Keeper is a macOS background monitor that detects extended system inactivity and generates configurable activity so desktop applications and workflows can recognize renewed user activity. It is not tied to Discord or any other specific application.
 
 During its active schedule it also runs a macOS `caffeinate` assertion to prevent display, idle-system, disk, and system sleep. The monitor is built with Electron because it uses `powerMonitor.getSystemIdleTime()` to read macOS idle time.
 
@@ -10,7 +10,7 @@ During its active schedule it also runs a macOS `caffeinate` assertion to preven
 
 - Configurable idle polling interval and threshold.
 - Minute-precision schedules with configurable days and timezone.
-- Physical 10-pixel mouse movement over approximately 300 ms when the threshold is exceeded.
+- Configurable activity actions, including physical 10-pixel mouse movement over approximately 300 ms.
 - `caffeinate` awake guard while the schedule is active.
 - macOS start and stop notifications.
 - Foreground mode for testing and a per-user LaunchAgent for background operation.
@@ -35,7 +35,7 @@ pnpm install
 pnpm run check
 ```
 
-The project is currently released as `1.2.1`. See [CHANGELOG.md](CHANGELOG.md) for release notes.
+The project is currently released as `1.3.0`. See [CHANGELOG.md](CHANGELOG.md) for release notes.
 
 ## Configuration
 
@@ -93,6 +93,16 @@ IDLE_DAYS=1,3,4,5
 ```
 
 `IDLE_START_HOUR` and `IDLE_END_HOUR` remain supported for whole-hour compatibility. `IDLE_START_TIME` and `IDLE_END_TIME` take precedence when both forms are present.
+
+### Activity actions
+
+`IDLE_ACTION` controls what Mac Idle Keeper does after the idle threshold is exceeded:
+
+- `hid-event`: moves the physical mouse and posts mouse events through CoreGraphics;
+- `caffeinate`: requests a short macOS user-activity assertion without moving the pointer;
+- `none`: records the detection without executing an activity action.
+
+The action system is intentionally application-independent. To add a new action, implement it in `src/actions.js`, register it in `createAction`, document its configuration value, and add tests for its behavior.
 
 ## Running in the foreground
 

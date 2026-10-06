@@ -8,6 +8,14 @@ All notable changes to this project are documented here.
 
 - Added contribution guidelines for code, testing, documentation, maintenance, and financial support.
 
+## [1.3.0] - 2026-10-06
+
+### Changed
+
+- Generalized the user-facing identity from Discord-specific wording to Mac Idle Keeper.
+- Clarified that activity actions operate at the macOS level and can support applications and workflows beyond Discord.
+- Documented the extension path for adding new activity actions.
+
 ## [1.2.1] - 2026-10-06
 
 ### Fixed

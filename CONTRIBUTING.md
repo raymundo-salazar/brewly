@@ -1,6 +1,6 @@
-# Contributing to Prevent Discord Idle
+# Contributing to Mac Idle Keeper
 
-Thank you for your interest in improving Prevent Discord Idle. Contributions are welcome in code, documentation, testing, maintenance, issue triage, and financial support.
+Thank you for your interest in improving Mac Idle Keeper. Contributions are welcome in code, documentation, testing, maintenance, issue triage, and financial support.
 
 ## Ways to contribute
 

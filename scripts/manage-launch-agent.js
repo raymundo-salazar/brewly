@@ -65,7 +65,7 @@ function status() {
   const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   const schedule = `${config.startTime}-${config.endTime} (${config.days.map((day) => dayNames[day]).join(', ')})`;
 
-  header('Prevent Discord Idle — LaunchAgent Status');
+  header('Mac Idle Keeper — LaunchAgent Status');
   console.log(`Installed: ${exists ? paint('YES', 'green') : paint('NO', 'red')}`);
   info('Plist', plistPath);
   info('Runtime schedule', `${insideSchedule ? paint('IN SCHEDULE', 'green') : paint('OUTSIDE SCHEDULE', 'yellow')} (${schedule})`);

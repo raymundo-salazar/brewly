@@ -84,7 +84,7 @@ function main() {
     throw new Error(`Log file not found: ${filePath}`);
   }
 
-  header('Prevent Discord Idle — Application log');
+  header('Mac Idle Keeper — Application log');
   info('Log', filePath);
   info('Display timezone', context.timezone);
   info('Lines', options.lines);

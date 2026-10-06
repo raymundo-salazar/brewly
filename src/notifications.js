@@ -1,4 +1,4 @@
-const TITLE = 'Prevent Discord Idle';
+const TITLE = 'Mac Idle Keeper';
 const { execFile } = require('node:child_process');
 
 function createNotifier(NotificationApi, log = () => {}, options = {}) {

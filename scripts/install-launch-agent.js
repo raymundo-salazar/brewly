@@ -39,7 +39,7 @@ try {
 } catch {
   throw new Error(`LaunchAgent was not loaded. Check ${path.join(logDir, 'launch-agent.stderr.log')}.`);
 }
-header('Prevent Discord Idle — LaunchAgent installed');
+header('Mac Idle Keeper — LaunchAgent installed');
 success('Service loaded and ready to run at login.');
 info('Plist', plistPath);
 info('Project', projectDir);

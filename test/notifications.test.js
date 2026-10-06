@@ -18,4 +18,5 @@ test('shows start and stop notifications', () => {
     { title: TITLE, body: 'El monitor de idle se ha iniciado.' },
     { title: TITLE, body: 'El monitor de idle se ha detenido.' },
   ]);
+  assert.equal(TITLE, 'Mac Idle Keeper');
 });
