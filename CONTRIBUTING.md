@@ -40,6 +40,8 @@ Maintainers can help keep the project healthy by:
    pnpm install
    ```
 
+   The published package is macOS-only and requires Node.js 22.12 or newer because Electron is a runtime dependency.
+
 3. Make the change and add tests where appropriate.
 4. Run the quality check:
 
@@ -49,6 +51,12 @@ Maintainers can help keep the project healthy by:
 
 5. Update documentation and `CHANGELOG.md` when user-visible behavior changes.
 6. Open a pull request describing the problem, solution, testing performed, and any macOS permission requirements.
+
+Before publishing a release, inspect the package contents with:
+
+```bash
+pnpm pack --dry-run
+```
 
 Do not include real activity logs or personal configuration values in issues or pull requests. Redact usernames, paths, timestamps, and other identifying information before sharing output.
 

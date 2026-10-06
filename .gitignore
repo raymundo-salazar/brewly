@@ -5,3 +5,4 @@ logs/
 .DS_Store
 idle-test.log
 idle-test-no-move.log
+*.tgz

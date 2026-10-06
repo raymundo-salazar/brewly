@@ -7,7 +7,7 @@ settings:
 importers:
 
   .:
-    devDependencies:
+    dependencies:
       electron:
         specifier: ^42.11.10
         version: 42.11.10

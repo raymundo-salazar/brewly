@@ -10,7 +10,7 @@ const { createAwakeGuard } = require('./awake');
 const { removeRuntimeState, writeRuntimeState } = require('./runtime-state');
 const { recordConfigChanges } = require('./config-history');
 
-const envFile = process.env.IDLE_ENV_FILE || path.join(__dirname, '..', '.env');
+const envFile = process.env.IDLE_ENV_FILE || path.join(process.cwd(), '.env');
 loadEnvFile(path.resolve(envFile));
 const config = loadConfig();
 

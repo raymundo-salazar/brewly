@@ -4,7 +4,7 @@ Mac Idle Keeper is a macOS background monitor that detects extended system inact
 
 During its active schedule it also runs a macOS `caffeinate` assertion to prevent display, idle-system, disk, and system sleep. The monitor is built with Electron because it uses `powerMonitor.getSystemIdleTime()` to read macOS idle time.
 
-> macOS only · Node.js 20+ · pnpm 11
+> macOS only · Node.js 22.12+ · npm or pnpm
 
 ## Features
 
@@ -22,11 +22,24 @@ During its active schedule it also runs a macOS `caffeinate` assertion to preven
 ## Requirements
 
 - macOS with an active user session.
-- Node.js 20 or newer.
-- pnpm 11.18.0 or a compatible pnpm 11 release.
+- Node.js 22.12 or newer.
+- npm or pnpm 11.18.0 (pnpm is used for repository development).
 - Accessibility permission for the Electron app used by the project. macOS may also request Input Monitoring or notification permissions depending on the system configuration.
 
 ## Installation
+
+### Install the global CLI
+
+The recommended user installation is through npm:
+
+```bash
+npm install --global mac-idle-keeper
+mac-idle-keeper help
+```
+
+The package includes Electron and all runtime dependencies. macOS may ask for Accessibility or notification permissions the first time the monitor runs.
+
+### Install from source
 
 ```bash
 git clone <repository-url>
@@ -35,7 +48,7 @@ pnpm install
 pnpm run check
 ```
 
-The project is currently released as `1.3.0`. See [CHANGELOG.md](CHANGELOG.md) for release notes.
+The project is currently released as `1.4.0`. See [CHANGELOG.md](CHANGELOG.md) for release notes.
 
 ## Configuration
 
@@ -45,7 +58,13 @@ Copy the example file and edit it:
 cp .env.example .env
 ```
 
-The monitor loads `.env` from the project root at startup. Existing shell variables take precedence over values in `.env`. Configuration changes require a process restart.
+When using the global npm installation, run that command from the directory where you want to keep your configuration. You can copy the example from the installed package with:
+
+```bash
+cp "$(npm root --global)/mac-idle-keeper/.env.example" .env
+```
+
+The monitor loads `.env` from the current working directory at startup. Existing shell variables take precedence over values in `.env`. Configuration changes require a process restart. Use `IDLE_ENV_FILE` or `--env-file` when the configuration is stored elsewhere.
 
 At startup, the effective configuration is compared with the previous one and changes are recorded in the application log. This includes the polling interval, idle threshold, days, start/end times, timezone, action, and log path.
 
@@ -106,7 +125,13 @@ The action system is intentionally application-independent. To add a new action,
 
 ## Running in the foreground
 
-Use the normal configuration:
+With the global CLI:
+
+```bash
+mac-idle-keeper start
+```
+
+With a source checkout:
 
 ```bash
 pnpm start
@@ -136,13 +161,23 @@ For detection-only testing, use `IDLE_ACTION=none`. This logs detections without
 
 ## Running in the background
 
+With the global CLI, install and manage the per-user macOS LaunchAgent with:
+
+```bash
+mac-idle-keeper launch-agent install
+mac-idle-keeper launch-agent status
+mac-idle-keeper launch-agent logs --follow
+```
+
+The CLI also supports `stop`, `pause`, `resume`, `restart`, and `uninstall` after `launch-agent`.
+
 Install the per-user macOS LaunchAgent:
 
 ```bash
 pnpm run launch-agent:install
 ```
 
-The LaunchAgent starts at login, keeps the monitor alive, and uses the `.env` file from the project root. It is scoped to the current user session; it does not run before login.
+The LaunchAgent starts at login, keeps the monitor alive, and uses the `.env` file from the configuration directory where the install command was run. It is scoped to the current user session; it does not run before login.
 
 ### LaunchAgent commands
 
@@ -204,19 +239,21 @@ By default, the application log is written to:
 LaunchAgent process output is written to:
 
 ```text
-logs/launch-agent.stdout.log
-logs/launch-agent.stderr.log
+~/Library/Logs/mac-idle-keeper/launch-agent.stdout.log
+~/Library/Logs/mac-idle-keeper/launch-agent.stderr.log
 ```
 
 The log command reads the application log. By default it prints the last 50 lines:
 
 ```bash
+mac-idle-keeper logs
 pnpm run launch-agent:logs
 ```
 
 Use `--follow` (or `-f`) to keep the command open, and `--lines` (or `-n`) to change the number of initial lines:
 
 ```bash
+mac-idle-keeper logs --follow
 pnpm run launch-agent:logs -- --follow
 pnpm run launch-agent:logs -- --lines 100
 ```
@@ -232,11 +269,13 @@ The default `hid-event` action uses a small native CoreGraphics helper to move t
 - **System Settings → Privacy & Security → Accessibility**
 - **System Settings → Privacy & Security → Input Monitoring**, if requested by macOS
 
-For a pnpm installation, the Electron app is typically located at:
+For a source installation, the Electron app is typically located at:
 
 ```text
 node_modules/.pnpm/electron@<version>/node_modules/electron/dist/Electron.app
 ```
+
+For a global npm installation, use the package location reported by `npm root --global` and append `/mac-idle-keeper/node_modules/electron/dist/Electron.app`.
 
 The first `hid-event` execution compiles the native helper with macOS `clang` into the system temporary directory.
 
@@ -258,7 +297,7 @@ Check the status and process logs:
 
 ```bash
 pnpm run launch-agent:status
-tail -f logs/launch-agent.stderr.log
+tail -f "$HOME/Library/Logs/mac-idle-keeper/launch-agent.stderr.log"
 ```
 
 Validate the generated plist:
@@ -315,6 +354,8 @@ Contributions are welcome in code, tests, documentation, maintenance, issue tria
 ## Project layout
 
 ```text
+bin/
+  mac-idle-keeper.js  Global npm CLI entrypoint
 src/
   actions.js          Activity actions and native helper lifecycle
   awake.js            caffeinate awake guard
@@ -325,9 +366,9 @@ src/
   main.js             Electron process entrypoint
   monitor.js          Idle polling and schedule coordination
   notifications.js    macOS notifications
-  time.js             UTC storage and timezone-aware display formatting
   runtime-state.js    Effective runtime state persistence
   schedule.js         Timezone-aware schedule evaluation
+  time.js             UTC storage and timezone-aware display formatting
 scripts/
   idle-reset.m        CoreGraphics physical mouse helper
   install-launch-agent.js
@@ -338,6 +379,18 @@ test/                  Automated tests
 ## Versioning
 
 This project follows Semantic Versioning. Release notes are maintained in [CHANGELOG.md](CHANGELOG.md).
+
+Before publishing a release, inspect the npm package contents with:
+
+```bash
+pnpm pack --dry-run
+```
+
+Publishing is restricted to project maintainers:
+
+```bash
+npm publish
+```
 
 ## License
 

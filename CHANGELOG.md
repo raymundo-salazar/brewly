@@ -2,11 +2,14 @@
 
 All notable changes to this project are documented here.
 
-## [Unreleased]
+## [1.4.0] - 2026-10-06
 
 ### Added
 
 - Added contribution guidelines for code, testing, documentation, maintenance, and financial support.
+- Added the `mac-idle-keeper` global CLI for npm installations.
+- Added CLI commands for foreground monitoring, LaunchAgent management, and log inspection.
+- Added npm package metadata and runtime dependency packaging for Electron.
 
 ## [1.3.0] - 2026-10-06
 
@@ -65,7 +68,7 @@ All notable changes to this project are documented here.
 
 - Made LaunchAgent restart refresh the plist and use the native Electron binary directly.
 - Added LaunchAgent stdout and stderr logs for troubleshooting.
-- Improved physical mouse activity generation so the cursor moves gradually over approximately 300 ms, helping Discord recognize activity.
+- Improved physical mouse activity generation so the cursor moves gradually over approximately 300 ms, helping desktop applications recognize activity.
 - Added post-action idle verification through `idleAfter`.
 - Added clearer macOS notification handling when running Electron directly.
 

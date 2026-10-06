@@ -7,7 +7,7 @@ const { readRuntimeState } = require('../src/runtime-state');
 const { formatStoredLogLine } = require('../src/time');
 const { error: printError, header, info, paint } = require('../src/cli-output');
 
-const projectDir = path.resolve(__dirname, '..');
+const configDir = process.cwd();
 const runtimeStatePath = path.join(os.homedir(), 'Library', 'Application Support', 'mac-idle-keeper', 'runtime-state.json');
 const defaultLogPath = path.join(os.homedir(), 'Library', 'Application Support', 'mac-idle-keeper', 'mac-idle-keeper.log');
 
@@ -35,7 +35,7 @@ function resolveLogContext() {
   }
 
   const environment = {};
-  loadEnvFile(path.join(projectDir, '.env'), environment);
+  loadEnvFile(process.env.IDLE_ENV_FILE || path.join(configDir, '.env'), environment);
   const config = loadConfig(environment);
   return {
     filePath: config.logFile ? path.resolve(config.logFile) : defaultLogPath,

@@ -16,6 +16,7 @@ process.on('uncaughtException', (cause) => {
 
 const label = 'com.local.mac-idle-keeper';
 const plistPath = path.join(os.homedir(), 'Library', 'LaunchAgents', `${label}.plist`);
+const launchAgentLogDir = path.join(os.homedir(), 'Library', 'Logs', 'mac-idle-keeper');
 const domain = `gui/${process.getuid()}`;
 const service = `${domain}/${label}`;
 const command = process.argv[2];
@@ -44,7 +45,7 @@ function loadService() {
   try {
     execFileSync('/bin/launchctl', ['print', service], { stdio: 'ignore' });
   } catch {
-    throw new Error(`LaunchAgent was not loaded. Check ${path.join(__dirname, '..', 'logs', 'launch-agent.stderr.log')}.`);
+    throw new Error(`LaunchAgent was not loaded. Check ${path.join(launchAgentLogDir, 'launch-agent.stderr.log')}.`);
   }
 }
 
@@ -53,7 +54,7 @@ function status() {
   const runtimeStatePath = path.join(os.homedir(), 'Library', 'Application Support', 'mac-idle-keeper', 'runtime-state.json');
   const runtimeState = readRuntimeState(runtimeStatePath);
   const environment = {};
-  loadEnvFile(path.join(__dirname, '..', '.env'), environment);
+  loadEnvFile(process.env.IDLE_ENV_FILE || path.join(process.cwd(), '.env'), environment);
   const fallbackConfig = loadConfig(environment);
   const config = runtimeState?.config || fallbackConfig;
   const logPath = config.logFile
