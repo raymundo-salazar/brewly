@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented here.
 
+## [Unreleased]
+
+### Added
+
+- Added contribution guidelines for code, testing, documentation, maintenance, and financial support.
+
 ## [1.2.1] - 2026-10-06
 
 ### Fixed

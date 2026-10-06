@@ -298,6 +298,10 @@ pnpm run check
 
 The test suite uses Node's built-in test runner and covers scheduling, day groups, monitor thresholds, runtime state, notifications, and the awake guard.
 
+## Contributing
+
+Contributions are welcome in code, tests, documentation, maintenance, issue triage, and financial support. See [CONTRIBUTING.md](CONTRIBUTING.md) for the development workflow, maintainability guidelines, pull request expectations, and sponsorship information.
+
 ## Project layout
 
 ```text
