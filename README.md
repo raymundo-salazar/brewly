@@ -53,6 +53,8 @@ pnpm run launch-agent:restart    # Restart it with the current .env
 pnpm run launch-agent:uninstall  # Stop it and remove the plist
 ```
 
+LaunchAgent stdout and stderr are written to `logs/launch-agent.stdout.log` and `logs/launch-agent.stderr.log`.
+
 macOS may require Accessibility/Input Monitoring permission if the chosen action is later changed to a synthetic keyboard or mouse event. The default `caffeinate` action does not move the pointer or type.
 
 ## Configuration

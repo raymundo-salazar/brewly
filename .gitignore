@@ -1,6 +1,7 @@
 .env
 node_modules/
 .pnpm-store/
+logs/
 .DS_Store
 idle-test.log
 idle-test-no-move.log

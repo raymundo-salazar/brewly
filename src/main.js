@@ -7,6 +7,7 @@ const { createLogger } = require('./logger');
 const { createMonitor } = require('./monitor');
 const { createNotifier } = require('./notifications');
 const { createAwakeGuard } = require('./awake');
+const { removeRuntimeState, writeRuntimeState } = require('./runtime-state');
 
 const envFile = process.env.IDLE_ENV_FILE || path.join(__dirname, '..', '.env');
 loadEnvFile(path.resolve(envFile));
@@ -14,6 +15,7 @@ const config = loadConfig();
 
 app.whenReady().then(() => {
   if (!config.logFile) config.logFile = path.join(app.getPath('userData'), 'mac-idle-keeper.log');
+  const runtimeStateFile = path.join(app.getPath('userData'), 'runtime-state.json');
   if (process.platform === 'darwin' && app.dock) app.dock.hide();
   const log = createLogger(config.logFile);
   const notifier = createNotifier(Notification, log);
@@ -26,13 +28,39 @@ app.whenReady().then(() => {
     log,
   });
 
+  const runtimeState = {
+    pid: process.pid,
+    startedAt: new Date().toISOString(),
+    config: {
+      intervalMs: config.intervalMs,
+      idleThresholdSeconds: config.idleThresholdSeconds,
+      days: config.days,
+      startTime: config.startTime,
+      endTime: config.endTime,
+      timezone: config.timezone,
+      action: config.action,
+      logFile: config.logFile,
+    },
+  };
+  const persistState = (result = {}) => writeRuntimeState(runtimeStateFile, {
+    ...runtimeState,
+    lastCheckAt: new Date().toISOString(),
+    lastCheckStatus: result.status || 'starting',
+    inSchedule: result.status !== 'outside-schedule',
+  });
+
   notifier.started();
   log(`started; interval=${config.intervalMs}ms timezone=${config.timezone}`);
-  monitor.check().catch((error) => log(`check failed: ${error.stack || error.message}`));
-  setInterval(() => monitor.check().catch((error) => log(`check failed: ${error.stack || error.message}`)), config.intervalMs);
+  persistState();
+  const runCheck = () => monitor.check()
+    .then(persistState)
+    .catch((error) => log(`check failed: ${error.stack || error.message}`));
+  runCheck();
+  setInterval(runCheck, config.intervalMs);
 
   app.once('before-quit', () => {
     awakeGuard.stop();
+    removeRuntimeState(runtimeStateFile);
     notifier.stopped();
     log('stopping');
   });
