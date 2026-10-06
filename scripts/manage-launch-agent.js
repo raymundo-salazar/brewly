@@ -6,6 +6,7 @@ const { loadEnvFile } = require('../src/env');
 const { loadConfig } = require('../src/config');
 const { isWithinSchedule, localDateInTimeZone } = require('../src/schedule');
 const { readRuntimeState } = require('../src/runtime-state');
+const { formatStoredLogLine, formatTimestampForDisplay } = require('../src/time');
 const { error, header, info, paint, success, warning } = require('../src/cli-output');
 
 process.on('uncaughtException', (cause) => {
@@ -69,6 +70,7 @@ function status() {
   info('Plist', plistPath);
   info('Runtime schedule', `${insideSchedule ? paint('IN SCHEDULE', 'green') : paint('OUTSIDE SCHEDULE', 'yellow')} (${schedule})`);
   info('Current time', `${formatTime(localNow.getUTCHours() * 60 + localNow.getUTCMinutes())} ${config.timezone}`);
+  info('Log display timezone', config.timezone);
   info('Runtime state', runtimeState ? paint('AVAILABLE', 'green') : paint('NOT AVAILABLE', 'yellow'));
 
   let running = false;
@@ -95,7 +97,10 @@ function status() {
 
   if (runtimeState) {
     info('Runtime PID', runtimeState.pid);
-    info('Last check', `${runtimeState.lastCheckAt || '—'} (${runtimeState.lastCheckStatus || '—'})`);
+    const lastCheck = runtimeState.lastCheckAt
+      ? formatTimestampForDisplay(runtimeState.lastCheckAt, config.timezone)
+      : '—';
+    info('Last check', `${lastCheck} (${runtimeState.lastCheckStatus || '—'})`);
   }
   info('Log', logPath);
   console.log(`\n${paint('Last 5 activity actions:', 'cyan')}`);
@@ -104,7 +109,7 @@ function status() {
       .filter((line) => line.includes('activity action executed'))
       .slice(-5);
     if (actions.length === 0) warning('No activity actions recorded.');
-    else actions.forEach((line) => console.log(`  ${line}`));
+    else actions.forEach((line) => console.log(`  ${formatStoredLogLine(line, config.timezone)}`));
   } catch {
     warning('Log file not found yet.');
   }

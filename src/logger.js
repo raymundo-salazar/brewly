@@ -1,5 +1,6 @@
 const fs = require('node:fs');
 const { paint } = require('./cli-output');
+const { formatStoredLogLine } = require('./time');
 
 function toneFor(message) {
   if (message.includes('failed')) return 'red';
@@ -9,11 +10,13 @@ function toneFor(message) {
   return 'cyan';
 }
 
-function createLogger(logFile, output = console) {
+function createLogger(logFile, output = console, options = {}) {
+  const timeZone = options.timezone || 'America/Monterrey';
+
   return (message) => {
-    const line = `${new Date().toISOString()} | ${message}`;
-    output.log(paint(line, toneFor(message)));
-    if (logFile) fs.appendFileSync(logFile, `${line}\n`);
+    const storedLine = `${new Date().toISOString()} | ${message}`;
+    output.log(paint(formatStoredLogLine(storedLine, timeZone), toneFor(message)));
+    if (logFile) fs.appendFileSync(logFile, `${storedLine}\n`);
   };
 }
 

@@ -4,6 +4,7 @@ const path = require('node:path');
 const { loadEnvFile } = require('../src/env');
 const { loadConfig } = require('../src/config');
 const { readRuntimeState } = require('../src/runtime-state');
+const { formatStoredLogLine } = require('../src/time');
 const { error: printError, header, info, paint } = require('../src/cli-output');
 
 const projectDir = path.resolve(__dirname, '..');
@@ -22,14 +23,28 @@ function parseArgs(args) {
   return options;
 }
 
-function resolveLogPath() {
+function resolveLogContext() {
   const runtimeState = readRuntimeState(runtimeStatePath);
-  if (runtimeState?.config?.logFile) return path.resolve(runtimeState.config.logFile);
+  if (runtimeState?.config) {
+    return {
+      filePath: runtimeState.config.logFile
+        ? path.resolve(runtimeState.config.logFile)
+        : defaultLogPath,
+      timezone: runtimeState.config.timezone,
+    };
+  }
 
   const environment = {};
   loadEnvFile(path.join(projectDir, '.env'), environment);
   const config = loadConfig(environment);
-  return config.logFile ? path.resolve(config.logFile) : defaultLogPath;
+  return {
+    filePath: config.logFile ? path.resolve(config.logFile) : defaultLogPath,
+    timezone: config.timezone,
+  };
+}
+
+function resolveLogPath() {
+  return resolveLogContext().filePath;
 }
 
 function readLastLines(filePath, lines) {
@@ -39,17 +54,23 @@ function readLastLines(filePath, lines) {
   return entries.slice(-lines);
 }
 
-function followFile(filePath, initialOffset) {
+function followFile(filePath, initialOffset, timeZone) {
   let offset = initialOffset;
+  let pending = '';
   fs.watchFile(filePath, { interval: 500 }, (current) => {
-    if (current.size < offset) offset = 0;
+    if (current.size < offset) {
+      offset = 0;
+      pending = '';
+    }
     if (current.size === offset) return;
 
     const stream = fs.createReadStream(filePath, { start: offset, end: current.size - 1, encoding: 'utf8' });
     let output = '';
     stream.on('data', (chunk) => { output += chunk; });
     stream.on('end', () => {
-      process.stdout.write(output);
+      const lines = `${pending}${output}`.split(/\r?\n/);
+      pending = lines.pop();
+      process.stdout.write(lines.map((line) => `${formatStoredLogLine(line, timeZone)}\n`).join(''));
       offset = current.size;
     });
   });
@@ -57,18 +78,20 @@ function followFile(filePath, initialOffset) {
 
 function main() {
   const options = parseArgs(process.argv.slice(2));
-  const filePath = resolveLogPath();
+  const context = resolveLogContext();
+  const filePath = context.filePath;
   if (!fs.existsSync(filePath)) {
     throw new Error(`Log file not found: ${filePath}`);
   }
 
   header('Prevent Discord Idle — Application log');
   info('Log', filePath);
+  info('Display timezone', context.timezone);
   info('Lines', options.lines);
-  for (const line of readLastLines(filePath, options.lines)) console.log(line);
+  for (const line of readLastLines(filePath, options.lines)) console.log(formatStoredLogLine(line, context.timezone));
   if (options.follow) {
     console.log(`\n${paint('Following log. Press Ctrl+C to stop.', 'cyan')}`);
-    followFile(filePath, fs.statSync(filePath).size);
+    followFile(filePath, fs.statSync(filePath).size, context.timezone);
   }
 }
 
@@ -81,4 +104,4 @@ if (require.main === module) {
   }
 }
 
-module.exports = { parseArgs, readLastLines, resolveLogPath };
+module.exports = { formatStoredLogLine, parseArgs, readLastLines, resolveLogContext, resolveLogPath };

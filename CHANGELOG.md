@@ -2,6 +2,18 @@
 
 All notable changes to this project are documented here.
 
+## [1.2.0] - 2026-10-06
+
+### Added
+
+- Added effective configuration change logging for interval, threshold, schedule, timezone, action, and log path changes.
+- Added persistent configuration history in the Electron user-data directory.
+- Added timezone-aware display formatting for application logs, LaunchAgent status, and log follow mode.
+
+### Changed
+
+- Application log timestamps are stored in UTC and displayed using the configured `IDLE_TIMEZONE`, defaulting to `America/Monterrey`.
+
 ## [1.1.0] - 2026-10-06
 
 ### Improved

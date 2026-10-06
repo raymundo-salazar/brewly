@@ -8,6 +8,7 @@ const { createMonitor } = require('./monitor');
 const { createNotifier } = require('./notifications');
 const { createAwakeGuard } = require('./awake');
 const { removeRuntimeState, writeRuntimeState } = require('./runtime-state');
+const { recordConfigChanges } = require('./config-history');
 
 const envFile = process.env.IDLE_ENV_FILE || path.join(__dirname, '..', '.env');
 loadEnvFile(path.resolve(envFile));
@@ -16,8 +17,9 @@ const config = loadConfig();
 app.whenReady().then(() => {
   if (!config.logFile) config.logFile = path.join(app.getPath('userData'), 'mac-idle-keeper.log');
   const runtimeStateFile = path.join(app.getPath('userData'), 'runtime-state.json');
+  const configHistoryFile = path.join(app.getPath('userData'), 'config-history.json');
   if (process.platform === 'darwin' && app.dock) app.dock.hide();
-  const log = createLogger(config.logFile);
+  const log = createLogger(config.logFile, console, { timezone: config.timezone });
   const notifier = createNotifier(Notification, log);
   const awakeGuard = createAwakeGuard({ log });
   const monitor = createMonitor({
@@ -51,6 +53,7 @@ app.whenReady().then(() => {
 
   notifier.started();
   log(`started; interval=${config.intervalMs}ms timezone=${config.timezone}`);
+  recordConfigChanges(configHistoryFile, config, log);
   persistState();
   const runCheck = () => monitor.check()
     .then(persistState)

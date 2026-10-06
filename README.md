@@ -35,7 +35,7 @@ pnpm install
 pnpm run check
 ```
 
-The project is currently released as `1.1.0`. See [CHANGELOG.md](CHANGELOG.md) for release notes.
+The project is currently released as `1.2.0`. See [CHANGELOG.md](CHANGELOG.md) for release notes.
 
 ## Configuration
 
@@ -46,6 +46,8 @@ cp .env.example .env
 ```
 
 The monitor loads `.env` from the project root at startup. Existing shell variables take precedence over values in `.env`. Configuration changes require a process restart.
+
+At startup, the effective configuration is compared with the previous one and changes are recorded in the application log. This includes the polling interval, idle threshold, days, start/end times, timezone, action, and log path.
 
 ### Default behavior
 
@@ -175,6 +177,12 @@ The monitor writes its effective startup configuration to:
 
 This lets `launch-agent:status` report the configuration actually loaded by the process instead of rereading a newer `.env` file that has not been applied yet.
 
+The previous effective configuration is persisted at:
+
+```text
+~/Library/Application Support/mac-idle-keeper/config-history.json
+```
+
 ## Logs and notifications
 
 By default, the application log is written to:
@@ -202,6 +210,8 @@ Use `--follow` (or `-f`) to keep the command open, and `--lines` (or `-n`) to ch
 pnpm run launch-agent:logs -- --follow
 pnpm run launch-agent:logs -- --lines 100
 ```
+
+Application log entries are stored with UTC timestamps (`Z`) so the file remains unambiguous across machines and timezone changes. The Electron console, `launch-agent:logs`, and `launch-agent:status` convert those timestamps to the effective `IDLE_TIMEZONE` (or `America/Monterrey` by default) and show the timezone beside each displayed timestamp. Direct tools such as `tail` show the stored UTC representation.
 
 The monitor shows a macOS notification when it starts and when it stops. When running directly with `pnpm start`, notifications are sent through `osascript`; macOS may require notification permission for Terminal or the shell application.
 
@@ -294,12 +304,14 @@ The test suite uses Node's built-in test runner and covers scheduling, day group
 src/
   actions.js          Activity actions and native helper lifecycle
   awake.js            caffeinate awake guard
+  config-history.js   Effective configuration change history
   config.js           Environment configuration and validation
   env.js              .env loading
   logger.js           File/console logging
   main.js             Electron process entrypoint
   monitor.js          Idle polling and schedule coordination
   notifications.js    macOS notifications
+  time.js             UTC storage and timezone-aware display formatting
   runtime-state.js    Effective runtime state persistence
   schedule.js         Timezone-aware schedule evaluation
 scripts/
