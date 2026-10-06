@@ -15,6 +15,7 @@ During its active schedule it also runs a macOS `caffeinate` assertion to preven
 - macOS start and stop notifications.
 - Foreground mode for testing and a per-user LaunchAgent for background operation.
 - Colorized, human-readable LaunchAgent status with runtime configuration and the last five activity actions.
+- Log inspection from the LaunchAgent command namespace, including real-time follow mode.
 - `.env` support without overriding variables already exported in the shell.
 - Automated tests for scheduling, monitoring, runtime state, notifications, and LaunchAgent behavior.
 
@@ -120,6 +121,8 @@ The LaunchAgent starts at login, keeps the monitor alive, and uses the `.env` fi
 
 ```bash
 pnpm run launch-agent:status      # Show runtime status and recent activity
+pnpm run launch-agent:logs        # Show the last 50 application log lines
+pnpm run launch-agent:logs -- --follow  # Follow the application log in real time
 pnpm run launch-agent:stop       # Stop the process; preserve the plist
 pnpm run launch-agent:pause      # Stop and disable automatic relaunch
 pnpm run launch-agent:resume     # Enable and start it again
@@ -170,6 +173,19 @@ LaunchAgent process output is written to:
 ```text
 logs/launch-agent.stdout.log
 logs/launch-agent.stderr.log
+```
+
+The log command reads the application log. By default it prints the last 50 lines:
+
+```bash
+pnpm run launch-agent:logs
+```
+
+Use `--follow` (or `-f`) to keep the command open, and `--lines` (or `-n`) to change the number of initial lines:
+
+```bash
+pnpm run launch-agent:logs -- --follow
+pnpm run launch-agent:logs -- --lines 100
 ```
 
 The monitor shows a macOS notification when it starts and when it stops. When running directly with `pnpm start`, notifications are sent through `osascript`; macOS may require notification permission for Terminal or the shell application.

@@ -2,6 +2,15 @@
 
 All notable changes to this project are documented here.
 
+## [1.0.2] - 2026-10-06
+
+### Added
+
+- Added `launch-agent:logs` to print the latest application log lines.
+- Added `--follow`/`-f` for real-time log streaming.
+- Added `--lines`/`-n` to control the number of initial log lines.
+- Added automated coverage for log argument parsing and tail reads.
+
 ## [1.0.1] - 2026-10-05
 
 ### Added
