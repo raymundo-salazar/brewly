@@ -70,7 +70,7 @@ function status() {
   info('Plist', plistPath);
   info('Runtime schedule', `${insideSchedule ? paint('IN SCHEDULE', 'green') : paint('OUTSIDE SCHEDULE', 'yellow')} (${schedule})`);
   info('Current time', `${formatTime(localNow.getUTCHours() * 60 + localNow.getUTCMinutes())} ${config.timezone}`);
-  info('Log display timezone', config.timezone);
+  info('Current timezone', config.timezone);
   info('Runtime state', runtimeState ? paint('AVAILABLE', 'green') : paint('NOT AVAILABLE', 'yellow'));
 
   let running = false;

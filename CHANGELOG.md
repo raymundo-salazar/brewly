@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented here.
 
+## [1.2.1] - 2026-10-06
+
+### Fixed
+
+- Made the configured current timezone explicit in `launch-agent:status` output.
+
 ## [1.2.0] - 2026-10-06
 
 ### Added
