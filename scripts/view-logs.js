@@ -4,6 +4,7 @@ const path = require('node:path');
 const { loadEnvFile } = require('../src/env');
 const { loadConfig } = require('../src/config');
 const { readRuntimeState } = require('../src/runtime-state');
+const { error: printError, header, info, paint } = require('../src/cli-output');
 
 const projectDir = path.resolve(__dirname, '..');
 const runtimeStatePath = path.join(os.homedir(), 'Library', 'Application Support', 'mac-idle-keeper', 'runtime-state.json');
@@ -61,10 +62,12 @@ function main() {
     throw new Error(`Log file not found: ${filePath}`);
   }
 
-  console.log(`Log: ${filePath}`);
+  header('Prevent Discord Idle — Application log');
+  info('Log', filePath);
+  info('Lines', options.lines);
   for (const line of readLastLines(filePath, options.lines)) console.log(line);
   if (options.follow) {
-    console.log('\nFollowing log. Press Ctrl+C to stop.');
+    console.log(`\n${paint('Following log. Press Ctrl+C to stop.', 'cyan')}`);
     followFile(filePath, fs.statSync(filePath).size);
   }
 }
@@ -73,7 +76,7 @@ if (require.main === module) {
   try {
     main();
   } catch (error) {
-    console.error(`Unable to read log: ${error.message}`);
+    printError(`Unable to read log: ${error.message}`);
     process.exitCode = 1;
   }
 }

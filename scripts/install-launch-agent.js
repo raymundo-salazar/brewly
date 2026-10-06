@@ -2,6 +2,12 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const { execFileSync } = require('node:child_process');
+const { error, header, info, success } = require('../src/cli-output');
+
+process.on('uncaughtException', (cause) => {
+  error(cause.message);
+  process.exitCode = 1;
+});
 
 const projectDir = path.resolve(__dirname, '..');
 const launchAgentsDir = path.join(os.homedir(), 'Library', 'LaunchAgents');
@@ -33,4 +39,7 @@ try {
 } catch {
   throw new Error(`LaunchAgent was not loaded. Check ${path.join(logDir, 'launch-agent.stderr.log')}.`);
 }
-console.log(`Installed and loaded ${plistPath}`);
+header('Prevent Discord Idle — LaunchAgent installed');
+success('Service loaded and ready to run at login.');
+info('Plist', plistPath);
+info('Project', projectDir);

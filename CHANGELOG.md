@@ -2,6 +2,14 @@
 
 All notable changes to this project are documented here.
 
+## [1.0.3] - 2026-10-06
+
+### Improved
+
+- Standardized human-readable, colorized output across foreground, test, log, and LaunchAgent commands.
+- Added readable success, warning, and error messages for LaunchAgent management operations.
+- Updated the test command to use Node's human-readable `spec` reporter.
+
 ## [1.0.2] - 2026-10-06
 
 ### Added

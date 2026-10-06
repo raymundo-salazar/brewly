@@ -14,7 +14,7 @@ During its active schedule it also runs a macOS `caffeinate` assertion to preven
 - `caffeinate` awake guard while the schedule is active.
 - macOS start and stop notifications.
 - Foreground mode for testing and a per-user LaunchAgent for background operation.
-- Colorized, human-readable LaunchAgent status with runtime configuration and the last five activity actions.
+- Colorized, human-readable output across the CLI commands, including LaunchAgent status and the last five activity actions.
 - Log inspection from the LaunchAgent command namespace, including real-time follow mode.
 - `.env` support without overriding variables already exported in the shell.
 - Automated tests for scheduling, monitoring, runtime state, notifications, and LaunchAgent behavior.
@@ -35,7 +35,7 @@ pnpm install
 pnpm run check
 ```
 
-The project is currently released as `1.0.1`. See [CHANGELOG.md](CHANGELOG.md) for release notes.
+The project is currently released as `1.0.3`. See [CHANGELOG.md](CHANGELOG.md) for release notes.
 
 ## Configuration
 
