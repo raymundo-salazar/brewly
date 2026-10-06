@@ -327,4 +327,4 @@ This project follows Semantic Versioning. Release notes are maintained in [CHANG
 
 ## License
 
-No license has been selected for this repository yet. Add a license before distributing the project publicly.
+This project is licensed under the [MIT License](LICENSE).

@@ -4,6 +4,7 @@
   "private": true,
   "packageManager": "pnpm@11.18.0",
   "description": "Checks macOS system idle time on a weekday schedule and prevents long idle periods.",
+  "license": "MIT",
   "main": "src/main.js",
   "scripts": {
     "start": "electron .",
