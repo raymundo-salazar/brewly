@@ -47,6 +47,21 @@ cp .env.example .env
 
 The monitor loads `.env` from the project root at startup. Existing shell variables take precedence over values in `.env`. Configuration changes require a process restart.
 
+### Default behavior
+
+When no `.env` file or environment overrides are provided, the project uses:
+
+```text
+Polling interval:       every 5 minutes
+Idle threshold:         greater than 9 minutes
+Active days:            Monday, Wednesday, Thursday, Friday
+Active window:          07:00 inclusive through 17:00 exclusive
+Timezone:               America/Monterrey
+Idle action:            physical 10-pixel mouse movement over ~300 ms
+Awake guard:            caffeinate -dimsu during the active window
+Application log:        Electron user-data directory
+```
+
 | Variable | Default | Description |
 | --- | ---: | --- |
 | `IDLE_CHECK_INTERVAL_MS` | `300000` | Polling interval in milliseconds; `300000` is 5 minutes. |
