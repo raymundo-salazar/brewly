@@ -86,11 +86,13 @@ mac-idle-keeper launch-agent logs --follow
 mac-idle-keeper launch-agent --help
 ```
 
-Available actions are `install`, `status`, `logs`, `stop`, `pause`, `resume`, `restart`, and `uninstall`.
+Available actions are `install`, `status`, `logs`, `start`, `stop`, `pause`, `resume`, `restart`, and `uninstall`.
 
 CLI responses use consistent human-readable sections, labeled values, semantic colors when supported by the terminal, and actionable messages. `launch-agent status` provides the most complete state summary; `logs` provides the event stream.
 
-The source checkout exposes equivalent pnpm scripts such as `pnpm run launch-agent:install` and `pnpm run launch-agent:status`.
+The source checkout exposes equivalent pnpm scripts such as `pnpm run launch-agent:install`, `pnpm run launch-agent:start`, and `pnpm run launch-agent:status`.
+
+The lifecycle commands are intentionally distinct: `stop` stops the current process while keeping the plist installed, and `start` loads it again from the beginning. `pause` disables the service while preserving its installed configuration, and `resume` enables and loads that paused service. `restart` refreshes the plist and starts the service; `uninstall` removes the plist.
 
 The source project runs from compiled output. `pnpm start` builds TypeScript and then starts Electron; the global CLI uses the published `dist/` files.
 

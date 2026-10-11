@@ -33,7 +33,7 @@ mac-idle-keeper CLI
 - `src/configHistory`: compares effective configuration snapshots across starts and records changes.
 - `src/runtimeState`: stores the live process configuration and last check for status inspection.
 - `scripts/installLaunchAgent`: generates and loads the per-user LaunchAgent plist.
-- `scripts/manageLaunchAgent`: status, stop, pause, resume, restart, and uninstall operations.
+- `scripts/manageLaunchAgent`: status, start, stop, pause, resume, restart, and uninstall operations.
 - `scripts/viewLogs`: log tail and follow behavior with timezone-aware display.
 
 Every module or function component has a `camelCase` folder, an `index.ts` public entrypoint, and a `types.d.ts` file for its type declarations. A class uses `PascalCase` for both its class name and folder. Tests mirror this layout under `/tests`. Keep components focused and expose only the API required by their consumers.
@@ -73,3 +73,12 @@ Actions should remain independent of a specific application. They should express
 The LaunchAgent executes the Electron binary from the installed package and passes the compiled `dist/src/main/index.js` process entrypoint explicitly. Its working directory is the directory used when installation was requested, which allows global installations to use a user-owned `.env` outside the npm package. The package's Node.js `main` entrypoint remains `dist/src/index/index.js` for library consumers.
 
 The LaunchAgent is scoped to the current GUI user domain. It starts at login, uses `KeepAlive`, and cannot run before login or prevent full hibernation/power loss.
+
+LaunchAgent lifecycle semantics are explicit:
+
+- `start` enables and loads an installed service after `stop`.
+- `stop` unloads the current process but preserves the plist and installed configuration.
+- `pause` unloads the service and disables automatic relaunch while preserving the plist.
+- `resume` re-enables and loads a paused service.
+- `restart` regenerates the plist, applies the current configuration, and starts the service.
+- `uninstall` stops the service and removes the plist.

@@ -192,7 +192,7 @@ mac-idle-keeper launch-agent logs --follow
 mac-idle-keeper launch-agent --help
 ```
 
-The CLI also supports `stop`, `pause`, `resume`, `restart`, and `uninstall` after `launch-agent`.
+The CLI also supports `start`, `stop`, `pause`, `resume`, `restart`, and `uninstall` after `launch-agent`.
 
 All CLI commands use a consistent human-readable response format. Each response includes a descriptive header, labeled details, semantic status colors when the terminal supports them, and actionable success or error messages. Use `status` for the most complete runtime view and `logs` when you need the application event stream.
 
@@ -211,12 +211,20 @@ pnpm run launch-agent:status      # Show runtime status and recent activity
 pnpm run launch-agent:help        # Show LaunchAgent command help
 pnpm run launch-agent:logs        # Show the last 50 application log lines
 pnpm run launch-agent:logs -- --follow  # Follow the application log in real time
-pnpm run launch-agent:stop       # Stop the process; preserve the plist
-pnpm run launch-agent:pause      # Stop and disable automatic relaunch
-pnpm run launch-agent:resume     # Enable and start it again
+pnpm run launch-agent:start      # Start a stopped service
+pnpm run launch-agent:stop       # Stop the process; keep the plist installed
+pnpm run launch-agent:pause      # Pause and disable automatic relaunch
+pnpm run launch-agent:resume     # Resume a paused service
 pnpm run launch-agent:restart    # Refresh the plist and restart the service
 pnpm run launch-agent:uninstall  # Stop the service and remove the plist
 ```
+
+The lifecycle commands have intentionally different meanings:
+
+- `stop` stops the current process but keeps the LaunchAgent installed. Use `start` to start it again.
+- `pause` disables the service without removing the plist or its current configuration. Use `resume` to continue it.
+- `restart` reloads the plist and starts the service, applying the current configuration.
+- `uninstall` stops the service and removes the plist.
 
 After changing `.env`, restart the LaunchAgent so the running process loads the new values:
 

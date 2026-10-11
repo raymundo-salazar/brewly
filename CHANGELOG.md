@@ -11,12 +11,14 @@ All notable changes to this project are documented here.
 - Added ESLint, Prettier, and Husky quality gates for local commits and pushes.
 - Added TypeScript source and test structure with PascalCase component folders, colocated type declarations, and mirrored Jest suites.
 - Added dedicated `launch-agent --help` and `launch-agent:help` command references.
+- Added `launch-agent:start` and its equivalent pnpm script for starting a stopped service.
 
 ### Changed
 
 - Updated the npm CLI and LaunchAgent tooling to execute compiled files from `dist/`.
 - Updated CI documentation and development commands for the TypeScript, ESLint, Prettier, Jest, and build workflow.
 - Standardized command output with consistent headers, labeled details, colored states, readable lists, and contextual error messages.
+- Clarified LaunchAgent lifecycle semantics: `stop`/`start` fully stop and start the process, while `pause`/`resume` preserve and continue a paused service.
 
 ## [1.4.0] - 2026-10-06
 
