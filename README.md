@@ -14,9 +14,10 @@ During its active schedule it also runs a macOS `caffeinate` assertion to preven
 - `caffeinate` awake guard while the schedule is active.
 - macOS start and stop notifications.
 - Foreground mode for testing and a per-user LaunchAgent for background operation.
+- Optional macOS wake or power-on scheduling aligned with the monitor's active window.
 - Colorized, human-readable output across the CLI commands, including LaunchAgent status and the last five activity actions.
 - Log inspection from the LaunchAgent command namespace, including real-time follow mode.
-- `.env` support without overriding variables already exported in the shell.
+- CLI defaults and explicit configuration options, with `.env` support for development and contribution workflows.
 - Automated tests for scheduling, monitoring, runtime state, notifications, and LaunchAgent behavior.
 
 ## Appropriate use cases
@@ -74,25 +75,50 @@ The project is currently released as `1.4.0`. See [CHANGELOG.md](CHANGELOG.md) f
 
 ## Configuration
 
-Copy the example file and edit it:
+For normal global usage, configure the background agent through the CLI. With no options, the documented defaults are used:
 
 ```bash
-cp .env.example .env
+mac-idle-keeper agent install
 ```
 
-When using the global npm installation, run that command from the directory where you want to keep your configuration. You can copy the example from the installed package with:
+Pass explicit options when you need a custom schedule or runtime behavior:
 
 ```bash
-cp "$(npm root --global)/mac-idle-keeper/.env.example" .env
+mac-idle-keeper agent install \
+  --idle-days working_days \
+  --idle-start-time 07:00 \
+  --idle-end-time 17:30 \
+  --idle-threshold-seconds 540 \
+  --idle-timezone America/Monterrey
 ```
 
-The monitor loads `.env` from the current working directory at startup. Existing shell variables take precedence over values in `.env`. Configuration changes require a process restart. Use `IDLE_ENV_FILE` or `--env-file` when the configuration is stored elsewhere.
+The effective configuration is stored in `~/Library/Application Support/mac-idle-keeper/agent-config.json`; the LaunchAgent, `agent status`, `power`, and `logs` commands use that snapshot.
+
+`.env` is intended for contribution, development, foreground experiments, and the controlled test profile. It is not read implicitly by the globally installed background agent. Source-checkout scripts may use it during local installation or restart; `--env-file` is an explicit local/source override.
+
+Global background installation accepts the following configuration options:
+
+```bash
+mac-idle-keeper agent install \
+  --idle-check-interval-ms 300000 \
+  --idle-threshold-seconds 540 \
+  --idle-days working_days \
+  --idle-start-time 07:00 \
+  --idle-end-time 17:00 \
+  --idle-timezone America/Monterrey \
+  --idle-action hid-event \
+  --power-on-offset-minutes 5
+```
+
+The supported options are `--idle-check-interval-ms`, `--idle-threshold-seconds`, `--idle-days`, `--idle-start-time`, `--idle-end-time`, `--idle-start-hour`, `--idle-end-hour`, `--idle-timezone`, `--idle-action`, `--idle-log-file`, and `--power-on-offset-minutes`. Omitting an option uses the corresponding documented default.
+
+After changing a global configuration, pass the desired options again to `mac-idle-keeper agent restart`. Starting, stopping, pausing, or resuming the existing agent does not change its persisted configuration.
 
 At startup, the effective configuration is compared with the previous one and changes are recorded in the application log. This includes the polling interval, idle threshold, days, start/end times, timezone, action, and log path.
 
 ### Default behavior
 
-When no `.env` file or environment overrides are provided, the project uses:
+When no explicit CLI options or development environment overrides are provided, the project uses:
 
 ```text
 Polling interval:       every 5 minutes
@@ -105,16 +131,17 @@ Awake guard:            caffeinate -dimsu during the active window
 Application log:        Electron user-data directory
 ```
 
-| Variable                 |                Default | Description                                                            |
-| ------------------------ | ---------------------: | ---------------------------------------------------------------------- |
-| `IDLE_CHECK_INTERVAL_MS` |               `300000` | Polling interval in milliseconds; `300000` is 5 minutes.               |
-| `IDLE_THRESHOLD_SECONDS` |                  `540` | Run the activity action only when idle time is greater than 9 minutes. |
-| `IDLE_DAYS`              |      `mon,wed,thu,fri` | Active days. Supports aliases, names, or numbers.                      |
-| `IDLE_START_TIME`        |                `07:00` | Schedule start, inclusive, in `HH:MM`.                                 |
-| `IDLE_END_TIME`          |                `17:00` | Schedule end, exclusive, in `HH:MM`.                                   |
-| `IDLE_TIMEZONE`          |    `America/Monterrey` | IANA timezone used for schedule evaluation.                            |
-| `IDLE_ACTION`            |            `hid-event` | `hid-event`, `caffeinate`, or `none`.                                  |
-| `IDLE_LOG_FILE`          | Electron user-data log | Optional log file path.                                                |
+| Variable                  |                Default | Description                                                               |
+| ------------------------- | ---------------------: | ------------------------------------------------------------------------- |
+| `IDLE_CHECK_INTERVAL_MS`  |               `300000` | Polling interval in milliseconds; `300000` is 5 minutes.                  |
+| `IDLE_THRESHOLD_SECONDS`  |                  `540` | Run the activity action only when idle time is greater than 9 minutes.    |
+| `IDLE_DAYS`               |      `mon,wed,thu,fri` | Active days. Supports aliases, names, or numbers.                         |
+| `IDLE_START_TIME`         |                `07:00` | Schedule start, inclusive, in `HH:MM`.                                    |
+| `IDLE_END_TIME`           |                `17:00` | Schedule end, exclusive, in `HH:MM`.                                      |
+| `IDLE_TIMEZONE`           |    `America/Monterrey` | IANA timezone used for schedule evaluation.                               |
+| `IDLE_ACTION`             |            `hid-event` | `hid-event`, `caffeinate`, or `none`.                                     |
+| `POWER_ON_OFFSET_MINUTES` |                    `5` | Minutes before `IDLE_START_TIME` for the optional `power enable` command. |
+| `IDLE_LOG_FILE`           | Electron user-data log | Optional log file path.                                                   |
 
 ### Days
 
@@ -192,7 +219,14 @@ mac-idle-keeper launch-agent logs --follow
 mac-idle-keeper launch-agent --help
 ```
 
-The CLI also supports `start`, `stop`, `pause`, `resume`, `restart`, and `uninstall` after `launch-agent`.
+The shorter `agent` namespace is an equivalent alias:
+
+```bash
+mac-idle-keeper agent status
+mac-idle-keeper agent start
+```
+
+The CLI also supports `start`, `stop`, `pause`, `resume`, `restart`, and `uninstall` after `launch-agent` or `agent`.
 
 All CLI commands use a consistent human-readable response format. Each response includes a descriptive header, labeled details, semantic status colors when the terminal supports them, and actionable success or error messages. Use `status` for the most complete runtime view and `logs` when you need the application event stream.
 
@@ -202,7 +236,7 @@ Install the per-user macOS LaunchAgent:
 pnpm run launch-agent:install
 ```
 
-The LaunchAgent starts at login, keeps the monitor alive, and uses the `.env` file from the configuration directory where the install command was run. It is scoped to the current user session; it does not run before login.
+The LaunchAgent starts at login, keeps the monitor alive, and uses the persisted configuration snapshot created by install or restart. It is scoped to the current user session; it does not run before login.
 
 ### LaunchAgent commands
 
@@ -216,7 +250,15 @@ pnpm run launch-agent:stop       # Stop the process; keep the plist installed
 pnpm run launch-agent:pause      # Pause and disable automatic relaunch
 pnpm run launch-agent:resume     # Resume a paused service
 pnpm run launch-agent:restart    # Refresh the plist and restart the service
-pnpm run launch-agent:uninstall  # Stop the service and remove the plist
+pnpm run launch-agent:uninstall  # Stop the service and prompt about managed data
+pnpm run launch-agent:uninstall -- --yes  # Remove the plist and managed data
+```
+
+Source-checkout install and restart commands accept the same configuration options after `--`; these local commands may also load `.env`:
+
+```bash
+pnpm run agent:install -- --idle-days working_days --idle-start-time 07:00
+pnpm run agent:restart -- --idle-end-time 17:30
 ```
 
 The lifecycle commands have intentionally different meanings:
@@ -224,9 +266,47 @@ The lifecycle commands have intentionally different meanings:
 - `stop` stops the current process but keeps the LaunchAgent installed. Use `start` to start it again.
 - `pause` disables the service without removing the plist or its current configuration. Use `resume` to continue it.
 - `restart` reloads the plist and starts the service, applying the current configuration.
-- `uninstall` stops the service and removes the plist.
+- `uninstall` always stops the service and removes the plist. It asks whether configuration, runtime state, and logs should be kept. Answer `y` to retain them or press Enter to remove them.
+- `uninstall --yes` / `uninstall -y` removes the plist and managed application data without prompting. The user's `.env` files and custom log paths outside Mac Idle Keeper's managed directories are never removed.
+- If a managed power schedule still exists, complete data removal pauses after removing the plist and asks you to run `mac-idle-keeper power disable` before repeating the uninstall.
 
-After changing `.env`, restart the LaunchAgent so the running process loads the new values:
+### Scheduled power-on
+
+Mac Idle Keeper can request a repeating macOS `wakeorpoweron` event using the monitor's configured start time and active days. The default lead time is five minutes and can be changed with `POWER_ON_OFFSET_MINUTES`.
+
+The power schedule is intentionally tied to the monitor's per-user LaunchAgent. Install the agent before enabling a real power schedule:
+
+```bash
+mac-idle-keeper agent install
+```
+
+If the LaunchAgent plist does not exist, `power enable` refuses to create the schedule. `power status` and `power enable --dry-run` remain available for inspection and planning, and `power disable` remains available for cleanup.
+
+Preview the exact schedule without changing macOS:
+
+```bash
+mac-idle-keeper power enable --dry-run
+```
+
+Inspect or manage the schedule:
+
+```bash
+mac-idle-keeper power status
+sudo mac-idle-keeper power enable
+sudo mac-idle-keeper power disable
+```
+
+The real `power enable` and `power disable` mutations require administrator authorization. The CLI never invokes `sudo` internally; when authorization is missing it prints the exact `sudo mac-idle-keeper power <action>` command to run. The power command does not modify FileVault, automatic login, login security, or system permissions. It only asks macOS to schedule the power event.
+
+The power schedule can turn on or wake the Mac, but the LaunchAgent runs only after a user session is available. If automatic login is disabled, macOS may stop at the login screen and require manual authentication before the monitor starts. FileVault commonly prevents automatic login; keeping FileVault enabled is recommended for devices that contain sensitive data.
+
+Enabling automatic login reduces physical access protection because the configured account becomes available after startup. Consider the device's location and data sensitivity before enabling it, avoid automatic login on shared or portable computers, keep screen locking enabled, and use `--dry-run` and `power status` before applying changes.
+
+Mac Idle Keeper refuses to replace an unrecognized repeating power schedule unless `--force` is supplied. Use `--force` only after reviewing the existing schedule; macOS exposes one repeating power-event set, and disabling it can cancel other repeating power events as well.
+
+Uninstalling the LaunchAgent does not automatically remove a power schedule. Run `sudo mac-idle-keeper power disable` before uninstalling the agent, or review `power status` afterward and remove the schedule intentionally.
+
+After changing local `.env` values, restart the LaunchAgent so the running process loads the new values:
 
 ```bash
 pnpm run launch-agent:restart
@@ -248,6 +328,8 @@ The status command reports:
 - the last check and last check status;
 - the last five executed activity actions.
 
+When neither the LaunchAgent plist nor runtime state exists, `launch-agent:status` reports `Configuration: NOT CONFIGURED`, `Runtime schedule: NOT CONFIGURED`, and `Log: NOT CONFIGURED`. Values still present in a local `.env` are not treated as an active agent configuration.
+
 The monitor writes its effective startup configuration to:
 
 ```text
@@ -260,6 +342,12 @@ The previous effective configuration is persisted at:
 
 ```text
 ~/Library/Application Support/mac-idle-keeper/config-history.json
+```
+
+The background agent configuration snapshot is persisted at:
+
+```text
+~/Library/Application Support/mac-idle-keeper/agent-config.json
 ```
 
 ## Logs and notifications
@@ -360,7 +448,7 @@ pnpm run launch-agent:restart
 
 ### The process runs but uses old settings
 
-The monitor loads `.env` only at startup. Restart it:
+For a source-checkout development or contribution workflow, the monitor loads `.env` only at startup. Restart it:
 
 ```bash
 pnpm run launch-agent:restart

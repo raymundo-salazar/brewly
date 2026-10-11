@@ -12,6 +12,12 @@ All notable changes to this project are documented here.
 - Added TypeScript source and test structure with PascalCase component folders, colocated type declarations, and mirrored Jest suites.
 - Added dedicated `launch-agent --help` and `launch-agent:help` command references.
 - Added `launch-agent:start` and its equivalent pnpm script for starting a stopped service.
+- Added the short `agent` namespace as a compatibility alias for LaunchAgent management.
+- Added the `power` namespace for protected macOS wake or power-on scheduling with `--dry-run` support.
+- Added a LaunchAgent prerequisite for real power schedule activation and human-readable `sudo` guidance for protected power mutations.
+- Added interactive uninstall retention prompts and `--yes`/`-y` for complete managed-data removal.
+- Added the persisted `agent-config.json` snapshot used by the background agent, status, power, and log commands.
+- Added explicit global CLI configuration options for every runtime setting and the power-on offset.
 
 ### Changed
 
@@ -19,6 +25,15 @@ All notable changes to this project are documented here.
 - Updated CI documentation and development commands for the TypeScript, ESLint, Prettier, Jest, and build workflow.
 - Standardized command output with consistent headers, labeled details, colored states, readable lists, and contextual error messages.
 - Clarified LaunchAgent lifecycle semantics: `stop`/`start` fully stop and start the process, while `pause`/`resume` preserve and continue a paused service.
+- Documented that power scheduling does not change FileVault or automatic login settings and explained the session and physical-security implications.
+- Added the `agent install` global CLI route and equivalent pnpm script for installing the prerequisite LaunchAgent.
+- Clarified that uninstall always removes the plist and reports whether managed application data was retained or removed.
+- Clarified that `.env` changes require `agent restart` to regenerate the background configuration snapshot.
+- Changed global `agent install` and `agent restart` to use defaults and explicit CLI options without implicitly reading `.env`; `--env-file` remains an explicit opt-in.
+
+### Fixed
+
+- Fixed LaunchAgent status reporting so an uninstalled agent shows `NOT CONFIGURED` instead of presenting `.env` values as an active schedule.
 
 ## [1.4.0] - 2026-10-06
 

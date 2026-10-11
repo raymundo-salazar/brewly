@@ -33,13 +33,34 @@ pnpm run build
 
 ## Configure
 
-Create a configuration file in the directory from which the monitor will run:
+For normal global usage, install the background agent through the CLI. Omitting options uses the documented defaults:
+
+```bash
+mac-idle-keeper agent install
+```
+
+Provide explicit options for a custom configuration:
+
+```bash
+mac-idle-keeper agent install \
+  --idle-days working_days \
+  --idle-start-time 07:00 \
+  --idle-end-time 17:30 \
+  --idle-threshold-seconds 540 \
+  --idle-timezone America/Monterrey
+```
+
+The effective configuration is stored in `~/Library/Application Support/mac-idle-keeper/agent-config.json` and is used by the LaunchAgent, `agent status`, `power`, and `logs` commands.
+
+### Development and contribution configuration
+
+`.env` is intended for repository development, contribution work, foreground experiments, and controlled tests. Create it only when working from a source checkout:
 
 ```bash
 cp .env.example .env
 ```
 
-The monitor reads `.env` from the current working directory at startup. Shell variables take precedence over `.env`. Use `IDLE_ENV_FILE` or the CLI's `--env-file` option to use a different path:
+The foreground monitor reads `.env` from the current working directory at startup. Shell variables take precedence over `.env`. Use `IDLE_ENV_FILE` or the CLI's `--env-file` option to use a different path:
 
 ```bash
 mac-idle-keeper start --env-file ./config/.env
@@ -56,6 +77,8 @@ The default behavior is:
 - keep the Mac awake with `caffeinate -dimsu` inside the active schedule.
 
 Configuration changes require a process restart. The effective change is recorded in the application log.
+
+Global installations do not read a local `.env` file implicitly. After changing a source-checkout `.env`, use the local install or restart script to regenerate the snapshot. For a global installation, pass the desired options again to `mac-idle-keeper agent restart`.
 
 Keep the active window limited to the time required by the task. On portable Macs, prefer using it while connected to power and consider the energy impact of preventing idle sleep.
 
@@ -90,13 +113,61 @@ Available actions are `install`, `status`, `logs`, `start`, `stop`, `pause`, `re
 
 CLI responses use consistent human-readable sections, labeled values, semantic colors when supported by the terminal, and actionable messages. `launch-agent status` provides the most complete state summary; `logs` provides the event stream.
 
+After uninstall, when neither the plist nor runtime state exists, status reports `NOT CONFIGURED` instead of presenting the local `.env` schedule as active.
+
 The source checkout exposes equivalent pnpm scripts such as `pnpm run launch-agent:install`, `pnpm run launch-agent:start`, and `pnpm run launch-agent:status`.
 
-The lifecycle commands are intentionally distinct: `stop` stops the current process while keeping the plist installed, and `start` loads it again from the beginning. `pause` disables the service while preserving its installed configuration, and `resume` enables and loads that paused service. `restart` refreshes the plist and starts the service; `uninstall` removes the plist.
+The shorter `agent` namespace is also available through the global CLI and `agent:*` pnpm scripts. The original `launch-agent` namespace remains supported for compatibility.
+
+The lifecycle commands are intentionally distinct: `stop` stops the current process while keeping the plist installed, and `start` loads it again from the beginning. `pause` disables the service while preserving its installed configuration, and `resume` enables and loads that paused service. `restart` refreshes the plist and starts the service.
+
+`uninstall` always stops the service and removes the plist. It then asks whether to retain configuration, runtime state, and logs. Answer `y` to keep them or press Enter to remove them. Use `--yes` or `-y` to remove the plist and managed application data without prompting:
+
+```bash
+mac-idle-keeper agent uninstall --yes
+```
+
+The uninstall operation preserves user-owned `.env` files and custom log paths outside Mac Idle Keeper's managed directories. If a managed power schedule state exists, it removes the plist but retains application data until `mac-idle-keeper power disable` is run and the uninstall is repeated.
 
 The source project runs from compiled output. `pnpm start` builds TypeScript and then starts Electron; the global CLI uses the published `dist/` files.
 
 The LaunchAgent is scoped to the logged-in user session. It starts at login, but it does not run before login and it cannot prevent a full hibernation or power loss.
+
+## Schedule wake or power-on
+
+The optional `power` namespace schedules a repeating macOS `wakeorpoweron` event using the monitor's active days and start time. It defaults to five minutes before the monitor starts and reads `POWER_ON_OFFSET_MINUTES` when provided.
+
+Power scheduling depends on the per-user LaunchAgent. Install the agent first:
+
+```bash
+mac-idle-keeper agent install
+```
+
+Without the LaunchAgent plist, a real `power enable` is rejected. `power status` and `power enable --dry-run` can still be used to inspect and preview the configuration, while `power disable` remains available to clean up an existing schedule.
+
+Preview the operation first:
+
+```bash
+mac-idle-keeper power enable --dry-run
+```
+
+Then inspect or apply it:
+
+```bash
+mac-idle-keeper power status
+sudo mac-idle-keeper power enable
+sudo mac-idle-keeper power disable
+```
+
+`power status` reports `NOT CONFIGURED` when no Mac Idle Keeper state or repeating macOS power event exists. A `CONFIGURED (EXTERNAL)` result means macOS has a repeating event that was not created by Mac Idle Keeper.
+
+The real enable and disable commands require administrator authorization. The CLI does not invoke `sudo` internally; if authorization is missing, it reports the exact command to rerun with `sudo`. The command does not require FileVault to be disabled and never changes FileVault or automatic-login settings. However, the Mac must have a usable user session before the per-user LaunchAgent can run. With automatic login disabled, the Mac can wake or power on and then wait at the login screen for manual authentication. FileVault commonly prevents automatic login; keeping it enabled is recommended for sensitive or portable devices.
+
+Automatic login reduces physical access protection because the selected account becomes available after startup. If you choose to enable it, consider the device's physical security and data sensitivity, avoid it on shared computers, keep screen locking enabled, and verify the result with `power status`. Use `--dry-run` before every schedule change.
+
+The command refuses to replace an unrecognized repeating power schedule unless `--force` is supplied. Review the existing schedule first because macOS provides one repeating power-event set, and cancellation may affect other repeating events.
+
+Uninstalling the LaunchAgent does not automatically remove a power schedule. Disable the power schedule before uninstalling the agent, or review it afterward and clean it up intentionally.
 
 ## Permissions
 
@@ -128,4 +199,10 @@ Runtime state and the previous effective configuration are stored at:
 ```text
 ~/Library/Application Support/mac-idle-keeper/runtime-state.json
 ~/Library/Application Support/mac-idle-keeper/config-history.json
+```
+
+The installed agent snapshot is stored at:
+
+```text
+~/Library/Application Support/mac-idle-keeper/agent-config.json
 ```

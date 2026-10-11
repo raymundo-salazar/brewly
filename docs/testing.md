@@ -73,6 +73,15 @@ pnpm pack --dry-run
 
 The package should include the compiled `dist/` CLI/runtime, the native helper source, `.env.example`, README, CHANGELOG, CONTRIBUTING guide, and LICENSE. It should not include `node_modules`, tests, personal `.env` files, logs, or runtime state.
 
+For the power schedule command, use the non-mutating preview before any manual macOS authorization:
+
+```bash
+node dist/bin/macIdleKeeper/index.js power enable --dry-run
+node dist/bin/macIdleKeeper/index.js power status
+```
+
+Do not run `power enable` or `power disable` automatically in CI. They modify host-level power scheduling and require an explicitly authorized macOS environment.
+
 ## Manual release checks
 
 Before creating a release tag:

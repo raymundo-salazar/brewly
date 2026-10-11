@@ -32,6 +32,7 @@ It uses `.env.test`, a 10-second interval, a 10-second threshold, and the real p
 ## Change guidelines
 
 - Preserve the global CLI and existing pnpm scripts unless a migration is documented.
+- Preserve `launch-agent` as a compatibility namespace; `agent` is its documented short alias. Keep power scheduling under the separate `power` namespace.
 - Keep the package macOS-only and compatible with Node.js 22.12+.
 - Add deterministic tests for behavior changes.
 - Write all functional source code in TypeScript and keep the build free of type errors.
@@ -47,9 +48,14 @@ It uses `.env.test`, a 10-second interval, a 10-second threshold, and the real p
 - Use Conventional Commits with a clear scope. Link commits and pull requests to an issue or ticket when one exists; tracking references are recommended for traceability but are not a blocking requirement.
 - Keep persisted timestamps in UTC and localize only interactive display output.
 - Treat the effective configuration as immutable during a process lifetime; `.env` changes require restart.
+- Foreground and local source workflows may read `.env`. Global `agent install` and `agent restart` use defaults plus explicit `--idle-*`/`--power-*` options and must not read `.env` unless `--env-file` is explicitly supplied. They must write `~/Library/Application Support/mac-idle-keeper/agent-config.json`; the LaunchAgent, `agent status`, `power`, and `logs` commands must read that snapshot instead of rereading `.env`. Uninstall must remove the snapshot.
 - Do not commit `.env`, logs, runtime state, generated tarballs, or machine-specific paths.
 - Do not use `sudo` or modify system permissions as part of repository changes.
 - Be careful with LaunchAgent operations; inspect generated plist paths before changing or removing them.
+- Power scheduling must use `--dry-run` and inspect existing `pmset` events before mutation. Never modify FileVault, automatic login, or login security settings in code; document their relationship and risks instead.
+- A real `power enable` operation requires the per-user LaunchAgent plist to exist. Keep `power status`, `power enable --dry-run`, and `power disable` available for inspection, planning, and cleanup. Power mutations that require administrator authorization must emit a human-readable `sudo` instruction and must never invoke `sudo` internally.
+- Status output must distinguish configured power events from the monitor's proposed schedule. Use `NOT CONFIGURED` when there is no managed or external repeating power event, and do not present the derived power-on time as active in that state.
+- LaunchAgent status must use the plist or runtime state to determine whether configuration is active. When both are absent, report `NOT CONFIGURED` instead of presenting `.env` values as an active agent schedule.
 
 ## Release rules
 
