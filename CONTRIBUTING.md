@@ -52,6 +52,10 @@ Maintainers can help keep the project healthy by:
 5. Update documentation and `CHANGELOG.md` when user-visible behavior changes.
 6. Open a pull request describing the problem, solution, testing performed, and any macOS permission requirements.
 
+## Commit and issue conventions
+
+Use [Conventional Commits](https://www.conventionalcommits.org/) with a clear scope, for example `feat(monitor): add configurable activity action`. Commits should be atomic and easy to revert. Link a commit or pull request to an issue or ticket when one exists; tracking references are recommended for traceability but are not required to create or merge a change.
+
 Before publishing a release, inspect the package contents with:
 
 ```bash

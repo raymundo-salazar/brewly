@@ -1,6 +1,6 @@
 # Mac Idle Keeper
 
-Mac Idle Keeper is a macOS background monitor that detects extended system inactivity and generates configurable activity so desktop applications and workflows can recognize renewed user activity. It is not tied to Discord or any other specific application.
+Mac Idle Keeper is a macOS background monitor that detects extended system inactivity and generates configurable activity for user-authorized desktop work and workflows. It operates at the macOS level and does not require integration with a particular application.
 
 During its active schedule it also runs a macOS `caffeinate` assertion to prevent display, idle-system, disk, and system sleep. The monitor is built with Electron because it uses `powerMonitor.getSystemIdleTime()` to read macOS idle time.
 
@@ -18,6 +18,18 @@ During its active schedule it also runs a macOS `caffeinate` assertion to preven
 - Log inspection from the LaunchAgent command namespace, including real-time follow mode.
 - `.env` support without overriding variables already exported in the shell.
 - Automated tests for scheduling, monitoring, runtime state, notifications, and LaunchAgent behavior.
+
+## Appropriate use cases
+
+Mac Idle Keeper is useful when a task you intentionally started needs the workstation to remain available for a defined period. Examples include:
+
+- long-running local builds, test suites, or development environments;
+- video, audio, image, or 3D rendering jobs;
+- large backups, file transfers, data exports, or local synchronization tasks;
+- data processing, report generation, or simulations running on the Mac;
+- authorized remote sessions or dashboards where system sleep would interrupt the work.
+
+The schedule, threshold, and activity action should be limited to the period required by the task. On portable Macs, consider using the tool while connected to power and review macOS energy settings because preventing idle sleep can increase energy use. Apple documents related sleep controls in [Mac battery settings](https://support.apple.com/guide/mac-help/change-battery-settings-mchlfc3b787/mac) and notes that sleep-prevention assertions are intended for work that sleep would interrupt in [XPC activity documentation](https://developer.apple.com/documentation/xpc/xpc_activity_prevent_device_sleep).
 
 ## Requirements
 
@@ -38,6 +50,16 @@ mac-idle-keeper help
 ```
 
 The package includes Electron and all runtime dependencies. macOS may ask for Accessibility or notification permissions the first time the monitor runs.
+
+### Use the TypeScript/Node.js API
+
+The package also exposes its application-independent runtime components for integrations that need to compose configuration, scheduling, logging, or monitoring behavior:
+
+```js
+const { loadConfig, createMonitor } = require('mac-idle-keeper');
+```
+
+The published package includes generated JavaScript and `.d.ts` declarations. The Electron bootstrap remains an internal process entrypoint used by `mac-idle-keeper start` and the LaunchAgent.
 
 ### Install from source
 
@@ -83,16 +105,16 @@ Awake guard:            caffeinate -dimsu during the active window
 Application log:        Electron user-data directory
 ```
 
-| Variable | Default | Description |
-| --- | ---: | --- |
-| `IDLE_CHECK_INTERVAL_MS` | `300000` | Polling interval in milliseconds; `300000` is 5 minutes. |
-| `IDLE_THRESHOLD_SECONDS` | `540` | Run the activity action only when idle time is greater than 9 minutes. |
-| `IDLE_DAYS` | `mon,wed,thu,fri` | Active days. Supports aliases, names, or numbers. |
-| `IDLE_START_TIME` | `07:00` | Schedule start, inclusive, in `HH:MM`. |
-| `IDLE_END_TIME` | `17:00` | Schedule end, exclusive, in `HH:MM`. |
-| `IDLE_TIMEZONE` | `America/Monterrey` | IANA timezone used for schedule evaluation. |
-| `IDLE_ACTION` | `hid-event` | `hid-event`, `caffeinate`, or `none`. |
-| `IDLE_LOG_FILE` | Electron user-data log | Optional log file path. |
+| Variable                 |                Default | Description                                                            |
+| ------------------------ | ---------------------: | ---------------------------------------------------------------------- |
+| `IDLE_CHECK_INTERVAL_MS` |               `300000` | Polling interval in milliseconds; `300000` is 5 minutes.               |
+| `IDLE_THRESHOLD_SECONDS` |                  `540` | Run the activity action only when idle time is greater than 9 minutes. |
+| `IDLE_DAYS`              |      `mon,wed,thu,fri` | Active days. Supports aliases, names, or numbers.                      |
+| `IDLE_START_TIME`        |                `07:00` | Schedule start, inclusive, in `HH:MM`.                                 |
+| `IDLE_END_TIME`          |                `17:00` | Schedule end, exclusive, in `HH:MM`.                                   |
+| `IDLE_TIMEZONE`          |    `America/Monterrey` | IANA timezone used for schedule evaluation.                            |
+| `IDLE_ACTION`            |            `hid-event` | `hid-event`, `caffeinate`, or `none`.                                  |
+| `IDLE_LOG_FILE`          | Electron user-data log | Optional log file path.                                                |
 
 ### Days
 
@@ -121,7 +143,7 @@ IDLE_DAYS=1,3,4,5
 - `caffeinate`: requests a short macOS user-activity assertion without moving the pointer;
 - `none`: records the detection without executing an activity action.
 
-The action system is intentionally application-independent. To add a new action, implement it in `src/actions.js`, register it in `createAction`, document its configuration value, and add tests for its behavior.
+The action system is intentionally application-independent. To add a new action, implement it in the `src/actions` component, register it in `createAction`, document its configuration value, and add tests under `tests/actions`.
 
 ## Running in the foreground
 
@@ -262,6 +284,18 @@ Application log entries are stored with UTC timestamps (`Z`) so the file remains
 
 The monitor shows a macOS notification when it starts and when it stops. When running directly with `pnpm start`, notifications are sent through `osascript`; macOS may require notification permission for Terminal or the shell application.
 
+## Development quality gates
+
+The project is written in TypeScript and compiled to `dist/` before it is run or packed for npm. The local quality gate is:
+
+```bash
+pnpm run check
+```
+
+It runs ESLint, Prettier validation, Jest with the 90% coverage threshold, and the TypeScript build. Husky runs this same gate before commits and pushes. Pull requests run it through GitHub Actions.
+
+Source modules and functions use `camelCase` folders with `index.ts` entrypoints and colocated `types.d.ts` files. Classes use `PascalCase` for both the class and its folder. Tests mirror that structure under `/tests`.
+
 ## macOS permissions
 
 The default `hid-event` action uses a small native CoreGraphics helper to move the cursor physically and post mouse events. If the cursor does not move or the idle counter does not reset, add the Electron app used by the project to:
@@ -345,35 +379,34 @@ Run the test suite:
 pnpm run check
 ```
 
-The test suite uses Node's built-in test runner and covers scheduling, day groups, monitor thresholds, runtime state, notifications, and the awake guard.
+The test suite uses Jest with TypeScript and covers scheduling, day groups, monitor thresholds, runtime state, notifications, and the awake guard. `pnpm run check` also enforces ESLint, Prettier, the 90% coverage threshold, and the TypeScript build.
 
 ## Contributing
 
 Contributions are welcome in code, tests, documentation, maintenance, issue triage, and financial support. See [CONTRIBUTING.md](CONTRIBUTING.md) for the development workflow, maintainability guidelines, pull request expectations, and sponsorship information.
 
+## Extended documentation
+
+See the [documentation index](docs/README.md) for installation details, CLI usage, testing, packaging, GitHub Actions, releases, architecture, and extension guidance.
+
 ## Project layout
 
 ```text
-bin/
-  mac-idle-keeper.js  Global npm CLI entrypoint
-src/
-  actions.js          Activity actions and native helper lifecycle
-  awake.js            caffeinate awake guard
-  config-history.js   Effective configuration change history
-  config.js           Environment configuration and validation
-  env.js              .env loading
-  logger.js           File/console logging
-  main.js             Electron process entrypoint
-  monitor.js          Idle polling and schedule coordination
-  notifications.js    macOS notifications
-  runtime-state.js    Effective runtime state persistence
-  schedule.js         Timezone-aware schedule evaluation
-  time.js             UTC storage and timezone-aware display formatting
-scripts/
-  idle-reset.m        CoreGraphics physical mouse helper
-  install-launch-agent.js
-  manage-launch-agent.js
-test/                  Automated tests
+bin/macIdleKeeper/     Global npm CLI entrypoint
+src/                   TypeScript runtime components
+  actions/             Activity actions and native helper lifecycle
+  awake/               caffeinate awake guard
+  config/              Environment configuration and validation
+  main/                Electron process entrypoint
+  monitor/             Idle polling and schedule coordination
+  notifications/       macOS notifications
+  runtimeState/        Effective runtime state persistence
+  schedule/             Timezone-aware schedule evaluation
+  time/                 UTC storage and timezone-aware display formatting
+scripts/               TypeScript LaunchAgent/log commands
+  idle-reset.m         CoreGraphics physical mouse helper
+tests/                 Jest tests mirroring source components
+dist/                  Generated TypeScript output; not committed
 ```
 
 ## Versioning

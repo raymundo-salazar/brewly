@@ -2,6 +2,20 @@
 
 All notable changes to this project are documented here.
 
+## [Unreleased]
+
+### Added
+
+- Added TypeScript compilation with generated declarations and source maps for npm packaging.
+- Added Jest tests with Istanbul coverage reports and a minimum 90% threshold for statements, branches, functions, and lines.
+- Added ESLint, Prettier, and Husky quality gates for local commits and pushes.
+- Added TypeScript source and test structure with PascalCase component folders, colocated type declarations, and mirrored Jest suites.
+
+### Changed
+
+- Updated the npm CLI and LaunchAgent tooling to execute compiled files from `dist/`.
+- Updated CI documentation and development commands for the TypeScript, ESLint, Prettier, Jest, and build workflow.
+
 ## [1.4.0] - 2026-10-06
 
 ### Added
@@ -15,8 +29,8 @@ All notable changes to this project are documented here.
 
 ### Changed
 
-- Generalized the user-facing identity from Discord-specific wording to Mac Idle Keeper.
-- Clarified that activity actions operate at the macOS level and can support applications and workflows beyond Discord.
+- Generalized the user-facing identity to Mac Idle Keeper.
+- Clarified that activity actions operate at the macOS level and support multiple workstation applications and workflows.
 - Documented the extension path for adding new activity actions.
 
 ## [1.2.1] - 2026-10-06
@@ -68,7 +82,7 @@ All notable changes to this project are documented here.
 
 - Made LaunchAgent restart refresh the plist and use the native Electron binary directly.
 - Added LaunchAgent stdout and stderr logs for troubleshooting.
-- Improved physical mouse activity generation so the cursor moves gradually over approximately 300 ms, helping desktop applications recognize activity.
+- Improved physical mouse activity generation so the cursor moves gradually over approximately 300 ms, helping active desktop workflows receive user-activity events.
 - Added post-action idle verification through `idleAfter`.
 - Added clearer macOS notification handling when running Electron directly.
 
@@ -78,3 +92,13 @@ All notable changes to this project are documented here.
 
 - Initial stable release of the macOS idle monitor.
 - Weekday schedule, configurable `.env` support, physical HID activity, `caffeinate` awake guard, macOS notifications, and automated tests.
+
+[Unreleased]: https://github.com/raymundo-salazar/mac-idle-keeper/compare/v1.4.0...HEAD
+[1.4.0]: https://github.com/raymundo-salazar/mac-idle-keeper/releases/tag/v1.4.0
+[1.3.0]: https://github.com/raymundo-salazar/mac-idle-keeper/releases/tag/v1.3.0
+[1.2.1]: https://github.com/raymundo-salazar/mac-idle-keeper/releases/tag/v1.2.1
+[1.2.0]: https://github.com/raymundo-salazar/mac-idle-keeper/releases/tag/v1.2.0
+[1.1.0]: https://github.com/raymundo-salazar/mac-idle-keeper/releases/tag/v1.1.0
+[1.0.2]: https://github.com/raymundo-salazar/mac-idle-keeper/releases/tag/v1.0.2
+[1.0.1]: https://github.com/raymundo-salazar/mac-idle-keeper/releases/tag/v1.0.1
+[1.0.0]: https://github.com/raymundo-salazar/mac-idle-keeper/releases/tag/v1.0.0
