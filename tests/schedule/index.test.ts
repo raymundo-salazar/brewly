@@ -12,6 +12,7 @@ const config = {
   timezone: 'UTC',
   logFile: null,
   action: 'none',
+  powerOnOffsetMinutes: 5,
 };
 const date = (day: number, hour: number): Date => new Date(Date.UTC(2026, 9, day, hour));
 

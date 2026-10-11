@@ -1,5 +1,6 @@
 import path from 'node:path';
 import { app, Notification, powerMonitor } from 'electron';
+import { readAgentConfig } from '../agentConfig';
 import { createAction } from '../actions';
 import { createAwakeGuard } from '../awake';
 import { loadConfig } from '../config';
@@ -10,11 +11,33 @@ import { createMonitor } from '../monitor';
 import { createNotifier } from '../notifications';
 import { removeRuntimeState, writeRuntimeState } from '../runtimeState';
 import { header, info } from '../cliOutput';
+import type { Config } from '../config/types';
 import type { CheckStatus, RuntimeState } from '../runtimeState';
 
-const envFile = process.env.IDLE_ENV_FILE ?? path.join(process.cwd(), '.env');
-loadEnvFile(path.resolve(envFile));
-const config = loadConfig();
+/**
+ * @function loadApplicationConfig
+ * @description Loads the persisted agent snapshot when launched by LaunchAgent, or `.env` for a foreground start.
+ *
+ * @returns The immutable configuration used by the monitor process.
+ * @throws Throws when a LaunchAgent points to a missing or invalid configuration snapshot.
+ */
+function loadApplicationConfig(): Config {
+  if (process.env.IDLE_CONFIG_FILE) {
+    const configPath = path.resolve(process.env.IDLE_CONFIG_FILE);
+    const persisted = readAgentConfig(configPath);
+    if (!persisted)
+      throw new Error(
+        `The persisted agent configuration is missing or invalid: ${configPath}. Run "mac-idle-keeper agent restart" to recreate it.`,
+      );
+    return persisted.config;
+  }
+
+  const envFile = process.env.IDLE_ENV_FILE ?? path.join(process.cwd(), '.env');
+  loadEnvFile(path.resolve(envFile));
+  return loadConfig();
+}
+
+const config = loadApplicationConfig();
 
 /**
  * @function applicationBootstrap

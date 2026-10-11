@@ -49,6 +49,25 @@ export function parseDays(value: string | undefined, fallback: number[]): number
 }
 
 /**
+ * @function parsePowerOffset
+ * @description Parses the number of minutes used to power on the Mac before the monitor schedule.
+ *
+ * @param value - Candidate `POWER_ON_OFFSET_MINUTES` value.
+ * @returns An integer from zero through one day, or the documented default when invalid.
+ * @throws Does not throw; malformed values return the documented default.
+ *
+ * @example
+ * parsePowerOffset('10');
+ * // 10
+ */
+export function parsePowerOffset(value: string | undefined): number {
+  const parsed = Number(value);
+  return Number.isInteger(parsed) && parsed >= 0 && parsed <= 24 * 60
+    ? parsed
+    : DEFAULTS.powerOnOffsetMinutes;
+}
+
+/**
  * @function loadConfig
  * @description Reads environment values and returns the normalized runtime configuration.
  *
@@ -94,6 +113,7 @@ export function loadConfig(environment: Environment = process.env): Config {
     timezone: environment.IDLE_TIMEZONE ?? DEFAULTS.timezone,
     logFile: environment.IDLE_LOG_FILE ?? DEFAULTS.logFile,
     action: environment.IDLE_ACTION ?? DEFAULTS.action,
+    powerOnOffsetMinutes: parsePowerOffset(environment.POWER_ON_OFFSET_MINUTES),
   };
 }
 

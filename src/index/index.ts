@@ -1,6 +1,8 @@
 export * from '../actions';
+export * from '../agentConfig';
 export * from '../awake';
 export * from '../config';
+export * from '../configArguments';
 export * from '../configHistory';
 export { loadEnvFile } from '../env';
 export * from '../logger';

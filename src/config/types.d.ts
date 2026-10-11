@@ -13,6 +13,7 @@ export interface Config {
   timezone: string;
   logFile: string | null;
   action: string;
+  powerOnOffsetMinutes: number;
 }
 
 /** Describes the default values used by configuration loading. */
@@ -25,4 +26,5 @@ export interface DefaultConfig {
   timezone: string;
   logFile: string | null;
   action: string;
+  powerOnOffsetMinutes: number;
 }

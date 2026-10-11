@@ -1,8 +1,8 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { loadEnvFile } from '../../src/env';
-import { loadConfig } from '../../src/config';
+import { DEFAULTS } from '../../src/config';
+import { getAgentConfigPath, readAgentConfig } from '../../src/agentConfig';
 import { readRuntimeState } from '../../src/runtimeState';
 import { formatStoredLogLine } from '../../src/time';
 import {
@@ -23,6 +23,7 @@ const runtimeStatePath = path.join(
   'mac-idle-keeper',
   'runtime-state.json',
 );
+const agentConfigPath = getAgentConfigPath(os.homedir());
 const defaultLogPath = path.join(
   os.homedir(),
   'Library',
@@ -70,9 +71,8 @@ export function resolveLogContext(): LogContext {
     };
   }
 
-  const environment = {};
-  loadEnvFile(process.env.IDLE_ENV_FILE ?? path.join(process.cwd(), '.env'), environment);
-  const config = loadConfig(environment);
+  const config = readAgentConfig(agentConfigPath)?.config;
+  if (!config) return { filePath: defaultLogPath, timezone: DEFAULTS.timezone };
   return {
     filePath: config.logFile ? path.resolve(config.logFile) : defaultLogPath,
     timezone: config.timezone,

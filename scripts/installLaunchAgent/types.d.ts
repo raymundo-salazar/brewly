@@ -6,5 +6,6 @@ export interface LaunchAgentPaths {
   plistPath: string;
   electronPath: string;
   logDir: string;
+  configPath: string;
   service: string;
 }

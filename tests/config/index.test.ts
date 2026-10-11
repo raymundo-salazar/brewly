@@ -17,6 +17,8 @@ describe('Config', () => {
     expect(parseDays(undefined, [1, 4])).toEqual([1, 4]);
     expect(parseDays('   ', [1, 4])).toEqual([1, 4]);
     expect(parseDays('invalid,8', [1, 4])).toEqual([1, 4]);
+    expect(loadConfig({ POWER_ON_OFFSET_MINUTES: '10' }).powerOnOffsetMinutes).toBe(10);
+    expect(loadConfig({ POWER_ON_OFFSET_MINUTES: '-1' }).powerOnOffsetMinutes).toBe(5);
   });
 
   test('loads defaults and legacy hour compatibility', () => {

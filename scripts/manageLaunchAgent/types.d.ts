@@ -10,3 +10,8 @@ export type LaunchAgentCommand =
   | 'resume'
   | 'restart'
   | 'uninstall';
+
+/** Stores confirmation options for LaunchAgent uninstallation. */
+export interface UninstallOptions {
+  assumeYes: boolean;
+}

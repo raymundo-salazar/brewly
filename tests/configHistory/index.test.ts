@@ -14,6 +14,7 @@ const config = {
   timezone: 'America/Monterrey',
   action: 'hid-event',
   logFile: null,
+  powerOnOffsetMinutes: 5,
 };
 
 describe('ConfigHistory', () => {

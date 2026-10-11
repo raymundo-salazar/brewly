@@ -12,6 +12,7 @@ const CONFIG_FIELDS: ReadonlyArray<[keyof ConfigSnapshot, string]> = [
   ['timezone', 'IDLE_TIMEZONE'],
   ['action', 'IDLE_ACTION'],
   ['logFile', 'IDLE_LOG_FILE'],
+  ['powerOnOffsetMinutes', 'POWER_ON_OFFSET_MINUTES'],
 ];
 
 /**
@@ -32,6 +33,7 @@ export function snapshotConfig(config: Config): ConfigSnapshot {
     timezone: config.timezone,
     action: config.action,
     logFile: config.logFile || null,
+    powerOnOffsetMinutes: config.powerOnOffsetMinutes,
   };
 }
 

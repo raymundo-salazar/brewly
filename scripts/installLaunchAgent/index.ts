@@ -2,7 +2,11 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
+import { parseConfigurationArguments } from '../../src/configArguments';
+import { loadConfig, parsePowerOffset } from '../../src/config';
+import { getAgentConfigPath, writeAgentConfig } from '../../src/agentConfig';
 import { error, header, info, success } from '../../src/cliOutput';
+import { loadEnvFile } from '../../src/env';
 import type { LaunchAgentPaths } from './types';
 
 process.on('uncaughtException', (cause: Error): void => {
@@ -27,6 +31,22 @@ const electronPath = path.join(
 );
 const mainPath = path.join(projectDir, 'dist', 'src', 'main', 'index.js');
 const logDir = path.join(os.homedir(), 'Library', 'Logs', 'mac-idle-keeper');
+const configPath = getAgentConfigPath(os.homedir());
+const parsedArguments = parseConfigurationArguments(process.argv.slice(2));
+const environment = parsedArguments.environment;
+const environmentFilePath = path.resolve(
+  environment.IDLE_ENV_FILE ?? path.join(process.cwd(), '.env'),
+);
+const isGlobalConfiguration = environment.IDLE_CONFIG_SOURCE === 'global';
+const hasExplicitEnvironmentFile = environment.IDLE_ENV_FILE_EXPLICIT === '1';
+const shouldLoadEnvironmentFile = !isGlobalConfiguration || hasExplicitEnvironmentFile;
+if (shouldLoadEnvironmentFile) loadEnvFile(environmentFilePath, environment);
+const config = loadConfig(environment);
+const configurationSource = hasExplicitEnvironmentFile
+  ? environmentFilePath
+  : isGlobalConfiguration
+    ? 'defaults and command-line arguments'
+    : environmentFilePath;
 const service = `gui/${process.getuid?.() ?? process.pid}/com.local.mac-idle-keeper`;
 const paths: LaunchAgentPaths = {
   projectDir,
@@ -35,6 +55,7 @@ const paths: LaunchAgentPaths = {
   plistPath,
   electronPath,
   logDir,
+  configPath,
   service,
 };
 
@@ -57,14 +78,14 @@ function escapeXml(value: string): string {
 
 /**
  * @function environmentXml
- * @description Builds the optional environment-file XML entry for the LaunchAgent.
+ * @description Builds the persisted configuration XML entry for the LaunchAgent.
  *
- * @returns An XML fragment for `IDLE_ENV_FILE`, or an empty string when no override is configured.
- * @throws Does not throw when the process environment contains valid path text.
+ * @param persistedConfigPath - Absolute path to the configuration snapshot.
+ * @returns An XML fragment containing `IDLE_CONFIG_FILE`.
+ * @throws Does not throw for a valid configuration path.
  */
-function environmentXml(): string {
-  if (!process.env.IDLE_ENV_FILE) return '';
-  return `\n  <key>EnvironmentVariables</key><dict><key>IDLE_ENV_FILE</key><string>${escapeXml(path.resolve(process.cwd(), process.env.IDLE_ENV_FILE))}</string></dict>`;
+function environmentXml(persistedConfigPath: string): string {
+  return `\n  <key>EnvironmentVariables</key><dict><key>IDLE_CONFIG_FILE</key><string>${escapeXml(persistedConfigPath)}</string></dict>`;
 }
 
 /**
@@ -83,7 +104,7 @@ function createPlist(values: LaunchAgentPaths): string {
   <key>ProgramArguments</key><array><string>${escapeXml(values.electronPath)}</string><string>${escapeXml(values.mainPath)}</string></array>
   <key>WorkingDirectory</key><string>${escapeXml(values.workingDirectory)}</string>
   <key>StandardOutPath</key><string>${escapeXml(path.join(values.logDir, 'launch-agent.stdout.log'))}</string>
-  <key>StandardErrorPath</key><string>${escapeXml(path.join(values.logDir, 'launch-agent.stderr.log'))}</string>${environmentXml()}
+  <key>StandardErrorPath</key><string>${escapeXml(path.join(values.logDir, 'launch-agent.stderr.log'))}</string>${environmentXml(values.configPath)}
   <key>RunAtLoad</key><true/>
   <key>KeepAlive</key><true/>
   <key>ProcessType</key><string>Background</string>
@@ -100,6 +121,12 @@ function createPlist(values: LaunchAgentPaths): string {
 function main(): void {
   fs.mkdirSync(launchAgentsDir, { recursive: true });
   fs.mkdirSync(logDir, { recursive: true });
+  writeAgentConfig(
+    configPath,
+    config,
+    parsePowerOffset(environment.POWER_ON_OFFSET_MINUTES),
+    configurationSource,
+  );
   fs.writeFileSync(plistPath, `${createPlist(paths)}\n`);
   try {
     execFileSync('/bin/launchctl', ['unload', plistPath], { stdio: 'ignore' });
@@ -122,6 +149,7 @@ function main(): void {
   header('Mac Idle Keeper — LaunchAgent installed');
   success('Service loaded and ready to run at login.');
   info('Plist', plistPath);
+  info('Configuration file', configPath);
   info('Project', projectDir);
   info('Configuration directory', workingDirectory);
 }

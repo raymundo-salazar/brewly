@@ -10,6 +10,7 @@ export interface ConfigSnapshot {
   timezone: string;
   action: string;
   logFile: string | null;
+  powerOnOffsetMinutes: number;
 }
 
 /** Describes whether configuration initialization or changes were recorded. */

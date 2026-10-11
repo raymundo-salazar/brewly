@@ -13,6 +13,7 @@ export const DEFAULTS: Readonly<DefaultConfig> = Object.freeze({
   timezone: 'America/Monterrey',
   logFile: null,
   action: 'hid-event',
+  powerOnOffsetMinutes: 5,
 });
 
 /**
