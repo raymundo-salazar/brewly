@@ -33,7 +33,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Run tests before publishing
+      - name: Run quality gate before publishing
         run: pnpm run check
 
       - name: Validate tag and package versions
