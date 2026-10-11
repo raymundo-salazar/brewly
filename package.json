@@ -53,6 +53,7 @@
     "launch-agent:help": "pnpm build && node dist/scripts/manageLaunchAgent/index.js --help",
     "launch-agent:status": "pnpm build && node dist/scripts/manageLaunchAgent/index.js status",
     "launch-agent:logs": "pnpm build && node dist/scripts/viewLogs/index.js",
+    "launch-agent:start": "pnpm build && node dist/scripts/manageLaunchAgent/index.js start",
     "launch-agent:stop": "pnpm build && node dist/scripts/manageLaunchAgent/index.js stop",
     "launch-agent:pause": "pnpm build && node dist/scripts/manageLaunchAgent/index.js pause",
     "launch-agent:resume": "pnpm build && node dist/scripts/manageLaunchAgent/index.js resume",

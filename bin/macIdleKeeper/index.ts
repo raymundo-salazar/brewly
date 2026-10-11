@@ -27,7 +27,7 @@ function printHelp(): void {
   info('logs', 'Show recent application logs or follow them live.');
   info('help', 'Show this command reference.');
   section('LaunchAgent actions');
-  item('install | status | logs | stop | pause | resume | restart | uninstall | help');
+  item('install | status | logs | start | stop | pause | resume | restart | uninstall | help');
   section('Options');
   info('--env-file PATH', 'Load configuration from a specific environment file.');
   info('--follow', 'Continue displaying new log entries.');
@@ -120,7 +120,9 @@ function main(args: string[]): void {
   if (command === 'launch-agent') {
     const [action, ...actionArgs] = commandArgs;
     if (!action)
-      throw new Error('launch-agent requires an action. Run mac-idle-keeper help for usage.');
+      throw new Error(
+        'launch-agent requires an action. Run mac-idle-keeper launch-agent --help for usage.',
+      );
     if (action === 'logs') {
       run(
         process.execPath,

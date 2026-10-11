@@ -85,6 +85,24 @@ function loadService(): void {
 }
 
 /**
+ * @function startService
+ * @description Enables and loads an installed LaunchAgent that was stopped.
+ * The plist remains installed and the service is verified after loading.
+ *
+ * @returns Nothing when the service is enabled and loaded successfully.
+ * @throws Throws when the plist is missing or launchctl cannot load and verify the service.
+ *
+ * @example
+ * // Start a previously stopped service:
+ * // mac-idle-keeper launch-agent start
+ */
+function startService(): void {
+  requirePlist();
+  launchctl(['enable', service], true);
+  loadService();
+}
+
+/**
  * @function operationHeader
  * @description Prints the common context displayed before a LaunchAgent lifecycle operation.
  *
@@ -116,10 +134,11 @@ function printHelp(): void {
   info('install', 'Create and load the per-user LaunchAgent.');
   info('status', 'Show installation, process, schedule, and recent activity state.');
   info('logs', 'Show recent application log entries or follow them live.');
-  info('stop', 'Stop the service while preserving its plist.');
-  info('pause', 'Stop the service and disable automatic relaunch.');
-  info('resume', 'Enable and load a previously paused service.');
-  info('restart', 'Refresh the plist and restart the service.');
+  info('start', 'Start a stopped service while preserving its plist.');
+  info('stop', 'Stop the current process while keeping the plist installed.');
+  info('pause', 'Pause the service and disable automatic relaunch.');
+  info('resume', 'Resume a paused service.');
+  info('restart', 'Refresh the plist and start the service.');
   info('uninstall', 'Stop the service and remove its plist.');
   section('Options');
   info('--help, -h', 'Show this LaunchAgent command reference.');
@@ -270,25 +289,31 @@ switch (command) {
   case 'status':
     status();
     break;
+  case 'start':
+    operationHeader('Start');
+    startService();
+    state('Process', 'RUNNING', 'green');
+    success('Service started. The installed LaunchAgent is running again.');
+    break;
   case 'stop':
     operationHeader('Stop');
     bootout();
-    state('Process', 'STOPPED', 'yellow');
-    success('Service stopped. The LaunchAgent plist was preserved.');
+    state('Process', 'STOPPED', 'red');
+    success('Service stopped. Use start to begin it again; the LaunchAgent plist was preserved.');
     break;
   case 'pause':
     operationHeader('Pause');
     bootout();
     launchctl(['disable', service]);
     state('Process', 'PAUSED', 'yellow');
-    success('Service paused. Use resume to enable it again.');
+    success('Service paused. Use resume to continue it without removing the plist.');
     break;
   case 'resume':
     operationHeader('Resume');
     launchctl(['enable', service], true);
     loadService();
     state('Process', 'RUNNING', 'green');
-    success('Service resumed and loaded.');
+    success('Service resumed from its paused state and loaded.');
     break;
   case 'restart':
     operationHeader('Restart');
@@ -308,7 +333,7 @@ switch (command) {
     break;
   default:
     header('Mac Idle Keeper — LaunchAgent command error');
-    error('Usage: mac-idle-keeper launch-agent <status|stop|pause|resume|restart|uninstall>');
+    error('Usage: mac-idle-keeper launch-agent <status|start|stop|pause|resume|restart|uninstall>');
     process.exitCode = 1;
 }
 

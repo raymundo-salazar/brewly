@@ -9,6 +9,7 @@ describe('MacIdleKeeper CLI', () => {
     });
     expect(output).toMatch(/mac-idle-keeper start/);
     expect(output).toMatch(/launch-agent/);
+    expect(output).toMatch(/start \| stop \| pause \| resume/);
     expect(output).toMatch(/--env-file PATH/);
   });
 
@@ -29,6 +30,7 @@ describe('MacIdleKeeper CLI', () => {
 
     expect(output).toMatch(/Mac Idle Keeper — LaunchAgent help/);
     expect(output).toMatch(/install: Create and load/);
+    expect(output).toMatch(/start: Start a stopped service/);
     expect(output).toMatch(/--help, -h/);
   });
 });

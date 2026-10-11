@@ -106,6 +106,11 @@ function main(): void {
   } catch {
     // The service may not have been loaded yet.
   }
+  try {
+    execFileSync('/bin/launchctl', ['enable', service], { stdio: 'ignore' });
+  } catch {
+    // The service may not have been disabled or the user domain may be initializing.
+  }
   execFileSync('/bin/launchctl', ['load', plistPath], { stdio: 'inherit' });
   try {
     execFileSync('/bin/launchctl', ['print', service], { stdio: 'ignore' });
