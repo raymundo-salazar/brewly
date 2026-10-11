@@ -8,6 +8,8 @@ describe('MacIdleKeeper CLI', () => {
       encoding: 'utf8',
     });
     expect(output).toMatch(/mac-idle-keeper start/);
+    expect(output).toMatch(/agent/);
+    expect(output).toMatch(/power/);
     expect(output).toMatch(/launch-agent/);
     expect(output).toMatch(/start \| stop \| pause \| resume/);
     expect(output).toMatch(/--env-file PATH/);

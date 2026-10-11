@@ -13,6 +13,7 @@ const config: Config = {
     '!bin/macIdleKeeper/**',
     '!scripts/installLaunchAgent/**',
     '!scripts/manageLaunchAgent/**',
+    '!scripts/managePower/**',
     '!scripts/viewLogs/**',
   ],
   coverageThreshold: {

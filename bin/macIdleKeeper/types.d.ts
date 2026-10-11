@@ -1,5 +1,2 @@
-/** Contains parsed child-process environment and remaining CLI arguments. */
-export interface ParsedEnvironmentArguments {
-  environment: NodeJS.ProcessEnv;
-  remaining: string[];
-}
+/** Preserves the historical public parser type name for CLI consumers. */
+export type { ParsedConfigurationArguments as ParsedEnvironmentArguments } from '../../src/configArguments';

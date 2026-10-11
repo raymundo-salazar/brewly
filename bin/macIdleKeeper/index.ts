@@ -4,7 +4,10 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import electronModule from 'electron';
 import { error, header, info, item, section } from '../../src/cliOutput';
-import type { ParsedEnvironmentArguments } from './types';
+import {
+  configurationEnvironmentNames,
+  parseConfigurationArguments,
+} from '../../src/configArguments';
 
 const packageRoot = path.resolve(__dirname, '..', '..', '..');
 const electronPath = electronModule as unknown as string;
@@ -23,19 +26,38 @@ function printHelp(): void {
   item('mac-idle-keeper <command> [options]');
   section('Commands');
   info('start', 'Start the monitor in the current session.');
+  info('agent', 'Short alias for LaunchAgent management.');
   info('launch-agent', 'Install and manage the background LaunchAgent.');
+  info('power', 'Inspect and manage scheduled macOS wake or power-on events.');
   info('logs', 'Show recent application logs or follow them live.');
   info('help', 'Show this command reference.');
   section('LaunchAgent actions');
-  item('install | status | logs | start | stop | pause | resume | restart | uninstall | help');
+  item('agent <action> | launch-agent <action>');
+  item('Actions: install | status | logs | start | stop | pause | resume | restart | uninstall');
+  section('Power schedule actions');
+  item('power: status | enable | disable');
   section('Options');
-  info('--env-file PATH', 'Load configuration from a specific environment file.');
+  info('--env-file PATH', 'Explicitly load a configuration file (optional local override).');
+  info('--idle-check-interval-ms N', 'Polling interval in milliseconds.');
+  info('--idle-threshold-seconds N', 'Idle threshold in seconds.');
+  info('--idle-days VALUE', 'Days: all_week, weekend, working_days, or a list.');
+  info('--idle-start-time HH:MM', 'Schedule start time.');
+  info('--idle-end-time HH:MM', 'Schedule end time.');
+  info('--idle-start-hour H', 'Schedule start hour when no start time is supplied.');
+  info('--idle-end-hour H', 'Schedule end hour when no end time is supplied.');
+  info('--idle-timezone ZONE', 'IANA timezone used by the monitor.');
+  info('--idle-action NAME', 'Operating-system activity action.');
+  info('--idle-log-file PATH', 'Application log path, or empty for the default path.');
+  info('--power-on-offset-minutes N', 'Minutes before the monitor schedule for power-on.');
   info('--follow', 'Continue displaying new log entries.');
   info('--lines N', 'Display the last N log entries.');
   section('Examples');
   item('mac-idle-keeper start');
+  item('mac-idle-keeper agent status');
   item('mac-idle-keeper launch-agent install');
-  item('mac-idle-keeper launch-agent status');
+  item('mac-idle-keeper power enable --dry-run');
+  item('mac-idle-keeper power status');
+  item('mac-idle-keeper agent install --idle-days working_days --idle-start-time 07:00');
   item('mac-idle-keeper launch-agent --help');
   item('mac-idle-keeper logs --follow');
 }
@@ -57,33 +79,6 @@ function run(command: string, args: string[], environment: NodeJS.ProcessEnv = p
 }
 
 /**
- * @function parseEnvironmentArguments
- * @description Extracts the optional environment-file argument from CLI input.
- *
- * @param args - Raw CLI arguments.
- * @returns The environment for the child command and the remaining arguments.
- * @throws Throws when `--env-file` is missing its path.
- */
-function parseEnvironmentArguments(args: string[]): ParsedEnvironmentArguments {
-  const remaining: string[] = [];
-  const environment: NodeJS.ProcessEnv = { ...process.env };
-
-  for (let index = 0; index < args.length; index += 1) {
-    const arg = args[index];
-    if (arg === '--env-file') {
-      const value = args[++index];
-      if (!value) throw new Error('--env-file requires a path.');
-      environment.IDLE_ENV_FILE = path.resolve(process.cwd(), value);
-    } else if (arg?.startsWith('--env-file=')) {
-      environment.IDLE_ENV_FILE = path.resolve(process.cwd(), arg.slice('--env-file='.length));
-    } else if (arg) {
-      remaining.push(arg);
-    }
-  }
-
-  return { environment, remaining };
-}
-
 /**
  * @function main
  * @description Dispatches a parsed global CLI command.
@@ -96,7 +91,8 @@ function parseEnvironmentArguments(args: string[]): ParsedEnvironmentArguments {
  * // mac-idle-keeper launch-agent status
  */
 function main(args: string[]): void {
-  const { environment, remaining } = parseEnvironmentArguments(args);
+  const parsed = parseConfigurationArguments(args);
+  const { environment, remaining } = parsed;
   const [command = 'start', ...commandArgs] = remaining;
   if (command === 'help' || command === '--help' || command === '-h') {
     printHelp();
@@ -117,12 +113,33 @@ function main(args: string[]): void {
     return;
   }
 
-  if (command === 'launch-agent') {
+  if (command === 'launch-agent' || command === 'agent') {
     const [action, ...actionArgs] = commandArgs;
     if (!action)
       throw new Error(
-        'launch-agent requires an action. Run mac-idle-keeper launch-agent --help for usage.',
+        `${command} requires an action. Run mac-idle-keeper ${command} --help for usage.`,
       );
+    if (action === 'install' || action === 'restart') {
+      environment.IDLE_CONFIG_SOURCE = 'global';
+      for (const key of configurationEnvironmentNames) delete environment[key];
+      delete environment.IDLE_ENV_FILE;
+      delete environment.IDLE_ENV_FILE_EXPLICIT;
+      for (const key of Object.keys(parsed.configurationOverrides)) {
+        environment[key] = parsed.configurationOverrides[key];
+      }
+      if (parsed.hasExplicitEnvironmentFile) {
+        environment.IDLE_ENV_FILE = parsed.environment.IDLE_ENV_FILE;
+        environment.IDLE_ENV_FILE_EXPLICIT = '1';
+      }
+    }
+    if (action === 'install') {
+      run(
+        process.execPath,
+        [path.join(packageRoot, 'dist', 'scripts', 'installLaunchAgent', 'index.js')],
+        environment,
+      );
+      return;
+    }
     if (action === 'logs') {
       run(
         process.execPath,
@@ -138,6 +155,18 @@ function main(args: string[]): void {
         action,
         ...actionArgs,
       ],
+      environment,
+    );
+    return;
+  }
+
+  if (command === 'power') {
+    const [action, ...actionArgs] = commandArgs;
+    if (!action)
+      throw new Error('power requires an action. Run mac-idle-keeper power --help for usage.');
+    run(
+      process.execPath,
+      [path.join(packageRoot, 'dist', 'scripts', 'managePower', 'index.js'), action, ...actionArgs],
       environment,
     );
     return;
