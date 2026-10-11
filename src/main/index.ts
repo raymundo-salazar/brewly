@@ -9,6 +9,7 @@ import { createLogger } from '../logger';
 import { createMonitor } from '../monitor';
 import { createNotifier } from '../notifications';
 import { removeRuntimeState, writeRuntimeState } from '../runtimeState';
+import { header, info } from '../cliOutput';
 import type { CheckStatus, RuntimeState } from '../runtimeState';
 
 const envFile = process.env.IDLE_ENV_FILE ?? path.join(process.cwd(), '.env');
@@ -37,6 +38,14 @@ void app.whenReady().then((): void => {
     config,
     log,
   });
+
+  header('Mac Idle Keeper — Monitor');
+  info('Schedule', `${config.startTime}-${config.endTime}`);
+  info('Days', config.days.join(', '));
+  info('Timezone', config.timezone);
+  info('Check interval', `${config.intervalMs} ms`);
+  info('Idle threshold', `${config.idleThresholdSeconds} seconds`);
+  info('Activity action', config.action);
 
   const runtimeState: RuntimeState = {
     pid: process.pid,

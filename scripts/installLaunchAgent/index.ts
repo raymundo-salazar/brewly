@@ -6,6 +6,7 @@ import { error, header, info, success } from '../../src/cliOutput';
 import type { LaunchAgentPaths } from './types';
 
 process.on('uncaughtException', (cause: Error): void => {
+  header('Mac Idle Keeper — LaunchAgent installation failed');
   error(cause.message);
   process.exitCode = 1;
 });

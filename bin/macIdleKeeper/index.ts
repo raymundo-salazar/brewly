@@ -3,6 +3,7 @@
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import electronModule from 'electron';
+import { error, header, info, item, section } from '../../src/cliOutput';
 import type { ParsedEnvironmentArguments } from './types';
 
 const packageRoot = path.resolve(__dirname, '..', '..', '..');
@@ -17,20 +18,26 @@ const electronMainPath = path.join(packageRoot, 'dist', 'src', 'main', 'index.js
  * @throws Does not throw during normal terminal output.
  */
 function printHelp(): void {
-  console.log(`Mac Idle Keeper — macOS idle monitor
-
-Usage:
-  mac-idle-keeper start [--env-file PATH]
-  mac-idle-keeper launch-agent <install|status|logs|stop|pause|resume|restart|uninstall> [--env-file PATH]
-  mac-idle-keeper logs [--follow] [--lines N] [--env-file PATH]
-  mac-idle-keeper help
-
-Examples:
-  mac-idle-keeper start
-  mac-idle-keeper launch-agent install
-  mac-idle-keeper launch-agent status
-  mac-idle-keeper logs --follow
-`);
+  header('Mac Idle Keeper — Command line interface');
+  section('Usage');
+  item('mac-idle-keeper <command> [options]');
+  section('Commands');
+  info('start', 'Start the monitor in the current session.');
+  info('launch-agent', 'Install and manage the background LaunchAgent.');
+  info('logs', 'Show recent application logs or follow them live.');
+  info('help', 'Show this command reference.');
+  section('LaunchAgent actions');
+  item('install | status | logs | stop | pause | resume | restart | uninstall | help');
+  section('Options');
+  info('--env-file PATH', 'Load configuration from a specific environment file.');
+  info('--follow', 'Continue displaying new log entries.');
+  info('--lines N', 'Display the last N log entries.');
+  section('Examples');
+  item('mac-idle-keeper start');
+  item('mac-idle-keeper launch-agent install');
+  item('mac-idle-keeper launch-agent status');
+  item('mac-idle-keeper launch-agent --help');
+  item('mac-idle-keeper logs --follow');
 }
 
 /**
@@ -139,8 +146,8 @@ function main(args: string[]): void {
 
 try {
   main(process.argv.slice(2));
-} catch (error: unknown) {
-  console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
+} catch (cause: unknown) {
+  error(`Command failed: ${cause instanceof Error ? cause.message : String(cause)}`);
   process.exitCode = 1;
 }
 

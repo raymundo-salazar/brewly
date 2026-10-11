@@ -5,7 +5,15 @@ import { loadEnvFile } from '../../src/env';
 import { loadConfig } from '../../src/config';
 import { readRuntimeState } from '../../src/runtimeState';
 import { formatStoredLogLine } from '../../src/time';
-import { error as printError, header, info, paint } from '../../src/cliOutput';
+import {
+  error as printError,
+  header,
+  info,
+  item,
+  section,
+  state,
+  warning,
+} from '../../src/cliOutput';
 import type { LogContext, LogOptions } from './types';
 
 const runtimeStatePath = path.join(
@@ -157,10 +165,14 @@ export function main(): void {
   info('Log', context.filePath);
   info('Display timezone', context.timezone);
   info('Lines', options.lines);
-  for (const line of readLastLines(context.filePath, options.lines))
-    console.log(formatStoredLogLine(line, context.timezone));
+  const recentLines = readLastLines(context.filePath, options.lines);
+  section('Recent entries');
+  if (recentLines.length === 0) warning('No log entries found.');
+  else for (const line of recentLines) item(formatStoredLogLine(line, context.timezone));
   if (options.follow) {
-    console.log(`\n${paint('Following log. Press Ctrl+C to stop.', 'cyan')}`);
+    section('Follow mode');
+    state('Process', 'FOLLOWING', 'green');
+    info('Stop', 'Press Ctrl+C');
     followFile(context.filePath, fs.statSync(context.filePath).size, context.timezone);
   }
 }
@@ -169,6 +181,7 @@ if (require.main === module) {
   try {
     main();
   } catch (cause: unknown) {
+    header('Mac Idle Keeper — Application log error');
     printError(`Unable to read log: ${cause instanceof Error ? cause.message : String(cause)}`);
     process.exitCode = 1;
   }

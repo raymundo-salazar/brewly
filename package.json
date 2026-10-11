@@ -50,6 +50,7 @@
     "test:coverage": "jest --coverage --runInBand",
     "check": "pnpm run lint && pnpm run format:check && pnpm run test:coverage && pnpm run build",
     "launch-agent:install": "pnpm build && node dist/scripts/installLaunchAgent/index.js",
+    "launch-agent:help": "pnpm build && node dist/scripts/manageLaunchAgent/index.js --help",
     "launch-agent:status": "pnpm build && node dist/scripts/manageLaunchAgent/index.js status",
     "launch-agent:logs": "pnpm build && node dist/scripts/viewLogs/index.js",
     "launch-agent:stop": "pnpm build && node dist/scripts/manageLaunchAgent/index.js stop",

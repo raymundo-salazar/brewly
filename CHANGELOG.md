@@ -10,11 +10,13 @@ All notable changes to this project are documented here.
 - Added Jest tests with Istanbul coverage reports and a minimum 90% threshold for statements, branches, functions, and lines.
 - Added ESLint, Prettier, and Husky quality gates for local commits and pushes.
 - Added TypeScript source and test structure with PascalCase component folders, colocated type declarations, and mirrored Jest suites.
+- Added dedicated `launch-agent --help` and `launch-agent:help` command references.
 
 ### Changed
 
 - Updated the npm CLI and LaunchAgent tooling to execute compiled files from `dist/`.
 - Updated CI documentation and development commands for the TypeScript, ESLint, Prettier, Jest, and build workflow.
+- Standardized command output with consistent headers, labeled details, colored states, readable lists, and contextual error messages.
 
 ## [1.4.0] - 2026-10-06
 

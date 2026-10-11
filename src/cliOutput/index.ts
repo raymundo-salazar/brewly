@@ -30,6 +30,18 @@ export function header(title: string): void {
 }
 
 /**
+ * @function section
+ * @description Prints a smaller colored section title within a CLI response.
+ *
+ * @param title - Section title to print.
+ * @returns Nothing.
+ * @throws Does not throw for a valid title.
+ */
+export function section(title: string): void {
+  console.log(`\n${paint(title, 'cyan')}`);
+}
+
+/**
  * @function info
  * @description Prints a labeled informational value.
  *
@@ -40,6 +52,33 @@ export function header(title: string): void {
  */
 export function info(label: string, value: string | number): void {
   console.log(`${paint(`${label}:`, 'gray')} ${value}`);
+}
+
+/**
+ * @function state
+ * @description Prints a labeled state value using the semantic terminal tone for that state.
+ *
+ * @param label - State label shown before the value.
+ * @param value - State text to display.
+ * @param tone - Color tone associated with the state.
+ * @returns Nothing.
+ * @throws Does not throw for valid output values.
+ */
+export function state(label: string, value: string, tone: Tone): void {
+  info(label, paint(value, tone));
+}
+
+/**
+ * @function item
+ * @description Prints one indented item for a readable CLI list.
+ *
+ * @param value - Item text to print.
+ * @param tone - Optional color tone for the item.
+ * @returns Nothing.
+ * @throws Does not throw for valid output values.
+ */
+export function item(value: string, tone: Tone = 'gray'): void {
+  console.log(`  ${paint(value, tone)}`);
 }
 
 /**

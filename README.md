@@ -189,9 +189,12 @@ With the global CLI, install and manage the per-user macOS LaunchAgent with:
 mac-idle-keeper launch-agent install
 mac-idle-keeper launch-agent status
 mac-idle-keeper launch-agent logs --follow
+mac-idle-keeper launch-agent --help
 ```
 
 The CLI also supports `stop`, `pause`, `resume`, `restart`, and `uninstall` after `launch-agent`.
+
+All CLI commands use a consistent human-readable response format. Each response includes a descriptive header, labeled details, semantic status colors when the terminal supports them, and actionable success or error messages. Use `status` for the most complete runtime view and `logs` when you need the application event stream.
 
 Install the per-user macOS LaunchAgent:
 
@@ -205,6 +208,7 @@ The LaunchAgent starts at login, keeps the monitor alive, and uses the `.env` fi
 
 ```bash
 pnpm run launch-agent:status      # Show runtime status and recent activity
+pnpm run launch-agent:help        # Show LaunchAgent command help
 pnpm run launch-agent:logs        # Show the last 50 application log lines
 pnpm run launch-agent:logs -- --follow  # Follow the application log in real time
 pnpm run launch-agent:stop       # Stop the process; preserve the plist

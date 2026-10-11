@@ -1,4 +1,14 @@
-import { error, header, info, paint, success, warning } from '../../src/cliOutput';
+import {
+  error,
+  header,
+  info,
+  item,
+  paint,
+  section,
+  state,
+  success,
+  warning,
+} from '../../src/cliOutput';
 
 describe('CliOutput', () => {
   test('prints human-readable output helpers', () => {
@@ -6,7 +16,10 @@ describe('CliOutput', () => {
     const errorLog = jest.spyOn(console, 'error').mockImplementation(() => undefined);
     expect(paint('message', 'cyan')).toContain('message');
     header('Header');
+    section('Section');
     info('Label', 'value');
+    state('Process', 'RUNNING', 'green');
+    item('entry');
     success('ok');
     warning('warning');
     error('error');

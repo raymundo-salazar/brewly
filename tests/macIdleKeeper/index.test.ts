@@ -11,4 +11,24 @@ describe('MacIdleKeeper CLI', () => {
     expect(output).toMatch(/launch-agent/);
     expect(output).toMatch(/--env-file PATH/);
   });
+
+  test('prints dedicated LaunchAgent help with the nested help flag', () => {
+    const manageScript = path.join(
+      __dirname,
+      '..',
+      '..',
+      'scripts',
+      'manageLaunchAgent',
+      'index.ts',
+    );
+    const output = execFileSync(
+      process.execPath,
+      ['-r', 'ts-node/register', manageScript, '--help'],
+      { encoding: 'utf8' },
+    );
+
+    expect(output).toMatch(/Mac Idle Keeper — LaunchAgent help/);
+    expect(output).toMatch(/install: Create and load/);
+    expect(output).toMatch(/--help, -h/);
+  });
 });

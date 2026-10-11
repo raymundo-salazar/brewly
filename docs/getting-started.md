@@ -83,9 +83,12 @@ Install and manage the per-user LaunchAgent through the global CLI:
 mac-idle-keeper launch-agent install
 mac-idle-keeper launch-agent status
 mac-idle-keeper launch-agent logs --follow
+mac-idle-keeper launch-agent --help
 ```
 
 Available actions are `install`, `status`, `logs`, `stop`, `pause`, `resume`, `restart`, and `uninstall`.
+
+CLI responses use consistent human-readable sections, labeled values, semantic colors when supported by the terminal, and actionable messages. `launch-agent status` provides the most complete state summary; `logs` provides the event stream.
 
 The source checkout exposes equivalent pnpm scripts such as `pnpm run launch-agent:install` and `pnpm run launch-agent:status`.
 

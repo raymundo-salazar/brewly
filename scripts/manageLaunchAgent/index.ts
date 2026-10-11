@@ -7,10 +7,11 @@ import { loadConfig } from '../../src/config';
 import { isWithinSchedule, localDateInTimeZone } from '../../src/schedule';
 import { formatStoredLogLine, formatTimestampForDisplay } from '../../src/time';
 import { readRuntimeState } from '../../src/runtimeState';
-import { error, header, info, paint, success, warning } from '../../src/cliOutput';
+import { error, header, info, item, section, state, success, warning } from '../../src/cliOutput';
 import type { LaunchAgentCommand } from './types';
 
 process.on('uncaughtException', (cause: Error): void => {
+  header('Mac Idle Keeper — LaunchAgent operation failed');
   error(cause.message);
   process.exitCode = 1;
 });
@@ -84,6 +85,53 @@ function loadService(): void {
 }
 
 /**
+ * @function operationHeader
+ * @description Prints the common context displayed before a LaunchAgent lifecycle operation.
+ *
+ * @param operation - Operation name shown in the response header.
+ * @returns Nothing.
+ * @throws Does not throw for a valid operation name.
+ */
+function operationHeader(operation: string): void {
+  header(`Mac Idle Keeper — LaunchAgent ${operation}`);
+  info('Service', label);
+  info('Plist', plistPath);
+}
+
+/**
+ * @function printHelp
+ * @description Prints the LaunchAgent command reference, actions, options, and examples.
+ *
+ * @returns Nothing; help text is written to standard output.
+ * @throws Does not throw during normal terminal output.
+ *
+ * @example
+ * // mac-idle-keeper launch-agent --help
+ */
+function printHelp(): void {
+  header('Mac Idle Keeper — LaunchAgent help');
+  section('Usage');
+  item('mac-idle-keeper launch-agent <action> [options]');
+  section('Actions');
+  info('install', 'Create and load the per-user LaunchAgent.');
+  info('status', 'Show installation, process, schedule, and recent activity state.');
+  info('logs', 'Show recent application log entries or follow them live.');
+  info('stop', 'Stop the service while preserving its plist.');
+  info('pause', 'Stop the service and disable automatic relaunch.');
+  info('resume', 'Enable and load a previously paused service.');
+  info('restart', 'Refresh the plist and restart the service.');
+  info('uninstall', 'Stop the service and remove its plist.');
+  section('Options');
+  info('--help, -h', 'Show this LaunchAgent command reference.');
+  info('--env-file PATH', 'Use a specific environment file when invoked through the global CLI.');
+  section('Examples');
+  item('mac-idle-keeper launch-agent install');
+  item('mac-idle-keeper launch-agent status');
+  item('mac-idle-keeper launch-agent logs --follow');
+  item('mac-idle-keeper launch-agent restart');
+}
+
+/**
  * @function status
  * @description Prints human-readable LaunchAgent and runtime state information.
  *
@@ -135,20 +183,23 @@ function status(): void {
   const schedule = `${config.startTime}-${config.endTime} (${config.days.map((day) => dayNames[day]).join(', ')})`;
 
   header('Mac Idle Keeper — LaunchAgent Status');
-  console.log(`Installed: ${exists ? paint('YES', 'green') : paint('NO', 'red')}`);
+  state('Installed', exists ? 'YES' : 'NO', exists ? 'green' : 'red');
   info('Plist', plistPath);
-  info(
+  state(
     'Runtime schedule',
-    `${insideSchedule ? paint('IN SCHEDULE', 'green') : paint('OUTSIDE SCHEDULE', 'yellow')} (${schedule})`,
+    insideSchedule ? 'IN SCHEDULE' : 'OUTSIDE SCHEDULE',
+    insideSchedule ? 'green' : 'yellow',
   );
+  info('Schedule', schedule);
   info(
     'Current time',
     `${formatTime(localNow.getUTCHours() * 60 + localNow.getUTCMinutes())} ${config.timezone}`,
   );
   info('Current timezone', config.timezone);
-  info(
+  state(
     'Runtime state',
-    runtimeState ? paint('AVAILABLE', 'green') : paint('NOT AVAILABLE', 'yellow'),
+    runtimeState ? 'AVAILABLE' : 'NOT AVAILABLE',
+    runtimeState ? 'green' : 'yellow',
   );
 
   try {
@@ -163,9 +214,13 @@ function status(): void {
      */
     const field = (name: string): string =>
       output.match(new RegExp(`^\\s*${name}\\s*=\\s*(.+)$`, 'm'))?.[1]?.trim() ?? '—';
-    const state = field('state');
-    info('Enabled', paint('YES', 'green'));
-    info('Process', state === 'running' ? paint('RUNNING', 'green') : paint(state, 'yellow'));
+    const serviceState = field('state');
+    state('Enabled', 'YES', 'green');
+    state(
+      'Process',
+      serviceState === 'running' ? 'RUNNING' : serviceState,
+      serviceState === 'running' ? 'green' : serviceState === 'stopped' ? 'red' : 'yellow',
+    );
     info('PID', field('pid'));
     info('Runs', field('runs'));
     info('Last exit code', field('last exit code'));
@@ -179,8 +234,8 @@ function status(): void {
     } catch {
       // The service domain may not be available.
     }
-    info('Enabled', paused ? paint('NO (PAUSED)', 'yellow') : paint('YES', 'green'));
-    info('Process', paused ? paint('PAUSED', 'yellow') : paint('STOPPED', 'red'));
+    state('Enabled', paused ? 'NO (PAUSED)' : 'YES', paused ? 'yellow' : 'green');
+    state('Process', paused ? 'PAUSED' : 'STOPPED', paused ? 'yellow' : 'red');
   }
 
   if (runtimeState) {
@@ -191,7 +246,7 @@ function status(): void {
     info('Last check', `${lastCheck} (${runtimeState.lastCheckStatus ?? '—'})`);
   }
   info('Log', logPath);
-  console.log(`\n${paint('Last 5 activity actions:', 'cyan')}`);
+  section('Last 5 activity actions');
   try {
     const actions = fs
       .readFileSync(logPath, 'utf8')
@@ -199,7 +254,7 @@ function status(): void {
       .filter((line) => line.includes('activity action executed'))
       .slice(-5);
     if (actions.length === 0) warning('No activity actions recorded.');
-    else actions.forEach((line) => console.log(`  ${formatStoredLogLine(line, config.timezone)}`));
+    else actions.forEach((line) => item(formatStoredLogLine(line, config.timezone)));
   } catch {
     warning('Log file not found yet.');
   }
@@ -207,36 +262,52 @@ function status(): void {
 }
 
 switch (command) {
+  case 'help':
+  case '--help':
+  case '-h':
+    printHelp();
+    break;
   case 'status':
     status();
     break;
   case 'stop':
+    operationHeader('Stop');
     bootout();
-    success(`${label} stopped; plist preserved.`);
+    state('Process', 'STOPPED', 'yellow');
+    success('Service stopped. The LaunchAgent plist was preserved.');
     break;
   case 'pause':
+    operationHeader('Pause');
     bootout();
     launchctl(['disable', service]);
-    success(`${label} paused; use resume to enable it again.`);
+    state('Process', 'PAUSED', 'yellow');
+    success('Service paused. Use resume to enable it again.');
     break;
   case 'resume':
+    operationHeader('Resume');
     launchctl(['enable', service], true);
     loadService();
-    success(`${label} resumed.`);
+    state('Process', 'RUNNING', 'green');
+    success('Service resumed and loaded.');
     break;
   case 'restart':
+    operationHeader('Restart');
     execFileSync(process.execPath, [path.join(__dirname, '..', 'installLaunchAgent', 'index.js')], {
       stdio: 'inherit',
     });
-    success(`${label} restarted.`);
+    state('Process', 'RUNNING', 'green');
+    success('Service restarted and verified.');
     break;
   case 'uninstall':
+    operationHeader('Uninstall');
     bootout();
     launchctl(['enable', service], true);
     if (fs.existsSync(plistPath)) fs.unlinkSync(plistPath);
-    success(`${label} uninstalled and ${plistPath} removed.`);
+    state('Installed', 'NO', 'yellow');
+    success('Service uninstalled and its plist was removed.');
     break;
   default:
+    header('Mac Idle Keeper — LaunchAgent command error');
     error('Usage: mac-idle-keeper launch-agent <status|stop|pause|resume|restart|uninstall>');
     process.exitCode = 1;
 }
