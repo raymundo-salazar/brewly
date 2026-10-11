@@ -6,3 +6,8 @@ logs/
 idle-test.log
 idle-test-no-move.log
 *.tgz
+dist/
+coverage/
+.tsbuildinfo
+junit.xml
+.husky/_/

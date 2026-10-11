@@ -1,0 +1,6 @@
+dist/
+coverage/
+node_modules/
+*.tgz
+logs/
+idle-test*.log
