@@ -13,6 +13,7 @@ const config = {
   intervalMs: 1,
   logFile: null,
   action: 'hid-event',
+  powerOnOffsetMinutes: 5,
 };
 const duringSchedule = (): Date => new Date('2026-10-05T14:00:00.000Z');
 
