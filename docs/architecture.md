@@ -22,7 +22,7 @@ mac-idle-keeper CLI
 ## Important modules
 
 - `bin/macIdleKeeper`: global npm CLI entrypoint. It does not implement monitoring; it delegates foreground work to Electron and management work to scripts.
-- `src/main`: Electron process bootstrap, environment loading, runtime state, notifications, monitor, and shutdown handling.
+- `src/main`: Electron process bootstrap, environment loading, runtime state, notifications, monitor, shutdown handling, and the explicit `~/Library/Application Support/mac-idle-keeper/` user-data path shared by foreground and LaunchAgent processes.
 - `src/config`: parses environment variables into effective runtime configuration.
 - `src/configArguments`: maps user-facing CLI configuration options to the environment keys consumed by `src/config`.
 - `src/schedule`: evaluates the schedule using the configured IANA timezone.

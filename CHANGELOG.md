@@ -34,6 +34,7 @@ All notable changes to this project are documented here.
 ### Fixed
 
 - Fixed LaunchAgent status reporting so an uninstalled agent shows `NOT CONFIGURED` instead of presenting `.env` values as an active schedule.
+- Fixed Electron runtime data paths so logs, runtime state, and configuration history are stored under `~/Library/Application Support/mac-idle-keeper/`.
 
 ## [1.4.0] - 2026-10-06
 

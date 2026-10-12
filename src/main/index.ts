@@ -1,3 +1,4 @@
+import os from 'node:os';
 import path from 'node:path';
 import { app, Notification, powerMonitor } from 'electron';
 import { readAgentConfig } from '../agentConfig';
@@ -13,6 +14,19 @@ import { removeRuntimeState, writeRuntimeState } from '../runtimeState';
 import { header, info } from '../cliOutput';
 import type { Config } from '../config/types';
 import type { CheckStatus, RuntimeState } from '../runtimeState';
+
+/**
+ * @constant applicationSupportPath
+ * @description Defines the single managed application-data directory used by the Electron monitor.
+ */
+const applicationSupportPath = path.join(
+  os.homedir(),
+  'Library',
+  'Application Support',
+  'mac-idle-keeper',
+);
+
+app.setPath('userData', applicationSupportPath);
 
 /**
  * @function loadApplicationConfig
@@ -47,9 +61,9 @@ const config = loadApplicationConfig();
  * @throws Runtime initialization errors are surfaced through the Electron process.
  */
 void app.whenReady().then((): void => {
-  if (!config.logFile) config.logFile = path.join(app.getPath('userData'), 'mac-idle-keeper.log');
-  const runtimeStateFile = path.join(app.getPath('userData'), 'runtime-state.json');
-  const configHistoryFile = path.join(app.getPath('userData'), 'config-history.json');
+  if (!config.logFile) config.logFile = path.join(applicationSupportPath, 'mac-idle-keeper.log');
+  const runtimeStateFile = path.join(applicationSupportPath, 'runtime-state.json');
+  const configHistoryFile = path.join(applicationSupportPath, 'config-history.json');
   if (process.platform === 'darwin' && app.dock) app.dock.hide();
   const log = createLogger(config.logFile, console, { timezone: config.timezone });
   const notifier = createNotifier(Notification, log);
