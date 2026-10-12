@@ -18,7 +18,8 @@ The suite uses Jest with `ts-jest` and covers:
 - notifications;
 - runtime state and configuration history;
 - UTC log storage and local display conversion;
-- CLI help and log inspection.
+- CLI help and log inspection;
+- status bar indicator states and lifecycle behavior.
 
 Tests are deterministic and do not require a live Electron window or a real mouse movement. External processes, notifications, filesystem state, and platform branches use mocks or temporary directories.
 

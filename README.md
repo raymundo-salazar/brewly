@@ -111,7 +111,7 @@ mac-idle-keeper agent install \
   --power-on-offset-minutes 5
 ```
 
-The supported options are `--idle-check-interval-ms`, `--idle-threshold-seconds`, `--idle-days`, `--idle-start-time`, `--idle-end-time`, `--idle-start-hour`, `--idle-end-hour`, `--idle-timezone`, `--idle-action`, `--idle-log-file`, and `--power-on-offset-minutes`. Omitting an option uses the corresponding documented default.
+The supported options are `--env-file`, `--idle-check-interval-ms`, `--idle-threshold-seconds`, `--idle-days`, `--idle-start-time`, `--idle-end-time`, `--idle-start-hour`, `--idle-end-hour`, `--idle-timezone`, `--idle-action`, `--idle-log-file`, and `--power-on-offset-minutes`. Omitting an option uses the corresponding documented default.
 
 After changing a global configuration, pass the desired options again to `mac-idle-keeper agent restart`. Starting, stopping, pausing, or resuming the existing agent does not change its persisted configuration.
 
@@ -168,6 +168,7 @@ IDLE_DAYS=1,3,4,5
 `IDLE_ACTION` controls what Mac Idle Keeper does after the idle threshold is exceeded:
 
 - `hid-event`: moves the physical mouse and posts mouse events through CoreGraphics;
+- `hid-event-static`: posts a mouse event at the current pointer position for diagnostics and compatibility;
 - `caffeinate`: requests a short macOS user-activity assertion without moving the pointer;
 - `none`: records the detection without executing an activity action.
 
@@ -498,12 +499,14 @@ src/                   TypeScript runtime components
   actions/             Activity actions and native helper lifecycle
   awake/               caffeinate awake guard
   config/              Environment configuration and validation
+  configHistory/       Effective configuration change history
   main/                Electron process entrypoint
   monitor/             Idle polling and schedule coordination
   notifications/       macOS notifications
   runtimeState/        Effective runtime state persistence
   schedule/             Timezone-aware schedule evaluation
   time/                 UTC storage and timezone-aware display formatting
+  tray/                macOS status bar indicator
 scripts/               TypeScript LaunchAgent/log commands
   idle-reset.m         CoreGraphics physical mouse helper
 tests/                 Jest tests mirroring source components

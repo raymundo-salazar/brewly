@@ -93,7 +93,7 @@ LaunchAgent status treats the plist or runtime state as the source of an active 
 
 ## Status bar indicator
 
-When the Electron monitor starts, it creates a small circular status bar item. The indicator is gray while startup is in progress, green while the effective schedule is active, yellow outside the schedule, and red when a monitor check fails. Its context menu shows the current state and provides a quit action. The indicator is created by the Electron monitor process, so it appears when an installed LaunchAgent actually starts rather than when the plist is merely written.
+When the Electron monitor starts, it creates a small circular status bar item. The indicator is gray while startup is in progress, green while the effective schedule is active, yellow outside the schedule, and red when a monitor check fails. Its context menu shows the current state and provides a quit action. The indicator is created by the Electron monitor process, so it appears when an installed LaunchAgent actually starts rather than when the plist is merely written. If macOS returns an empty native image, the tray falls back to a visible colored Unicode circle symbol.
 
 ## Power schedule behavior
 
