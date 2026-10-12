@@ -18,6 +18,7 @@ All notable changes to this project are documented here.
 - Added interactive uninstall retention prompts and `--yes`/`-y` for complete managed-data removal.
 - Added the persisted `agent-config.json` snapshot used by the background agent, status, power, and log commands.
 - Added explicit global CLI configuration options for every runtime setting and the power-on offset.
+- Added a circular macOS status bar indicator for monitor lifecycle and schedule state.
 
 ### Changed
 

@@ -1,6 +1,6 @@
 import os from 'node:os';
 import path from 'node:path';
-import { app, Notification, powerMonitor } from 'electron';
+import { app, Menu, nativeImage, Notification, powerMonitor, Tray } from 'electron';
 import { readAgentConfig } from '../agentConfig';
 import { createAction } from '../actions';
 import { createAwakeGuard } from '../awake';
@@ -11,6 +11,7 @@ import { createLogger } from '../logger';
 import { createMonitor } from '../monitor';
 import { createNotifier } from '../notifications';
 import { removeRuntimeState, writeRuntimeState } from '../runtimeState';
+import { createTray } from '../tray';
 import { header, info } from '../cliOutput';
 import type { Config } from '../config/types';
 import type { CheckStatus, RuntimeState } from '../runtimeState';
@@ -67,6 +68,12 @@ void app.whenReady().then((): void => {
   if (process.platform === 'darwin' && app.dock) app.dock.hide();
   const log = createLogger(config.logFile, console, { timezone: config.timezone });
   const notifier = createNotifier(Notification, log);
+  const tray = createTray({
+    trayConstructor: Tray,
+    nativeImage,
+    menu: Menu,
+    onQuit: (): void => app.quit(),
+  });
   const awakeGuard = createAwakeGuard({ log });
   const monitor = createMonitor({
     powerMonitor,
@@ -107,6 +114,13 @@ void app.whenReady().then((): void => {
    * @throws Throws when the runtime state file cannot be written.
    */
   const persistState = (result: { status?: CheckStatus } = {}): void => {
+    tray.setStatus(
+      result.status === undefined
+        ? 'starting'
+        : result.status === 'outside-schedule'
+          ? 'outside-schedule'
+          : 'in-schedule',
+    );
     writeRuntimeState(runtimeStateFile, {
       ...runtimeState,
       lastCheckAt: new Date().toISOString(),
@@ -116,6 +130,7 @@ void app.whenReady().then((): void => {
   };
 
   notifier.started();
+  tray.setStatus('starting');
   log(`started; interval=${config.intervalMs}ms timezone=${config.timezone}`);
   recordConfigChanges(configHistoryFile, config, log);
   persistState();
@@ -130,17 +145,19 @@ void app.whenReady().then((): void => {
     void monitor
       .check()
       .then(persistState)
-      .catch((error: unknown) =>
+      .catch((error: unknown): void => {
+        tray.setStatus('error');
         log(
           `check failed: ${error instanceof Error ? (error.stack ?? error.message) : String(error)}`,
-        ),
-      );
+        );
+      });
   };
   runCheck();
   setInterval(runCheck, config.intervalMs);
 
   app.once('before-quit', (): void => {
     awakeGuard.stop();
+    tray.destroy();
     removeRuntimeState(runtimeStateFile);
     notifier.stopped();
     log('stopping');
