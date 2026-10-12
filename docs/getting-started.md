@@ -98,6 +98,8 @@ pnpm start
 
 The monitor performs an immediate check and then continues at `IDLE_CHECK_INTERVAL_MS`. Stop it with `Ctrl+C`.
 
+When the monitor process is running, Mac Idle Keeper also places a circular indicator in the macOS status bar. It is gray during startup, green while the active schedule is running, yellow outside the schedule, and red if a monitor check fails. The indicator's menu shows the current state and can request the monitor to quit.
+
 ## Run in the background
 
 Install and manage the per-user LaunchAgent through the global CLI:

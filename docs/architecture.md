@@ -33,6 +33,7 @@ mac-idle-keeper CLI
 - `src/time`: UTC log-line parsing and timezone-aware display formatting.
 - `src/configHistory`: compares effective configuration snapshots across starts and records changes.
 - `src/runtimeState`: stores the live process configuration and last check for status inspection.
+- `src/tray`: owns the colored macOS status bar indicator and its lifecycle menu.
 - `scripts/installLaunchAgent`: generates and loads the per-user LaunchAgent plist.
 - `scripts/manageLaunchAgent`: status, start, stop, pause, resume, restart, and uninstall operations.
 - `scripts/viewLogs`: log tail and follow behavior with timezone-aware display.
@@ -89,6 +90,10 @@ LaunchAgent lifecycle semantics are explicit:
 - `uninstall` stops the service and removes the plist, then prompts whether the managed application support and LaunchAgent log directories should be retained. `--yes`/`-y` selects complete removal without prompting. User-owned `.env` files and custom log paths outside the managed directories are preserved. A managed power schedule state blocks application-data deletion until the power schedule is explicitly disabled.
 
 LaunchAgent status treats the plist or runtime state as the source of an active configuration. If both are absent, it reports `Configuration: NOT CONFIGURED`, `Runtime schedule: NOT CONFIGURED`, and `Log: NOT CONFIGURED`; a local `.env` is not displayed as an active agent configuration.
+
+## Status bar indicator
+
+When the Electron monitor starts, it creates a small circular status bar item. The indicator is gray while startup is in progress, green while the effective schedule is active, yellow outside the schedule, and red when a monitor check fails. Its context menu shows the current state and provides a quit action. The indicator is created by the Electron monitor process, so it appears when an installed LaunchAgent actually starts rather than when the plist is merely written.
 
 ## Power schedule behavior
 

@@ -13,6 +13,7 @@ During its active schedule it also runs a macOS `caffeinate` assertion to preven
 - Configurable activity actions, including physical 10-pixel mouse movement over approximately 300 ms.
 - `caffeinate` awake guard while the schedule is active.
 - macOS start and stop notifications.
+- A circular macOS status bar indicator for startup, active schedule, outside-schedule, and error states.
 - Foreground mode for testing and a per-user LaunchAgent for background operation.
 - Optional macOS wake or power-on scheduling aligned with the monitor's active window.
 - Colorized, human-readable output across the CLI commands, including LaunchAgent status and the last five activity actions.
