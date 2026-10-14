@@ -11,3 +11,4 @@ coverage/
 .tsbuildinfo
 junit.xml
 .husky/_/
+_*
