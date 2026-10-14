@@ -13,7 +13,7 @@ During its active schedule it also runs a macOS `caffeinate` assertion to preven
 - Configurable activity actions, including physical 10-pixel mouse movement over approximately 300 ms.
 - `caffeinate` awake guard while the schedule is active.
 - macOS start and stop notifications.
-- A macOS status bar indicator using transparent @1x and @2x PNG assets for startup, active schedule, outside-schedule, paused, and error states.
+- A macOS status bar indicator using transparent @1x and @2x PNG assets for startup, active schedule, outside-schedule, paused, stopped, and error states.
 - Localized English or Spanish tray controls with native play, pause, and stop menu icons.
 - Foreground mode for testing and a per-user LaunchAgent for background operation.
 - Optional macOS wake or power-on scheduling aligned with the monitor's active window.
@@ -239,7 +239,7 @@ Install the per-user macOS LaunchAgent:
 pnpm run launch-agent:install
 ```
 
-The LaunchAgent starts at login, keeps the monitor alive, and uses the persisted configuration snapshot created by install or restart. It is scoped to the current user session; it does not run before login.
+The LaunchAgent starts at login, relaunches the monitor after an unexpected failure, and uses the persisted configuration snapshot created by install or restart. A normal stop from the tray does not relaunch it. It is scoped to the current user session; it does not run before login.
 
 ### LaunchAgent commands
 

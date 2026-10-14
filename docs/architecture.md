@@ -80,7 +80,7 @@ Actions should remain independent of a specific application. They should express
 
 The LaunchAgent executes the Electron binary from the installed package and passes the compiled `dist/src/main/index.js` process entrypoint explicitly. Its working directory is the directory used when installation was requested, but the installed process reads `agent-config.json`, not a changing `.env` file. The package's Node.js `main` entrypoint remains `dist/src/index/index.js` for library consumers.
 
-The LaunchAgent is scoped to the current GUI user domain. It starts at login, uses `KeepAlive`, and cannot run before login or prevent full hibernation/power loss.
+The LaunchAgent is scoped to the current GUI user domain. It starts at login and uses `KeepAlive.SuccessfulExit=false`, so unexpected failures are relaunched while a normal stop is not. It cannot run before login or prevent full hibernation/power loss.
 
 LaunchAgent lifecycle semantics are explicit:
 
@@ -95,7 +95,7 @@ LaunchAgent status treats the plist or runtime state as the source of an active 
 
 ## Status bar indicator
 
-When the Electron monitor starts, it creates a status bar item from transparent @1x and @2x PNG representations in `assets/tray`. The inactive asset is gray during startup, the active asset is blue while the effective schedule is active, the idle asset is orange outside the schedule, and the error asset is red when a monitor check fails. macOS selects the appropriate representation for standard and Retina displays. Its localized context menu provides pause, resume, and stop actions with compact 12×12 native macOS SF Symbol template icons. macOS renders those menu icons black in light appearance and white in dark appearance. The locale from `app.getLocale()` selects the Spanish dictionary for `es-*` machines and English for other or unsupported locales. Pause keeps the process alive without polling; resume continues checks; stop exits the monitor process. The indicator is created by the Electron monitor process, so it appears when an installed LaunchAgent actually starts rather than when the plist is merely written. If macOS returns an empty native image, the tray falls back to a visible Unicode symbol.
+When the Electron monitor starts, it creates a status bar item from transparent @1x and @2x PNG representations in `assets/tray`. The inactive asset is gray during startup, the active asset is blue while the effective schedule is active, the idle asset is orange outside the schedule, the inactive asset is shown when stopped, and the error asset is red when a monitor check fails. macOS selects the appropriate representation for standard and Retina displays. Its localized context menu only shows valid lifecycle actions: pause and stop while running, resume and stop while paused, and start while stopped. The actions use compact 12×12 native macOS SF Symbol template icons. macOS renders those menu icons black in light appearance and white in dark appearance. The locale from `app.getLocale()` selects the Spanish dictionary for `es-*` machines and English for other or unsupported locales. Pause and stop keep the process alive without polling; resume and start continue checks. The indicator is created by the Electron monitor process, so it appears when an installed LaunchAgent actually starts rather than when the plist is merely written. If macOS returns an empty native image, the tray falls back to a visible Unicode symbol.
 
 ## Power schedule behavior
 

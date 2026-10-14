@@ -19,7 +19,8 @@ All notable changes to this project are documented here.
 - Added the persisted `agent-config.json` snapshot used by the background agent, status, power, and log commands.
 - Added explicit global CLI configuration options for every runtime setting and the power-on offset.
 - Added a circular macOS status bar indicator for monitor lifecycle and schedule state.
-- Added localized tray actions for pause, resume, and stop with English and Spanish dictionaries.
+- Added localized tray actions for pause, resume, start, and stop with English and Spanish dictionaries.
+- Added status-aware tray menus that only display actions valid for the current lifecycle state.
 
 ### Changed
 
@@ -27,7 +28,8 @@ All notable changes to this project are documented here.
 - Updated the npm CLI and LaunchAgent tooling to execute compiled files from `dist/`.
 - Updated CI documentation and development commands for the TypeScript, ESLint, Prettier, Jest, and build workflow.
 - Standardized command output with consistent headers, labeled details, colored states, readable lists, and contextual error messages.
-- Clarified LaunchAgent lifecycle semantics: `stop`/`start` fully stop and start the process, while `pause`/`resume` preserve and continue a paused service.
+- Clarified LaunchAgent lifecycle semantics: `stop`/`start` stop and start monitoring while preserving the tray process, while `pause`/`resume` preserve and continue a paused service.
+- Updated LaunchAgent relaunch behavior so unexpected failures are restarted while a normal stop remains stopped.
 - Documented that power scheduling does not change FileVault or automatic login settings and explained the session and physical-security implications.
 - Added the `agent install` global CLI route and equivalent pnpm script for installing the prerequisite LaunchAgent.
 - Clarified that uninstall always removes the plist and reports whether managed application data was retained or removed.
