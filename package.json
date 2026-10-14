@@ -14,6 +14,7 @@
   "types": "dist/src/index/index.d.ts",
   "files": [
     "dist",
+    "assets",
     "scripts/idle-reset.m",
     ".env.example",
     "README.md",

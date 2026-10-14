@@ -68,11 +68,16 @@ void app.whenReady().then((): void => {
   if (process.platform === 'darwin' && app.dock) app.dock.hide();
   const log = createLogger(config.logFile, console, { timezone: config.timezone });
   const notifier = createNotifier(Notification, log);
+  let paused = false;
+  let intervalHandle: ReturnType<typeof setInterval> | undefined;
   const tray = createTray({
+    locale: app.getLocale(),
     trayConstructor: Tray,
     nativeImage,
     menu: Menu,
-    onQuit: (): void => app.quit(),
+    onPause: pauseMonitor,
+    onResume: resumeMonitor,
+    onStop: stopMonitor,
   });
   const awakeGuard = createAwakeGuard({ log });
   const monitor = createMonitor({
@@ -152,10 +157,70 @@ void app.whenReady().then((): void => {
         );
       });
   };
+
+  /**
+   * @function startPolling
+   * @description Starts the monitor interval when the monitor is not paused.
+   *
+   * @returns Nothing.
+   * @throws Does not throw; interval creation is delegated to the runtime.
+   */
+  function startPolling(): void {
+    if (paused || intervalHandle !== undefined) return;
+    intervalHandle = setInterval(runCheck, config.intervalMs);
+  }
+
+  /**
+   * @function pauseMonitor
+   * @description Pauses checks and the awake guard while keeping the Electron process alive.
+   *
+   * @returns Nothing.
+   * @throws Does not throw; lifecycle changes are handled by local monitor dependencies.
+   */
+  function pauseMonitor(): void {
+    if (paused) return;
+    paused = true;
+    if (intervalHandle !== undefined) {
+      clearInterval(intervalHandle);
+      intervalHandle = undefined;
+    }
+    awakeGuard.stop();
+    tray.setStatus('paused');
+    log('monitor paused by user');
+  }
+
+  /**
+   * @function resumeMonitor
+   * @description Resumes monitor checks from the current process state.
+   *
+   * @returns Nothing.
+   * @throws Does not throw; the first check handles asynchronous monitor failures.
+   */
+  function resumeMonitor(): void {
+    if (!paused) return;
+    paused = false;
+    tray.setStatus('starting');
+    log('monitor resumed by user');
+    runCheck();
+    startPolling();
+  }
+
+  /**
+   * @function stopMonitor
+   * @description Stops the Electron monitor process completely.
+   *
+   * @returns Nothing.
+   * @throws Does not throw; Electron owns process shutdown.
+   */
+  function stopMonitor(): void {
+    app.quit();
+  }
+
   runCheck();
-  setInterval(runCheck, config.intervalMs);
+  startPolling();
 
   app.once('before-quit', (): void => {
+    if (intervalHandle !== undefined) clearInterval(intervalHandle);
     awakeGuard.stop();
     tray.destroy();
     removeRuntimeState(runtimeStateFile);

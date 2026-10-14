@@ -1,20 +1,46 @@
-import type { TrayStatus, TrayStatusStyle } from './types';
+import type { TrayAction, TrayIconStatus, TrayStatus } from './types';
 
-/** Defines the rendered circle size used by the macOS status bar icon. */
-export const TRAY_ICON_SIZE = 16;
-
-/** Maps monitor lifecycle states to their status bar colors and labels. */
-export const TRAY_STATUS_STYLES: Record<TrayStatus, TrayStatusStyle> = {
-  starting: { color: '#808080', label: 'Starting' },
-  'in-schedule': { color: '#34C759', label: 'In schedule' },
-  'outside-schedule': { color: '#FFCC00', label: 'Outside schedule' },
-  error: { color: '#FF3B30', label: 'Error' },
+/** Maps monitor states to @1x and @2x PNG assets shipped with the package. */
+export const TRAY_STATUS_ASSETS: Record<TrayIconStatus, { standard: string; retina: string }> = {
+  starting: {
+    standard: 'mac-idle-keeper-inactive@1x.png',
+    retina: 'mac-idle-keeper-inactive@2x.png',
+  },
+  'in-schedule': {
+    standard: 'mac-idle-keeper-active@1x.png',
+    retina: 'mac-idle-keeper-active@2x.png',
+  },
+  'outside-schedule': {
+    standard: 'mac-idle-keeper-idle@1x.png',
+    retina: 'mac-idle-keeper-idle@2x.png',
+  },
+  error: {
+    standard: 'mac-idle-keeper-error@1x.png',
+    retina: 'mac-idle-keeper-error@2x.png',
+  },
 };
 
-/** Provides visible Unicode circle fallbacks when macOS cannot render the SVG icon. */
+/** Maps the paused state to @1x and @2x light-appearance PNG assets. */
+export const TRAY_PAUSE_ASSET = {
+  standard: 'mac-idle-keeper-pause-light@1x.png',
+  retina: 'mac-idle-keeper-pause-light@2x.png',
+};
+
+/** Maps lifecycle actions to native macOS SF Symbol names. */
+export const TRAY_ACTION_ICONS: Record<TrayAction, string> = {
+  pause: 'pause.fill',
+  resume: 'play.fill',
+  stop: 'stop.fill',
+};
+
+/** Defines the logical size used for lifecycle icons inside the tray menu. */
+export const TRAY_MENU_ICON_SIZE = 12;
+
+/** Provides visible Unicode fallbacks when macOS cannot render a packaged icon. */
 export const TRAY_STATUS_SYMBOLS: Record<TrayStatus, string> = {
   starting: '🔘',
   'in-schedule': '🟢',
   'outside-schedule': '🟡',
+  paused: '⏸️',
   error: '🔴',
 };

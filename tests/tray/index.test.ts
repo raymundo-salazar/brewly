@@ -2,7 +2,7 @@ import { createTray } from '../../src/tray';
 import type { TrayDependencies } from '../../src/tray';
 
 describe('Tray', () => {
-  test('creates a gray indicator and updates colors and labels by status', () => {
+  test('loads the optimized icon asset and updates labels by status', () => {
     const trayInstances: Array<{
       images: Array<{ dataUrl: string }>;
       titles: string[];
@@ -10,7 +10,15 @@ describe('Tray', () => {
       menus: unknown[];
     }> = [];
     const nativeImage = {
+      createFromBuffer: jest.fn((buffer: Buffer) => ({
+        buffer,
+        addRepresentation: jest.fn(),
+      })),
       createFromDataURL: jest.fn((dataUrl: string) => ({ dataUrl })),
+      createFromNamedImage: jest.fn((imageName: string) => ({
+        imageName,
+        resize: jest.fn(() => ({ setTemplateImage: jest.fn() })),
+      })),
     };
     const menu = {
       buildFromTemplate: jest.fn((template: unknown[]) => ({ template })),
@@ -47,10 +55,13 @@ describe('Tray', () => {
       }
     }
     const dependencies = {
+      locale: 'en-US',
       trayConstructor: FakeTray,
       nativeImage,
       menu,
-      onQuit: jest.fn(),
+      onPause: jest.fn(),
+      onResume: jest.fn(),
+      onStop: jest.fn(),
     } as unknown as TrayDependencies;
 
     const controller = createTray(dependencies);
@@ -60,14 +71,7 @@ describe('Tray', () => {
 
     const tray = trayInstances[0];
     expect(tray).toBeDefined();
-    const startingImage = tray?.images[0]?.dataUrl ?? '';
-    const errorImage = tray?.images.at(-1)?.dataUrl ?? '';
-    expect(startingImage).toContain('data:image/svg+xml;base64,');
-    expect(errorImage).toContain('data:image/svg+xml;base64,');
-    expect(Buffer.from(startingImage.split(',')[1] ?? '', 'base64').toString()).toContain(
-      '#808080',
-    );
-    expect(Buffer.from(errorImage.split(',')[1] ?? '', 'base64').toString()).toContain('#FF3B30');
+    expect(nativeImage.createFromBuffer).toHaveBeenCalledTimes(5);
     expect(tray?.tooltips).toEqual([
       'Mac Idle Keeper — Starting',
       'Mac Idle Keeper — In schedule',
@@ -80,10 +84,18 @@ describe('Tray', () => {
 
   test('builds a quit menu action and ignores updates after destruction', () => {
     let trayDestroyed = false;
-    const onQuit = jest.fn();
+    const onStop = jest.fn();
     const menuItems: unknown[][] = [];
     const nativeImage = {
+      createFromBuffer: jest.fn((buffer: Buffer) => ({
+        buffer,
+        addRepresentation: jest.fn(),
+      })),
       createFromDataURL: jest.fn((dataUrl: string) => ({ dataUrl })),
+      createFromNamedImage: jest.fn((imageName: string) => ({
+        imageName,
+        resize: jest.fn(() => ({ setTemplateImage: jest.fn() })),
+      })),
     };
     const menu = {
       buildFromTemplate: jest.fn((template: unknown[]) => {
@@ -116,29 +128,41 @@ describe('Tray', () => {
       }
     }
     const dependencies = {
+      locale: 'en-US',
       trayConstructor: FakeTray,
       nativeImage,
       menu,
-      onQuit,
+      onPause: jest.fn(),
+      onResume: jest.fn(),
+      onStop,
     } as unknown as TrayDependencies;
 
     const controller = createTray(dependencies);
     const items = menuItems[0];
-    const quitItem = items?.[3] as { click?: () => void } | undefined;
-    quitItem?.click?.();
+    const stopItem = items?.[5] as { click?: () => void } | undefined;
+    stopItem?.click?.();
     controller.destroy();
     controller.destroy();
     controller.setStatus('in-schedule');
 
-    expect(onQuit).toHaveBeenCalledTimes(1);
+    expect(onStop).toHaveBeenCalledTimes(1);
     expect(trayDestroyed).toBe(true);
     expect(menu.buildFromTemplate).toHaveBeenCalledTimes(1);
   });
 
-  test('uses a visible colored circle symbol when the native icon is empty', () => {
+  test('uses a visible symbol when the native icon is empty', () => {
     let title = '';
     const nativeImage = {
-      createFromDataURL: jest.fn(() => ({ isEmpty: (): boolean => true })),
+      createFromBuffer: jest.fn((buffer: Buffer) => ({
+        buffer,
+        addRepresentation: jest.fn(),
+        isEmpty: (): boolean => true,
+      })),
+      createFromDataURL: jest.fn((dataUrl: string) => ({ dataUrl })),
+      createFromNamedImage: jest.fn((imageName: string) => ({
+        imageName,
+        resize: jest.fn(() => ({ setTemplateImage: jest.fn() })),
+      })),
     };
     const menu = {
       buildFromTemplate: jest.fn(() => ({})),
@@ -165,10 +189,13 @@ describe('Tray', () => {
       }
     }
     const dependencies = {
+      locale: 'en-US',
       trayConstructor: FakeTray,
       nativeImage,
       menu,
-      onQuit: jest.fn(),
+      onPause: jest.fn(),
+      onResume: jest.fn(),
+      onStop: jest.fn(),
     } as unknown as TrayDependencies;
 
     const controller = createTray(dependencies);
@@ -179,5 +206,78 @@ describe('Tray', () => {
     expect(title).toBe('🟡');
     controller.setStatus('error');
     expect(title).toBe('🔴');
+  });
+
+  test('localizes menu actions and uses the light pause asset', () => {
+    const menuTemplates: unknown[][] = [];
+    const nativeImage = {
+      createFromBuffer: jest.fn((buffer: Buffer) => ({
+        buffer,
+        addRepresentation: jest.fn(),
+      })),
+      createFromDataURL: jest.fn((dataUrl: string) => ({ dataUrl })),
+      createFromNamedImage: jest.fn((imageName: string) => ({
+        imageName,
+        resize: jest.fn(() => ({ setTemplateImage: jest.fn() })),
+      })),
+    };
+    const menu = {
+      buildFromTemplate: jest.fn((template: unknown[]) => {
+        menuTemplates.push(template);
+        return {};
+      }),
+    };
+    class FakeTray {
+      setImage(): void {
+        return undefined;
+      }
+
+      setTitle(): void {
+        return undefined;
+      }
+
+      setToolTip(): void {
+        return undefined;
+      }
+
+      setContextMenu(): void {
+        return undefined;
+      }
+
+      destroy(): void {
+        return undefined;
+      }
+    }
+    const onPause = jest.fn();
+    const onResume = jest.fn();
+    const onStop = jest.fn();
+    const dependencies = {
+      locale: 'es-MX',
+      trayConstructor: FakeTray,
+      nativeImage,
+      menu,
+      onPause,
+      onResume,
+      onStop,
+    } as unknown as TrayDependencies;
+
+    const controller = createTray(dependencies);
+    controller.setStatus('paused');
+
+    const pausedTemplate = menuTemplates.at(-1) as Array<{
+      enabled?: boolean;
+      label?: string;
+    }>;
+    expect(pausedTemplate[0]?.label).toBe('Mac Idle Keeper');
+    expect(pausedTemplate[1]?.label).toBe('Estado: Pausado');
+    expect(pausedTemplate[3]).toEqual(expect.objectContaining({ label: 'Pausar', enabled: false }));
+    expect(pausedTemplate[4]).toEqual(
+      expect.objectContaining({ label: 'Reanudar', enabled: true }),
+    );
+    expect(pausedTemplate[5]).toEqual(expect.objectContaining({ label: 'Detener' }));
+    expect(nativeImage.createFromNamedImage).toHaveBeenCalledWith('pause.fill');
+    expect(nativeImage.createFromNamedImage).toHaveBeenCalledWith('play.fill');
+    expect(nativeImage.createFromNamedImage).toHaveBeenCalledWith('stop.fill');
+    expect(nativeImage.createFromBuffer).toHaveBeenCalledTimes(3);
   });
 });
