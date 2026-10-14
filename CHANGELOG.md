@@ -4,6 +4,8 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+## [1.5.0] - 2026-10-14
+
 ### Added
 
 - Added TypeScript compilation with generated declarations and source maps for npm packaging.

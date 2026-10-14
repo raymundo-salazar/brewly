@@ -1,6 +1,6 @@
 {
   "name": "mac-idle-keeper",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "private": false,
   "packageManager": "pnpm@11.18.0",
   "description": "Checks macOS system idle time on a weekday schedule and prevents long idle periods.",
