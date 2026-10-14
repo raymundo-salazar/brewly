@@ -18,6 +18,10 @@ export const TRAY_STATUS_ASSETS: Record<TrayIconStatus, { standard: string; reti
     standard: 'mac-idle-keeper-error@1x.png',
     retina: 'mac-idle-keeper-error@2x.png',
   },
+  stopped: {
+    standard: 'mac-idle-keeper-inactive@1x.png',
+    retina: 'mac-idle-keeper-inactive@2x.png',
+  },
 };
 
 /** Maps the paused state to @1x and @2x light-appearance PNG assets. */
@@ -30,6 +34,7 @@ export const TRAY_PAUSE_ASSET = {
 export const TRAY_ACTION_ICONS: Record<TrayAction, string> = {
   pause: 'pause.fill',
   resume: 'play.fill',
+  start: 'play.fill',
   stop: 'stop.fill',
 };
 
@@ -42,5 +47,6 @@ export const TRAY_STATUS_SYMBOLS: Record<TrayStatus, string> = {
   'in-schedule': '🟢',
   'outside-schedule': '🟡',
   paused: '⏸️',
+  stopped: '⏹️',
   error: '🔴',
 };

@@ -1,13 +1,14 @@
 import type { Menu, MenuItemConstructorOptions, NativeImage } from 'electron';
 
 /** Lists the visual states represented by the macOS status bar indicator. */
-export type TrayStatus = 'starting' | 'in-schedule' | 'outside-schedule' | 'paused' | 'error';
+export type TrayStatus =
+  'starting' | 'in-schedule' | 'outside-schedule' | 'paused' | 'stopped' | 'error';
 
 /** Lists tray statuses that use the regular lifecycle icons. */
 export type TrayIconStatus = Exclude<TrayStatus, 'paused'>;
 
 /** Lists lifecycle actions exposed by the tray menu. */
-export type TrayAction = 'pause' | 'resume' | 'stop';
+export type TrayAction = 'pause' | 'resume' | 'start' | 'stop';
 
 /** Provides the native image factory used to render the tray indicator. */
 export interface NativeImageFactory {
@@ -45,6 +46,7 @@ export interface TrayDependencies {
   nativeImage: NativeImageFactory;
   onPause: () => void;
   onResume: () => void;
+  onStart: () => void;
   onStop: () => void;
   trayConstructor: TrayConstructor;
 }

@@ -69,6 +69,7 @@ void app.whenReady().then((): void => {
   const log = createLogger(config.logFile, console, { timezone: config.timezone });
   const notifier = createNotifier(Notification, log);
   let paused = false;
+  let stopped = false;
   let intervalHandle: ReturnType<typeof setInterval> | undefined;
   const tray = createTray({
     locale: app.getLocale(),
@@ -77,6 +78,7 @@ void app.whenReady().then((): void => {
     menu: Menu,
     onPause: pauseMonitor,
     onResume: resumeMonitor,
+    onStart: startMonitor,
     onStop: stopMonitor,
   });
   const awakeGuard = createAwakeGuard({ log });
@@ -119,6 +121,7 @@ void app.whenReady().then((): void => {
    * @throws Throws when the runtime state file cannot be written.
    */
   const persistState = (result: { status?: CheckStatus } = {}): void => {
+    if (stopped) return;
     tray.setStatus(
       result.status === undefined
         ? 'starting'
@@ -151,6 +154,7 @@ void app.whenReady().then((): void => {
       .check()
       .then(persistState)
       .catch((error: unknown): void => {
+        if (stopped) return;
         tray.setStatus('error');
         log(
           `check failed: ${error instanceof Error ? (error.stack ?? error.message) : String(error)}`,
@@ -166,7 +170,7 @@ void app.whenReady().then((): void => {
    * @throws Does not throw; interval creation is delegated to the runtime.
    */
   function startPolling(): void {
-    if (paused || intervalHandle !== undefined) return;
+    if (paused || stopped || intervalHandle !== undefined) return;
     intervalHandle = setInterval(runCheck, config.intervalMs);
   }
 
@@ -178,7 +182,7 @@ void app.whenReady().then((): void => {
    * @throws Does not throw; lifecycle changes are handled by local monitor dependencies.
    */
   function pauseMonitor(): void {
-    if (paused) return;
+    if (paused || stopped) return;
     paused = true;
     if (intervalHandle !== undefined) {
       clearInterval(intervalHandle);
@@ -197,7 +201,7 @@ void app.whenReady().then((): void => {
    * @throws Does not throw; the first check handles asynchronous monitor failures.
    */
   function resumeMonitor(): void {
-    if (!paused) return;
+    if (!paused || stopped) return;
     paused = false;
     tray.setStatus('starting');
     log('monitor resumed by user');
@@ -207,13 +211,38 @@ void app.whenReady().then((): void => {
 
   /**
    * @function stopMonitor
-   * @description Stops the Electron monitor process completely.
+   * @description Stops monitoring while keeping Electron and the tray available.
    *
    * @returns Nothing.
    * @throws Does not throw; Electron owns process shutdown.
    */
   function stopMonitor(): void {
-    app.quit();
+    if (stopped) return;
+    stopped = true;
+    paused = false;
+    if (intervalHandle !== undefined) {
+      clearInterval(intervalHandle);
+      intervalHandle = undefined;
+    }
+    awakeGuard.stop();
+    tray.setStatus('stopped');
+    log('monitor stopped by user');
+  }
+
+  /**
+   * @function startMonitor
+   * @description Starts monitoring again after a tray stop action.
+   *
+   * @returns Nothing.
+   * @throws Does not throw; the first check handles asynchronous monitor failures.
+   */
+  function startMonitor(): void {
+    if (!stopped) return;
+    stopped = false;
+    tray.setStatus('starting');
+    log('monitor started by user');
+    runCheck();
+    startPolling();
   }
 
   runCheck();

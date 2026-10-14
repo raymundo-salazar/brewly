@@ -6,6 +6,7 @@ describe('i18n', () => {
     expect(getTrayTranslations('es-ES').menu).toEqual({
       pause: 'Pausar',
       resume: 'Reanudar',
+      start: 'Iniciar',
       stop: 'Detener',
     });
   });

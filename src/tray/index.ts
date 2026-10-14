@@ -87,8 +87,8 @@ function createTrayMenuIcon(
 /**
  * @function createTrayMenu
  * @description Builds the status menu shown when the status bar icon is clicked.
- * Pause and resume preserve the Electron process, while stop delegates complete
- * process shutdown to the application bootstrap.
+ * Pause and stop preserve the Electron process while disabling monitoring. Start
+ * and resume re-enable monitoring from the current process.
  *
  * @param menu - Electron's menu factory.
  * @param status - Current status to display in the menu.
@@ -104,7 +104,42 @@ function createTrayMenu(
   const translations = getTrayTranslations(dependencies.locale);
   const pauseIcon = createTrayMenuIcon(dependencies.nativeImage, 'pause');
   const resumeIcon = createTrayMenuIcon(dependencies.nativeImage, 'resume');
+  const startIcon = createTrayMenuIcon(dependencies.nativeImage, 'start');
   const stopIcon = createTrayMenuIcon(dependencies.nativeImage, 'stop');
+  const lifecycleItems: TrayMenuTemplate =
+    status === 'stopped'
+      ? [
+          {
+            label: translations.menu.start,
+            icon: startIcon,
+            click: dependencies.onStart,
+          },
+        ]
+      : status === 'paused'
+        ? [
+            {
+              label: translations.menu.resume,
+              icon: resumeIcon,
+              click: dependencies.onResume,
+            },
+            {
+              label: translations.menu.stop,
+              icon: stopIcon,
+              click: dependencies.onStop,
+            },
+          ]
+        : [
+            {
+              label: translations.menu.pause,
+              icon: pauseIcon,
+              click: dependencies.onPause,
+            },
+            {
+              label: translations.menu.stop,
+              icon: stopIcon,
+              click: dependencies.onStop,
+            },
+          ];
   const template: TrayMenuTemplate = [
     { label: translations.appName, enabled: false },
     {
@@ -112,19 +147,7 @@ function createTrayMenu(
       enabled: false,
     },
     { type: 'separator' },
-    {
-      label: translations.menu.pause,
-      icon: pauseIcon,
-      enabled: status !== 'paused',
-      click: dependencies.onPause,
-    },
-    {
-      label: translations.menu.resume,
-      icon: resumeIcon,
-      enabled: status === 'paused',
-      click: dependencies.onResume,
-    },
-    { label: translations.menu.stop, icon: stopIcon, click: dependencies.onStop },
+    ...lifecycleItems,
   ];
   return menu.buildFromTemplate(template);
 }

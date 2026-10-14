@@ -7,6 +7,7 @@ export interface TrayTranslations {
   menu: {
     pause: string;
     resume: string;
+    start: string;
     stop: string;
   };
   status: {
@@ -14,6 +15,7 @@ export interface TrayTranslations {
     'in-schedule': string;
     'outside-schedule': string;
     paused: string;
+    stopped: string;
     error: string;
   };
   statusPrefix: string;

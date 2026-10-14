@@ -6,6 +6,7 @@ export const ENGLISH_TRAY_TRANSLATIONS: TrayTranslations = {
   menu: {
     pause: 'Pause',
     resume: 'Resume',
+    start: 'Start',
     stop: 'Stop',
   },
   status: {
@@ -13,6 +14,7 @@ export const ENGLISH_TRAY_TRANSLATIONS: TrayTranslations = {
     'in-schedule': 'In schedule',
     'outside-schedule': 'Outside schedule',
     paused: 'Paused',
+    stopped: 'Stopped',
     error: 'Error',
   },
   statusPrefix: 'Status',
@@ -24,6 +26,7 @@ export const SPANISH_TRAY_TRANSLATIONS: TrayTranslations = {
   menu: {
     pause: 'Pausar',
     resume: 'Reanudar',
+    start: 'Iniciar',
     stop: 'Detener',
   },
   status: {
@@ -31,6 +34,7 @@ export const SPANISH_TRAY_TRANSLATIONS: TrayTranslations = {
     'in-schedule': 'En horario',
     'outside-schedule': 'Fuera de horario',
     paused: 'Pausado',
+    stopped: 'Detenido',
     error: 'Error',
   },
   statusPrefix: 'Estado',
