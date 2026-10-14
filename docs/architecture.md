@@ -33,7 +33,9 @@ mac-idle-keeper CLI
 - `src/time`: UTC log-line parsing and timezone-aware display formatting.
 - `src/configHistory`: compares effective configuration snapshots across starts and records changes.
 - `src/runtimeState`: stores the live process configuration and last check for status inspection.
-- `src/tray`: owns the colored macOS status bar indicator and its lifecycle menu.
+- `src/i18n`: provides the English and Spanish dictionaries used by the tray interface and locale fallback.
+- `src/tray`: owns the macOS status bar indicator and its lifecycle menu.
+- `assets/tray`: contains transparent @1x and @2x PNG representations used by the status bar indicator.
 - `scripts/installLaunchAgent`: generates and loads the per-user LaunchAgent plist.
 - `scripts/manageLaunchAgent`: status, start, stop, pause, resume, restart, and uninstall operations.
 - `scripts/viewLogs`: log tail and follow behavior with timezone-aware display.
@@ -93,7 +95,7 @@ LaunchAgent status treats the plist or runtime state as the source of an active 
 
 ## Status bar indicator
 
-When the Electron monitor starts, it creates a small circular status bar item. The indicator is gray while startup is in progress, green while the effective schedule is active, yellow outside the schedule, and red when a monitor check fails. Its context menu shows the current state and provides a quit action. The indicator is created by the Electron monitor process, so it appears when an installed LaunchAgent actually starts rather than when the plist is merely written. If macOS returns an empty native image, the tray falls back to a visible colored Unicode circle symbol.
+When the Electron monitor starts, it creates a status bar item from transparent @1x and @2x PNG representations in `assets/tray`. The inactive asset is gray during startup, the active asset is blue while the effective schedule is active, the idle asset is orange outside the schedule, and the error asset is red when a monitor check fails. macOS selects the appropriate representation for standard and Retina displays. Its localized context menu provides pause, resume, and stop actions with compact 12×12 native macOS SF Symbol template icons. macOS renders those menu icons black in light appearance and white in dark appearance. The locale from `app.getLocale()` selects the Spanish dictionary for `es-*` machines and English for other or unsupported locales. Pause keeps the process alive without polling; resume continues checks; stop exits the monitor process. The indicator is created by the Electron monitor process, so it appears when an installed LaunchAgent actually starts rather than when the plist is merely written. If macOS returns an empty native image, the tray falls back to a visible Unicode symbol.
 
 ## Power schedule behavior
 

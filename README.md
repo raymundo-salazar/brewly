@@ -13,7 +13,8 @@ During its active schedule it also runs a macOS `caffeinate` assertion to preven
 - Configurable activity actions, including physical 10-pixel mouse movement over approximately 300 ms.
 - `caffeinate` awake guard while the schedule is active.
 - macOS start and stop notifications.
-- A circular macOS status bar indicator for startup, active schedule, outside-schedule, and error states.
+- A macOS status bar indicator using transparent @1x and @2x PNG assets for startup, active schedule, outside-schedule, paused, and error states.
+- Localized English or Spanish tray controls with native play, pause, and stop menu icons.
 - Foreground mode for testing and a per-user LaunchAgent for background operation.
 - Optional macOS wake or power-on scheduling aligned with the monitor's active window.
 - Colorized, human-readable output across the CLI commands, including LaunchAgent status and the last five activity actions.
@@ -500,13 +501,16 @@ src/                   TypeScript runtime components
   awake/               caffeinate awake guard
   config/              Environment configuration and validation
   configHistory/       Effective configuration change history
+  i18n/                Localized tray dictionaries and locale fallback
   main/                Electron process entrypoint
   monitor/             Idle polling and schedule coordination
   notifications/       macOS notifications
   runtimeState/        Effective runtime state persistence
   schedule/             Timezone-aware schedule evaluation
   time/                 UTC storage and timezone-aware display formatting
-  tray/                macOS status bar indicator
+  tray/                macOS status bar indicator implementation
+assets/
+  tray/                transparent @1x and @2x PNG status icons
 scripts/               TypeScript LaunchAgent/log commands
   idle-reset.m         CoreGraphics physical mouse helper
 tests/                 Jest tests mirroring source components

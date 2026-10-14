@@ -19,9 +19,11 @@ All notable changes to this project are documented here.
 - Added the persisted `agent-config.json` snapshot used by the background agent, status, power, and log commands.
 - Added explicit global CLI configuration options for every runtime setting and the power-on offset.
 - Added a circular macOS status bar indicator for monitor lifecycle and schedule state.
+- Added localized tray actions for pause, resume, and stop with English and Spanish dictionaries.
 
 ### Changed
 
+- Updated the macOS status bar indicator to use the provided PNG artwork with explicit @1x and @2x display representations.
 - Updated the npm CLI and LaunchAgent tooling to execute compiled files from `dist/`.
 - Updated CI documentation and development commands for the TypeScript, ESLint, Prettier, Jest, and build workflow.
 - Standardized command output with consistent headers, labeled details, colored states, readable lists, and contextual error messages.
