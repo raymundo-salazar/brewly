@@ -1,5 +1,7 @@
 # Mac Idle Keeper
 
+<img src="assets/branding/logo-light.png" alt="Mac Idle Keeper logo" width="500" />
+
 Mac Idle Keeper is a macOS background monitor that detects extended system inactivity and generates configurable activity for user-authorized desktop work and workflows. It operates at the macOS level and does not require integration with a particular application.
 
 During its active schedule it also runs a macOS `caffeinate` assertion to prevent display, idle-system, disk, and system sleep. The monitor is built with Electron because it uses `powerMonitor.getSystemIdleTime()` to read macOS idle time.
@@ -73,7 +75,7 @@ pnpm install
 pnpm run check
 ```
 
-The project is currently released as `1.4.0`. See [CHANGELOG.md](CHANGELOG.md) for release notes.
+The project is currently released as `1.5.0`. See [CHANGELOG.md](CHANGELOG.md) for release notes.
 
 ## Configuration
 
