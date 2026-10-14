@@ -106,7 +106,7 @@ function createPlist(values: LaunchAgentPaths): string {
   <key>StandardOutPath</key><string>${escapeXml(path.join(values.logDir, 'launch-agent.stdout.log'))}</string>
   <key>StandardErrorPath</key><string>${escapeXml(path.join(values.logDir, 'launch-agent.stderr.log'))}</string>${environmentXml(values.configPath)}
   <key>RunAtLoad</key><true/>
-  <key>KeepAlive</key><true/>
+  <key>KeepAlive</key><dict><key>SuccessfulExit</key><false/></dict>
   <key>ProcessType</key><string>Background</string>
 </dict></plist>`;
 }
