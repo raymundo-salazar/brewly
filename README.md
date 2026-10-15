@@ -508,6 +508,10 @@ The test suite uses Jest with TypeScript and covers scheduling, day groups, moni
 
 Contributions are welcome in code, tests, documentation, maintenance, issue triage, and financial support. See [CONTRIBUTING.md](CONTRIBUTING.md) for the development workflow, maintainability guidelines, pull request expectations, and sponsorship information.
 
+## Author
+
+Brewly is maintained by [Raymundo Salazar](https://raymundosalazar.dev). Contact: [hello@raymundosalazar.dev](mailto:hello@raymundosalazar.dev).
+
 ## Extended documentation
 
 See the [documentation index](docs/README.md) for installation details, CLI usage, testing, packaging, GitHub Actions, releases, architecture, and extension guidance.

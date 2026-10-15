@@ -31,6 +31,8 @@ Maintainers can help keep the project healthy by:
 - validating LaunchAgent behavior after upgrades;
 - keeping the README, CHANGELOG, tests, and default configuration synchronized.
 
+The project maintainer is [Raymundo Salazar](https://raymundosalazar.dev). For maintainer-related questions, contact [hello@raymundosalazar.dev](mailto:hello@raymundosalazar.dev).
+
 ## Development workflow
 
 1. Fork the repository and create a focused branch.

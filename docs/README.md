@@ -9,3 +9,5 @@ This directory contains the operational and development documentation that is us
 - [JSDoc standard](jsdoc.md): required API documentation structure and examples.
 
 The canonical user-facing overview remains in the root [README](../README.md). Keep these documents synchronized with behavior, defaults, commands, and release procedures.
+
+Brewly is maintained by [Raymundo Salazar](https://raymundosalazar.dev). For project contact, use [hello@raymundosalazar.dev](mailto:hello@raymundosalazar.dev).
