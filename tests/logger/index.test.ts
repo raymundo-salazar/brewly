@@ -14,7 +14,7 @@ describe('Logger', () => {
     expect(fs.readFileSync(logFile, 'utf8')).toMatch(
       /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z \| test message\n$/,
     );
-    expect(output[0]).toMatch(
+    expect(output[0]!.replaceAll('\u001b[36m', '').replaceAll('\u001b[0m', '')).toMatch(
       /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3} \[UTC\] \| test message$/,
     );
   });
