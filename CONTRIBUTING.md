@@ -42,7 +42,7 @@ The project maintainer is [Raymundo Salazar](https://raymundosalazar.dev). For m
    pnpm install
    ```
 
-   The published package is macOS-only and requires Node.js 22.12 or newer because Electron is a runtime dependency.
+   The published package is macOS-only and requires Node.js 22.13 or newer because Electron and the repository's pnpm toolchain require it.
 
 3. Make the change and add tests where appropriate.
 4. Run the quality check:

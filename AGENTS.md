@@ -36,7 +36,7 @@ It uses `.env.test`, a 10-second interval, a 10-second threshold, and the real p
 - Keep `brewly migrate` and `pnpm migrate` able to migrate both global npm and local source-checkout installations. Preserve the legacy effective configuration, stop the old service before installing the new one, verify the new service, and retain legacy data for rollback.
 - Every breaking release must extend `brewly migrate` to accept any supported previous version, not only the immediately preceding release. Use explicit version or schema detection and chain migrations when necessary (for example, `1.x -> 2.x -> 3.x`); keep migrations idempotent, support `--dry-run`, preserve rollback data, and add deterministic tests and documentation for each migration path.
 - Preserve `launch-agent` as a compatibility namespace; `agent` is its documented short alias. Keep power scheduling under the separate `power` namespace.
-- Keep the package macOS-only and compatible with Node.js 22.12+.
+- Keep the package macOS-only and compatible with Node.js 22.13+.
 - Add deterministic tests for behavior changes.
 - Write all functional source code in TypeScript and keep the build free of type errors.
 - Organize each component, module, or function under a `camelCase` folder with an `index.ts` entrypoint. A class uses `PascalCase` for both its class name and its folder name.

@@ -10,7 +10,7 @@ It:
 
 1. checks out the repository;
 2. installs pnpm 11.18.0;
-3. uses Node.js 22.12 on `macos-latest`;
+3. uses Node.js 22.13 on `macos-latest`;
 4. installs dependencies with `pnpm install --frozen-lockfile`;
 5. runs `pnpm run check`, which enforces ESLint, Prettier, Jest coverage, and the TypeScript build;
 6. validates the package contents with `pnpm pack --dry-run`.

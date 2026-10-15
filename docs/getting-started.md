@@ -7,7 +7,7 @@ It is intended for user-authorized workstation continuity, such as long-running 
 ## Requirements
 
 - macOS with an active user session;
-- Node.js 22.12 or newer;
+- Node.js 22.13 or newer;
 - npm for global installation, or pnpm 11.18.0 for repository development;
 - Accessibility permission for the Electron app used by the monitor;
 - notification permission if start/stop notifications should be shown.

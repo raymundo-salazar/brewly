@@ -6,7 +6,7 @@ Brewly is a macOS background monitor that detects extended system inactivity and
 
 During its active schedule it also runs a macOS `caffeinate` assertion to prevent display, idle-system, disk, and system sleep. The monitor is built with Electron because it uses `powerMonitor.getSystemIdleTime()` to read macOS idle time.
 
-> macOS only · Node.js 22.12+ · npm or pnpm
+> macOS only · Node.js 22.13+ · npm or pnpm
 
 ## Features
 
@@ -39,7 +39,7 @@ The schedule, threshold, and activity action should be limited to the period req
 ## Requirements
 
 - macOS with an active user session.
-- Node.js 22.12 or newer.
+- Node.js 22.13 or newer.
 - npm or pnpm 11.18.0 (pnpm is used for repository development).
 - Accessibility permission for the Electron app used by the project. macOS may also request Input Monitoring or notification permissions depending on the system configuration.
 
