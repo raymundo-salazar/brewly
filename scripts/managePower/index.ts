@@ -20,18 +20,13 @@ const pmsetPath = '/usr/bin/pmset';
 const userHomeDirectory = process.env.SUDO_USER
   ? path.join('/Users', process.env.SUDO_USER)
   : os.homedir();
-const supportDirectory = path.join(
-  userHomeDirectory,
-  'Library',
-  'Application Support',
-  'mac-idle-keeper',
-);
+const supportDirectory = path.join(userHomeDirectory, 'Library', 'Application Support', 'brewly');
 const statePath = path.join(supportDirectory, 'power-schedule.json');
 const launchAgentPlistPath = path.join(
   userHomeDirectory,
   'Library',
   'LaunchAgents',
-  'com.local.mac-idle-keeper.plist',
+  'com.local.brewly.plist',
 );
 const defaultOffsetMinutes = DEFAULTS.powerOnOffsetMinutes;
 const agentConfigPath = getAgentConfigPath(userHomeDirectory);
@@ -150,10 +145,10 @@ export function formatPowerSchedule(schedule: PowerSchedule): string {
  *
  * @example
  * getLaunchAgentPlistPath('/Users/example');
- * // '/Users/example/Library/LaunchAgents/com.local.mac-idle-keeper.plist'
+ * // '/Users/example/Library/LaunchAgents/com.local.brewly.plist'
  */
 export function getLaunchAgentPlistPath(homeDirectory: string): string {
-  return path.join(homeDirectory, 'Library', 'LaunchAgents', 'com.local.mac-idle-keeper.plist');
+  return path.join(homeDirectory, 'Library', 'LaunchAgents', 'com.local.brewly.plist');
 }
 
 /**
@@ -181,10 +176,10 @@ export function isLaunchAgentInstalled(homeDirectory: string): boolean {
  *
  * @example
  * sudoRequiredMessage('enable');
- * // 'This command requires sudo. Re-run it as: sudo mac-idle-keeper power enable. No changes were made.'
+ * // 'This command requires sudo. Re-run it as: sudo brewly power enable. No changes were made.'
  */
 export function sudoRequiredMessage(action: PowerMutation): string {
-  return `This command requires sudo. Re-run it as: sudo mac-idle-keeper power ${action}. No changes were made.`;
+  return `This command requires sudo. Re-run it as: sudo brewly power ${action}. No changes were made.`;
 }
 
 /**
@@ -225,7 +220,7 @@ function requireEffectiveConfig(): Config {
   const config = loadEffectiveConfig();
   if (config) return config;
   throw new Error(
-    `No persisted agent configuration was found at ${agentConfigPath}. Run "mac-idle-keeper agent install" or "mac-idle-keeper agent restart" first. No changes were made.`,
+    `No persisted agent configuration was found at ${agentConfigPath}. Run "brewly agent install" or "brewly agent restart" first. No changes were made.`,
   );
 }
 
@@ -267,7 +262,7 @@ function readSystemSchedule(): string {
 function requireLaunchAgent(): void {
   if (!isLaunchAgentInstalled(userHomeDirectory))
     throw new Error(
-      `LaunchAgent is not installed. Run "mac-idle-keeper agent install" before enabling a power schedule. No changes were made. Expected plist: ${launchAgentPlistPath}`,
+      `LaunchAgent is not installed. Run "brewly agent install" before enabling a power schedule. No changes were made. Expected plist: ${launchAgentPlistPath}`,
     );
 }
 
@@ -371,13 +366,13 @@ function removeStoredState(): void {
  * @throws Does not throw during normal terminal output.
  */
 function printHelp(): void {
-  header('Mac Idle Keeper — Power schedule help');
+  header('Brewly — Power schedule help');
   section('Usage');
-  item('mac-idle-keeper power <action> [options]');
+  item('brewly power <action> [options]');
   section('Actions');
   info('status', 'Show the effective schedule and current pmset events.');
   info('enable', 'Schedule wake or power-on before the monitor starts.');
-  info('disable', 'Cancel the schedule managed by Mac Idle Keeper.');
+  info('disable', 'Cancel the schedule managed by Brewly.');
   section('Options');
   info('--dry-run', 'Show the planned change without modifying macOS.');
   info('--force', 'Allow replacing or canceling an unrecognized repeating schedule.');
@@ -388,10 +383,10 @@ function printHelp(): void {
     `Minutes before the monitor schedule; default ${defaultOffsetMinutes}.`,
   );
   section('Examples');
-  item('mac-idle-keeper power status');
-  item('mac-idle-keeper power enable --dry-run');
-  item('sudo mac-idle-keeper power enable');
-  item('sudo mac-idle-keeper power disable');
+  item('brewly power status');
+  item('brewly power enable --dry-run');
+  item('sudo brewly power enable');
+  item('sudo brewly power disable');
 }
 
 /**
@@ -436,7 +431,7 @@ function printStatus(): void {
       ? 'CONFIGURED (EXTERNAL)'
       : 'NOT CONFIGURED';
 
-  header('Mac Idle Keeper — Power schedule status');
+  header('Brewly — Power schedule status');
   state(
     'Power schedule',
     powerScheduleState,
@@ -456,7 +451,7 @@ function printStatus(): void {
   );
   info('LaunchAgent plist', launchAgentPlistPath);
   info('Configuration file', agentConfigPath);
-  state('Managed by Mac Idle Keeper', storedState ? 'YES' : 'NO', storedState ? 'green' : 'yellow');
+  state('Managed by Brewly', storedState ? 'YES' : 'NO', storedState ? 'green' : 'yellow');
   state(
     'Repeating power event',
     repeatingEvents.length > 0 ? 'CONFIGURED' : 'NOT CONFIGURED',
@@ -484,10 +479,10 @@ function enable(options: PowerCommandOptions): void {
   const launchAgentInstalled = isLaunchAgentInstalled(userHomeDirectory);
   if (!launchAgentInstalled) {
     if (options.dryRun) {
-      header('Mac Idle Keeper — Power schedule preview');
+      header('Brewly — Power schedule preview');
       state('Configuration', 'NOT CONFIGURED', 'yellow');
       warning(
-        `LaunchAgent is not installed. A real enable will be rejected until you run "mac-idle-keeper agent install". Expected plist: ${launchAgentPlistPath}`,
+        `LaunchAgent is not installed. A real enable will be rejected until you run "brewly agent install". Expected plist: ${launchAgentPlistPath}`,
       );
       state('Result', 'NO CHANGES MADE', 'yellow');
       success('Dry run completed. macOS was not modified.');
@@ -503,7 +498,7 @@ function enable(options: PowerCommandOptions): void {
   const storedState = parseStoredState();
   const externalSchedule = repeatingEvents.length > 0 && !storedState;
 
-  header(`Mac Idle Keeper — Power schedule ${options.dryRun ? 'preview' : 'enable'}`);
+  header(`Brewly — Power schedule ${options.dryRun ? 'preview' : 'enable'}`);
   printScheduleDetails(config, schedule);
   info('Planned command', `pmset repeat wakeorpoweron ${schedule.weekdays} ${schedule.time}`);
 
@@ -527,9 +522,7 @@ function enable(options: PowerCommandOptions): void {
   applyPowerSchedule(schedule);
   writeStoredState(schedule, externalSchedule ? systemSchedule : null);
   state('Result', 'ENABLED', 'green');
-  success(
-    'Power schedule enabled. Mac Idle Keeper does not change FileVault or automatic login settings.',
-  );
+  success('Power schedule enabled. Brewly does not change FileVault or automatic login settings.');
   if (externalSchedule && options.force)
     warning(
       'An existing repeating power schedule was replaced. Its previous output was saved in the state file.',
@@ -550,18 +543,18 @@ function disable(options: PowerCommandOptions): void {
   const repeatingEvents = extractRepeatingPowerEvents(systemSchedule);
   const hasUnrestorablePreviousSchedule = Boolean(storedState?.previousSchedule);
 
-  header(`Mac Idle Keeper — Power schedule ${options.dryRun ? 'preview' : 'disable'}`);
-  state('Managed by Mac Idle Keeper', storedState ? 'YES' : 'NO', storedState ? 'green' : 'yellow');
+  header(`Brewly — Power schedule ${options.dryRun ? 'preview' : 'disable'}`);
+  state('Managed by Brewly', storedState ? 'YES' : 'NO', storedState ? 'green' : 'yellow');
   info('Planned command', 'pmset repeat cancel');
 
   if (!storedState && repeatingEvents.length > 0 && !options.force) {
     if (options.dryRun)
       warning(
-        'No Mac Idle Keeper schedule is recorded. A real disable would require --force to cancel external events.',
+        'No Brewly schedule is recorded. A real disable would require --force to cancel external events.',
       );
     else
       throw new Error(
-        'No Mac Idle Keeper schedule is recorded, so the existing repeating events were not canceled. Use --force only to cancel external events intentionally.',
+        'No Brewly schedule is recorded, so the existing repeating events were not canceled. Use --force only to cancel external events intentionally.',
       );
   }
   if (hasUnrestorablePreviousSchedule && !options.force) {
@@ -621,14 +614,14 @@ export function main(args: string[] = process.argv.slice(2)): void {
     disable(parsePowerArgs(commandArgs));
     return;
   }
-  throw new Error('Usage: mac-idle-keeper power <status|enable|disable> [--dry-run] [--force]');
+  throw new Error('Usage: brewly power <status|enable|disable> [--dry-run] [--force]');
 }
 
 if (require.main === module) {
   try {
     main();
   } catch (cause: unknown) {
-    header('Mac Idle Keeper — Power schedule error');
+    header('Brewly — Power schedule error');
     error(cause instanceof Error ? cause.message : String(cause));
     process.exitCode = 1;
   }

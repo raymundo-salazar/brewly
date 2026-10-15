@@ -5,7 +5,7 @@
 The project is a TypeScript Electron application with a thin Node.js CLI wrapper. TypeScript source is compiled into `dist/` for local execution and npm packaging:
 
 ```text
-mac-idle-keeper CLI
+brewly CLI
         │
         ├── foreground: spawns Electron with the compiled main entrypoint
         └── LaunchAgent commands: manage Node.js helper scripts
@@ -21,8 +21,8 @@ mac-idle-keeper CLI
 
 ## Important modules
 
-- `bin/macIdleKeeper`: global npm CLI entrypoint. It does not implement monitoring; it delegates foreground work to Electron and management work to scripts.
-- `src/main`: Electron process bootstrap, environment loading, runtime state, notifications, monitor, shutdown handling, and the explicit `~/Library/Application Support/mac-idle-keeper/` user-data path shared by foreground and LaunchAgent processes.
+- `bin/brewly`: global npm CLI entrypoint. It does not implement monitoring; it delegates foreground work to Electron and management work to scripts.
+- `src/main`: Electron process bootstrap, environment loading, runtime state, notifications, monitor, shutdown handling, and the explicit `~/Library/Application Support/brewly/` user-data path shared by foreground and LaunchAgent processes.
 - `src/config`: parses environment variables into effective runtime configuration.
 - `src/configArguments`: maps user-facing CLI configuration options to the environment keys consumed by `src/config`.
 - `src/schedule`: evaluates the schedule using the configured IANA timezone.
@@ -38,6 +38,7 @@ mac-idle-keeper CLI
 - `assets/tray`: contains transparent @1x and @2x PNG representations used by the status bar indicator.
 - `scripts/installLaunchAgent`: generates and loads the per-user LaunchAgent plist.
 - `scripts/manageLaunchAgent`: status, start, stop, pause, resume, restart, and uninstall operations.
+- `scripts/migrate`: detects legacy global or source-checkout installations and recreates the current LaunchAgent from the persisted effective configuration.
 - `scripts/viewLogs`: log tail and follow behavior with timezone-aware display.
 - `scripts/managePower`: read-only status and protected `pmset` wake-or-power-on schedule operations.
 
@@ -51,9 +52,8 @@ Every module or function component has a `camelCase` folder, an `index.ts` publi
 4. A local/source install may opt into `.env`, and any explicit `--env-file` takes precedence over the default local path.
 5. The effective background configuration and power offset are written to `agent-config.json` under the application-support directory.
 6. The generated plist sets `IDLE_CONFIG_FILE` so the LaunchAgent process reads the snapshot instead of `.env`.
-7. `agent status`, `power`, and `logs` read the same snapshot; they never treat a newer `.env` as active background configuration.
-8. The effective configuration is written to runtime state and compared with `config-history.json`.
-9. The monitor uses that immutable configuration until the process restarts.
+
+The `migrate` command reads the legacy `agent-config.json`, maps its normalized values to explicit current install options, stops the legacy service, installs and verifies `com.local.brewly`, and then removes only the legacy plist. Legacy application data is copied when relevant and retained at its original path for rollback. 7. `agent status`, `power`, and `logs` read the same snapshot; they never treat a newer `.env` as active background configuration. 8. The effective configuration is written to runtime state and compared with `config-history.json`. 9. The monitor uses that immutable configuration until the process restarts.
 
 Changing `.env` in a local development workflow does not mutate a running process or an installed agent. Restart the foreground process or local LaunchAgent after configuration changes. Global installations must be updated with explicit CLI options. Uninstall removes `agent-config.json` with the managed application data.
 

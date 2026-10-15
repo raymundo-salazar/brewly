@@ -4,7 +4,7 @@ import path from 'node:path';
 import type { Config } from '../config/types';
 import type { PersistedAgentConfig } from './types';
 
-const configDirectoryName = 'mac-idle-keeper';
+const configDirectoryName = 'brewly';
 const configFileName = 'agent-config.json';
 
 /**
@@ -17,7 +17,7 @@ const configFileName = 'agent-config.json';
  *
  * @example
  * getAgentConfigPath('/Users/example');
- * // '/Users/example/Library/Application Support/mac-idle-keeper/agent-config.json'
+ * // '/Users/example/Library/Application Support/brewly/agent-config.json'
  */
 export function getAgentConfigPath(homeDirectory: string = os.homedir()): string {
   return path.join(

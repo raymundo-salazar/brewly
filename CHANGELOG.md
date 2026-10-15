@@ -4,6 +4,15 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+## [2.0.0] - 2026-10-14
+
+### Changed
+
+- Renamed the project, npm package, global CLI, persisted application-data directory, LaunchAgent identifier, logs, tray assets, and user-facing text to `Brewly`.
+- Changed the repository URL and source-checkout paths to the Brewly repository.
+- Added `brewly migrate` and `pnpm migrate` to migrate both global npm and local source-checkout installations while preserving effective configuration.
+- This release is breaking for existing installations: reinstall the global package and recreate the LaunchAgent with `brewly agent install`.
+
 ## [1.5.0] - 2026-10-14
 
 ### Added
@@ -41,14 +50,14 @@ All notable changes to this project are documented here.
 ### Fixed
 
 - Fixed LaunchAgent status reporting so an uninstalled agent shows `NOT CONFIGURED` instead of presenting `.env` values as an active schedule.
-- Fixed Electron runtime data paths so logs, runtime state, and configuration history are stored under `~/Library/Application Support/mac-idle-keeper/`.
+- Fixed Electron runtime data paths so logs, runtime state, and configuration history are stored under `~/Library/Application Support/brewly/`.
 
 ## [1.4.0] - 2026-10-06
 
 ### Added
 
 - Added contribution guidelines for code, testing, documentation, maintenance, and financial support.
-- Added the `mac-idle-keeper` global CLI for npm installations.
+- Added the `brewly` global CLI for npm installations.
 - Added CLI commands for foreground monitoring, LaunchAgent management, and log inspection.
 - Added npm package metadata and runtime dependency packaging for Electron.
 
@@ -56,7 +65,7 @@ All notable changes to this project are documented here.
 
 ### Changed
 
-- Generalized the user-facing identity to Mac Idle Keeper.
+- Generalized the user-facing identity to Brewly.
 - Clarified that activity actions operate at the macOS level and support multiple workstation applications and workflows.
 - Documented the extension path for adding new activity actions.
 
@@ -120,12 +129,14 @@ All notable changes to this project are documented here.
 - Initial stable release of the macOS idle monitor.
 - Weekday schedule, configurable `.env` support, physical HID activity, `caffeinate` awake guard, macOS notifications, and automated tests.
 
-[Unreleased]: https://github.com/raymundo-salazar/mac-idle-keeper/compare/v1.4.0...HEAD
-[1.4.0]: https://github.com/raymundo-salazar/mac-idle-keeper/releases/tag/v1.4.0
-[1.3.0]: https://github.com/raymundo-salazar/mac-idle-keeper/releases/tag/v1.3.0
-[1.2.1]: https://github.com/raymundo-salazar/mac-idle-keeper/releases/tag/v1.2.1
-[1.2.0]: https://github.com/raymundo-salazar/mac-idle-keeper/releases/tag/v1.2.0
-[1.1.0]: https://github.com/raymundo-salazar/mac-idle-keeper/releases/tag/v1.1.0
-[1.0.2]: https://github.com/raymundo-salazar/mac-idle-keeper/releases/tag/v1.0.2
-[1.0.1]: https://github.com/raymundo-salazar/mac-idle-keeper/releases/tag/v1.0.1
-[1.0.0]: https://github.com/raymundo-salazar/mac-idle-keeper/releases/tag/v1.0.0
+[Unreleased]: https://github.com/raymundo-salazar/brewly/compare/v2.0.0...HEAD
+[2.0.0]: https://github.com/raymundo-salazar/brewly/releases/tag/v2.0.0
+[1.5.0]: https://github.com/raymundo-salazar/brewly/releases/tag/v1.5.0
+[1.4.0]: https://github.com/raymundo-salazar/brewly/releases/tag/v1.4.0
+[1.3.0]: https://github.com/raymundo-salazar/brewly/releases/tag/v1.3.0
+[1.2.1]: https://github.com/raymundo-salazar/brewly/releases/tag/v1.2.1
+[1.2.0]: https://github.com/raymundo-salazar/brewly/releases/tag/v1.2.0
+[1.1.0]: https://github.com/raymundo-salazar/brewly/releases/tag/v1.1.0
+[1.0.2]: https://github.com/raymundo-salazar/brewly/releases/tag/v1.0.2
+[1.0.1]: https://github.com/raymundo-salazar/brewly/releases/tag/v1.0.1
+[1.0.0]: https://github.com/raymundo-salazar/brewly/releases/tag/v1.0.0

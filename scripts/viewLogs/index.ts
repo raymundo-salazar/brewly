@@ -20,7 +20,7 @@ const runtimeStatePath = path.join(
   os.homedir(),
   'Library',
   'Application Support',
-  'mac-idle-keeper',
+  'brewly',
   'runtime-state.json',
 );
 const agentConfigPath = getAgentConfigPath(os.homedir());
@@ -28,8 +28,8 @@ const defaultLogPath = path.join(
   os.homedir(),
   'Library',
   'Application Support',
-  'mac-idle-keeper',
-  'mac-idle-keeper.log',
+  'brewly',
+  'brewly.log',
 );
 
 /**
@@ -154,14 +154,14 @@ function followFile(filePath: string, initialOffset: number, timeZone: string): 
  * @throws Throws when the requested log file is unavailable or arguments are invalid.
  *
  * @example
- * // mac-idle-keeper logs --lines 20 --follow
+ * // brewly logs --lines 20 --follow
  */
 export function main(): void {
   const options = parseArgs(process.argv.slice(2));
   const context = resolveLogContext();
   if (!fs.existsSync(context.filePath)) throw new Error(`Log file not found: ${context.filePath}`);
 
-  header('Mac Idle Keeper — Application log');
+  header('Brewly — Application log');
   info('Log', context.filePath);
   info('Display timezone', context.timezone);
   info('Lines', options.lines);
@@ -181,7 +181,7 @@ if (require.main === module) {
   try {
     main();
   } catch (cause: unknown) {
-    header('Mac Idle Keeper — Application log error');
+    header('Brewly — Application log error');
     printError(`Unable to read log: ${cause instanceof Error ? cause.message : String(cause)}`);
     process.exitCode = 1;
   }

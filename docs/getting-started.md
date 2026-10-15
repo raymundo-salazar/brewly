@@ -1,6 +1,6 @@
 # Getting started
 
-Mac Idle Keeper is a macOS-only Electron monitor. It reads system idle time, evaluates a timezone-aware schedule, and executes a configurable activity action when the idle threshold is exceeded.
+Brewly is a macOS-only Electron monitor. It reads system idle time, evaluates a timezone-aware schedule, and executes a configurable activity action when the idle threshold is exceeded.
 
 It is intended for user-authorized workstation continuity, such as long-running builds and test suites, media rendering, backups, data exports, local processing, or remote sessions where system sleep would interrupt an active task.
 
@@ -15,17 +15,17 @@ It is intended for user-authorized workstation continuity, such as long-running 
 ## Install from npm
 
 ```bash
-npm install --global mac-idle-keeper
-mac-idle-keeper help
+npm install --global brewly
+brewly help
 ```
 
-The package includes Electron as a runtime dependency and exposes the `mac-idle-keeper` executable.
+The package includes Electron as a runtime dependency and exposes the `brewly` executable.
 
 ## Install from source
 
 ```bash
-git clone git@github.com:raymundo-salazar/mac-idle-keeper.git
-cd mac-idle-keeper
+git clone git@raymundo.github.com:raymundo-salazar/brewly.git
+cd brewly
 pnpm install
 pnpm run check
 pnpm run build
@@ -36,13 +36,13 @@ pnpm run build
 For normal global usage, install the background agent through the CLI. Omitting options uses the documented defaults:
 
 ```bash
-mac-idle-keeper agent install
+brewly agent install
 ```
 
 Provide explicit options for a custom configuration:
 
 ```bash
-mac-idle-keeper agent install \
+brewly agent install \
   --idle-days working_days \
   --idle-start-time 07:00 \
   --idle-end-time 17:30 \
@@ -50,7 +50,7 @@ mac-idle-keeper agent install \
   --idle-timezone America/Monterrey
 ```
 
-The effective configuration is stored in `~/Library/Application Support/mac-idle-keeper/agent-config.json` and is used by the LaunchAgent, `agent status`, `power`, and `logs` commands.
+The effective configuration is stored in `~/Library/Application Support/brewly/agent-config.json` and is used by the LaunchAgent, `agent status`, `power`, and `logs` commands.
 
 ### Development and contribution configuration
 
@@ -63,7 +63,7 @@ cp .env.example .env
 The foreground monitor reads `.env` from the current working directory at startup. Shell variables take precedence over `.env`. Use `IDLE_ENV_FILE` or the CLI's `--env-file` option to use a different path:
 
 ```bash
-mac-idle-keeper start --env-file ./config/.env
+brewly start --env-file ./config/.env
 ```
 
 The default behavior is:
@@ -78,7 +78,7 @@ The default behavior is:
 
 Configuration changes require a process restart. The effective change is recorded in the application log.
 
-Global installations do not read a local `.env` file implicitly. After changing a source-checkout `.env`, use the local install or restart script to regenerate the snapshot. For a global installation, pass the desired options again to `mac-idle-keeper agent restart`.
+Global installations do not read a local `.env` file implicitly. After changing a source-checkout `.env`, use the local install or restart script to regenerate the snapshot. For a global installation, pass the desired options again to `brewly agent restart`.
 
 Keep the active window limited to the time required by the task. On portable Macs, prefer using it while connected to power and consider the energy impact of preventing idle sleep.
 
@@ -87,7 +87,7 @@ Keep the active window limited to the time required by the task. On portable Mac
 Global CLI:
 
 ```bash
-mac-idle-keeper start
+brewly start
 ```
 
 Source checkout:
@@ -98,17 +98,17 @@ pnpm start
 
 The monitor performs an immediate check and then continues at `IDLE_CHECK_INTERVAL_MS`. Stop it with `Ctrl+C`.
 
-When the monitor process is running, Mac Idle Keeper also places a status indicator in the macOS status bar. It uses transparent @1x and @2x PNG assets: gray during startup, blue while the active schedule is running, orange outside the schedule, gray when stopped, and red if a monitor check fails. macOS selects the appropriate representation for standard and Retina displays. The indicator's menu is localized from the macOS language and provides pause, resume, start, and stop actions with compact native play, pause, and stop icons. macOS automatically renders those menu icons black in light appearance and white in dark appearance. If an icon cannot be loaded, a visible Unicode fallback is used.
+When the monitor process is running, Brewly also places a status indicator in the macOS status bar. It uses transparent @1x and @2x PNG assets: gray during startup, blue while the active schedule is running, orange outside the schedule, gray when stopped, and red if a monitor check fails. macOS selects the appropriate representation for standard and Retina displays. The indicator's menu is localized from the macOS language and provides pause, resume, start, and stop actions with compact native play, pause, and stop icons. macOS automatically renders those menu icons black in light appearance and white in dark appearance. If an icon cannot be loaded, a visible Unicode fallback is used.
 
 ## Run in the background
 
 Install and manage the per-user LaunchAgent through the global CLI:
 
 ```bash
-mac-idle-keeper launch-agent install
-mac-idle-keeper launch-agent status
-mac-idle-keeper launch-agent logs --follow
-mac-idle-keeper launch-agent --help
+brewly launch-agent install
+brewly launch-agent status
+brewly launch-agent logs --follow
+brewly launch-agent --help
 ```
 
 Available actions are `install`, `status`, `logs`, `start`, `stop`, `pause`, `resume`, `restart`, and `uninstall`.
@@ -126,12 +126,23 @@ The lifecycle commands are intentionally distinct: `stop` stops the current proc
 `uninstall` always stops the service and removes the plist. It then asks whether to retain configuration, runtime state, and logs. Answer `y` to keep them or press Enter to remove them. Use `--yes` or `-y` to remove the plist and managed application data without prompting:
 
 ```bash
-mac-idle-keeper agent uninstall --yes
+brewly agent uninstall --yes
 ```
 
-The uninstall operation preserves user-owned `.env` files and custom log paths outside Mac Idle Keeper's managed directories. If a managed power schedule state exists, it removes the plist but retains application data until `mac-idle-keeper power disable` is run and the uninstall is repeated.
+The uninstall operation preserves user-owned `.env` files and custom log paths outside Brewly's managed directories. If a managed power schedule state exists, it removes the plist but retains application data until `brewly power disable` is run and the uninstall is repeated.
 
 The source project runs from compiled output. `pnpm start` builds TypeScript and then starts Electron; the global CLI uses the published `dist/` files.
+
+## Migrate an earlier installation
+
+The migration command supports both legacy agents installed globally with npm and agents created from a local source checkout:
+
+```bash
+brewly migrate --dry-run
+brewly migrate
+```
+
+From the repository, use `pnpm migrate -- --dry-run` to preview or `pnpm migrate` to apply the migration. Brewly reads the legacy configuration snapshot, recreates the current LaunchAgent with the same effective settings, verifies the new service, and removes the old plist. Legacy configuration and logs remain available for rollback and are not removed automatically.
 
 The LaunchAgent is scoped to the logged-in user session. It starts at login, but it does not run before login and it cannot prevent a full hibernation or power loss.
 
@@ -142,7 +153,7 @@ The optional `power` namespace schedules a repeating macOS `wakeorpoweron` event
 Power scheduling depends on the per-user LaunchAgent. Install the agent first:
 
 ```bash
-mac-idle-keeper agent install
+brewly agent install
 ```
 
 Without the LaunchAgent plist, a real `power enable` is rejected. `power status` and `power enable --dry-run` can still be used to inspect and preview the configuration, while `power disable` remains available to clean up an existing schedule.
@@ -150,18 +161,18 @@ Without the LaunchAgent plist, a real `power enable` is rejected. `power status`
 Preview the operation first:
 
 ```bash
-mac-idle-keeper power enable --dry-run
+brewly power enable --dry-run
 ```
 
 Then inspect or apply it:
 
 ```bash
-mac-idle-keeper power status
-sudo mac-idle-keeper power enable
-sudo mac-idle-keeper power disable
+brewly power status
+sudo brewly power enable
+sudo brewly power disable
 ```
 
-`power status` reports `NOT CONFIGURED` when no Mac Idle Keeper state or repeating macOS power event exists. A `CONFIGURED (EXTERNAL)` result means macOS has a repeating event that was not created by Mac Idle Keeper.
+`power status` reports `NOT CONFIGURED` when no Brewly state or repeating macOS power event exists. A `CONFIGURED (EXTERNAL)` result means macOS has a repeating event that was not created by Brewly.
 
 The real enable and disable commands require administrator authorization. The CLI does not invoke `sudo` internally; if authorization is missing, it reports the exact command to rerun with `sudo`. The command does not require FileVault to be disabled and never changes FileVault or automatic-login settings. However, the Mac must have a usable user session before the per-user LaunchAgent can run. With automatic login disabled, the Mac can wake or power on and then wait at the login screen for manual authentication. FileVault commonly prevents automatic login; keeping it enabled is recommended for sensitive or portable devices.
 
@@ -185,13 +196,13 @@ The native helper is compiled on the first `hid-event` execution with macOS `cla
 Application logs are stored by default at:
 
 ```text
-~/Library/Application Support/mac-idle-keeper/mac-idle-keeper.log
+~/Library/Application Support/brewly/brewly.log
 ```
 
 LaunchAgent stdout and stderr logs are stored at:
 
 ```text
-~/Library/Logs/mac-idle-keeper/
+~/Library/Logs/brewly/
 ```
 
 The application log stores timestamps in UTC. CLI display commands convert them to the effective `IDLE_TIMEZONE` and show the timezone beside each displayed timestamp.
@@ -199,12 +210,12 @@ The application log stores timestamps in UTC. CLI display commands convert them 
 Runtime state and the previous effective configuration are stored at:
 
 ```text
-~/Library/Application Support/mac-idle-keeper/runtime-state.json
-~/Library/Application Support/mac-idle-keeper/config-history.json
+~/Library/Application Support/brewly/runtime-state.json
+~/Library/Application Support/brewly/config-history.json
 ```
 
 The installed agent snapshot is stored at:
 
 ```text
-~/Library/Application Support/mac-idle-keeper/agent-config.json
+~/Library/Application Support/brewly/agent-config.json
 ```

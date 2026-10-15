@@ -1,6 +1,6 @@
 {
-  "name": "mac-idle-keeper",
-  "version": "1.5.0",
+  "name": "brewly",
+  "version": "2.0.0",
   "private": false,
   "packageManager": "pnpm@11.18.0",
   "description": "Checks macOS system idle time on a weekday schedule and prevents long idle periods.",
@@ -9,7 +9,7 @@
     "darwin"
   ],
   "bin": {
-    "mac-idle-keeper": "dist/bin/macIdleKeeper/index.js"
+    "brewly": "dist/bin/brewly/index.js"
   },
   "types": "dist/src/index/index.d.ts",
   "files": [
@@ -24,12 +24,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/raymundo-salazar/mac-idle-keeper.git"
+    "url": "git+ssh://git@raymundo.github.com/raymundo-salazar/brewly.git"
   },
   "bugs": {
-    "url": "https://github.com/raymundo-salazar/mac-idle-keeper/issues"
+    "url": "https://github.com/raymundo-salazar/brewly/issues"
   },
-  "homepage": "https://github.com/raymundo-salazar/mac-idle-keeper",
+  "homepage": "https://github.com/raymundo-salazar/brewly",
   "keywords": [
     "macos",
     "idle",
@@ -74,6 +74,7 @@
     "power:status": "pnpm build && node dist/scripts/managePower/index.js status",
     "power:enable": "pnpm build && node dist/scripts/managePower/index.js enable",
     "power:disable": "pnpm build && node dist/scripts/managePower/index.js disable",
+    "migrate": "pnpm build && node dist/scripts/migrate/index.js",
     "prepare": "husky",
     "prepack": "pnpm run build",
     "prepublishOnly": "pnpm run check"

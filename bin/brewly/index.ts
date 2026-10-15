@@ -21,14 +21,15 @@ const electronMainPath = path.join(packageRoot, 'dist', 'src', 'main', 'index.js
  * @throws Does not throw during normal terminal output.
  */
 function printHelp(): void {
-  header('Mac Idle Keeper — Command line interface');
+  header('Brewly — Command line interface');
   section('Usage');
-  item('mac-idle-keeper <command> [options]');
+  item('brewly <command> [options]');
   section('Commands');
   info('start', 'Start the monitor in the current session.');
   info('agent', 'Short alias for LaunchAgent management.');
   info('launch-agent', 'Install and manage the background LaunchAgent.');
   info('power', 'Inspect and manage scheduled macOS wake or power-on events.');
+  info('migrate', 'Migrate a legacy installation while preserving its effective configuration.');
   info('logs', 'Show recent application logs or follow them live.');
   info('help', 'Show this command reference.');
   section('LaunchAgent actions');
@@ -52,14 +53,15 @@ function printHelp(): void {
   info('--follow', 'Continue displaying new log entries.');
   info('--lines N', 'Display the last N log entries.');
   section('Examples');
-  item('mac-idle-keeper start');
-  item('mac-idle-keeper agent status');
-  item('mac-idle-keeper launch-agent install');
-  item('mac-idle-keeper power enable --dry-run');
-  item('mac-idle-keeper power status');
-  item('mac-idle-keeper agent install --idle-days working_days --idle-start-time 07:00');
-  item('mac-idle-keeper launch-agent --help');
-  item('mac-idle-keeper logs --follow');
+  item('brewly start');
+  item('brewly agent status');
+  item('brewly launch-agent install');
+  item('brewly power enable --dry-run');
+  item('brewly power status');
+  item('brewly agent install --idle-days working_days --idle-start-time 07:00');
+  item('brewly launch-agent --help');
+  item('brewly logs --follow');
+  item('brewly migrate --dry-run');
 }
 
 /**
@@ -88,7 +90,7 @@ function run(command: string, args: string[], environment: NodeJS.ProcessEnv = p
  * @throws Throws for unknown commands or invalid command arguments.
  *
  * @example
- * // mac-idle-keeper launch-agent status
+ * // brewly launch-agent status
  */
 function main(args: string[]): void {
   const parsed = parseConfigurationArguments(args);
@@ -113,12 +115,19 @@ function main(args: string[]): void {
     return;
   }
 
+  if (command === 'migrate') {
+    run(
+      process.execPath,
+      [path.join(packageRoot, 'dist', 'scripts', 'migrate', 'index.js'), ...commandArgs],
+      environment,
+    );
+    return;
+  }
+
   if (command === 'launch-agent' || command === 'agent') {
     const [action, ...actionArgs] = commandArgs;
     if (!action)
-      throw new Error(
-        `${command} requires an action. Run mac-idle-keeper ${command} --help for usage.`,
-      );
+      throw new Error(`${command} requires an action. Run brewly ${command} --help for usage.`);
     if (action === 'install' || action === 'restart') {
       environment.IDLE_CONFIG_SOURCE = 'global';
       for (const key of configurationEnvironmentNames) delete environment[key];
@@ -162,8 +171,7 @@ function main(args: string[]): void {
 
   if (command === 'power') {
     const [action, ...actionArgs] = commandArgs;
-    if (!action)
-      throw new Error('power requires an action. Run mac-idle-keeper power --help for usage.');
+    if (!action) throw new Error('power requires an action. Run brewly power --help for usage.');
     run(
       process.execPath,
       [path.join(packageRoot, 'dist', 'scripts', 'managePower', 'index.js'), action, ...actionArgs],
@@ -172,7 +180,7 @@ function main(args: string[]): void {
     return;
   }
 
-  throw new Error(`Unknown command: ${command}. Run mac-idle-keeper help for usage.`);
+  throw new Error(`Unknown command: ${command}. Run brewly help for usage.`);
 }
 
 try {

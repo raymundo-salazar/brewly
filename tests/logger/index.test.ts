@@ -5,7 +5,7 @@ import { createLogger } from '../../src/logger';
 
 describe('Logger', () => {
   test('stores UTC timestamps and displays the configured timezone', () => {
-    const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'mac-idle-keeper-log-'));
+    const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'brewly-log-'));
     const logFile = path.join(directory, 'app.log');
     const output: string[] = [];
     const log = createLogger(logFile, { log: (line) => output.push(line) }, { timezone: 'UTC' });

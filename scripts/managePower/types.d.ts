@@ -21,7 +21,7 @@ export interface PowerSchedule {
   timezone: string;
 }
 
-/** Stores the last power schedule managed by Mac Idle Keeper. */
+/** Stores the last power schedule managed by Brewly. */
 export interface PowerScheduleState {
   appliedAt: string;
   command: string;

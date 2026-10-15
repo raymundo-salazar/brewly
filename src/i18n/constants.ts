@@ -2,7 +2,7 @@ import type { SupportedLanguage, TrayTranslations } from './types';
 
 /** Provides the English strings used by the status bar interface. */
 export const ENGLISH_TRAY_TRANSLATIONS: TrayTranslations = {
-  appName: 'Mac Idle Keeper',
+  appName: 'Brewly',
   menu: {
     pause: 'Pause',
     resume: 'Resume',
@@ -22,7 +22,7 @@ export const ENGLISH_TRAY_TRANSLATIONS: TrayTranslations = {
 
 /** Provides the Spanish strings used by the status bar interface. */
 export const SPANISH_TRAY_TRANSLATIONS: TrayTranslations = {
-  appName: 'Mac Idle Keeper',
+  appName: 'Brewly',
   menu: {
     pause: 'Pausar',
     resume: 'Reanudar',

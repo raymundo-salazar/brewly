@@ -11,19 +11,19 @@ import { error, header, info, item, section, state, success, warning } from '../
 import type { LaunchAgentCommand, UninstallOptions } from './types';
 
 process.on('uncaughtException', (cause: Error): void => {
-  header('Mac Idle Keeper — LaunchAgent operation failed');
+  header('Brewly — LaunchAgent operation failed');
   error(cause.message);
   process.exitCode = 1;
 });
 
-const label = 'com.local.mac-idle-keeper';
+const label = 'com.local.brewly';
 const plistPath = path.join(os.homedir(), 'Library', 'LaunchAgents', `${label}.plist`);
-const launchAgentLogDir = path.join(os.homedir(), 'Library', 'Logs', 'mac-idle-keeper');
+const launchAgentLogDir = path.join(os.homedir(), 'Library', 'Logs', 'brewly');
 const applicationSupportDirectory = path.join(
   os.homedir(),
   'Library',
   'Application Support',
-  'mac-idle-keeper',
+  'brewly',
 );
 const powerScheduleStatePath = path.join(applicationSupportDirectory, 'power-schedule.json');
 const agentConfigPath = getAgentConfigPath(os.homedir());
@@ -58,7 +58,7 @@ function launchctl(args: string[], allowFailure = false): void {
 function requirePlist(): void {
   if (!fs.existsSync(plistPath))
     throw new Error(
-      `LaunchAgent plist not found: ${plistPath}. Run mac-idle-keeper launch-agent install first.`,
+      `LaunchAgent plist not found: ${plistPath}. Run brewly launch-agent install first.`,
     );
 }
 
@@ -102,7 +102,7 @@ function loadService(): void {
  *
  * @example
  * // Start a previously stopped service:
- * // mac-idle-keeper launch-agent start
+ * // brewly launch-agent start
  */
 function startService(): void {
   requirePlist();
@@ -119,7 +119,7 @@ function startService(): void {
  * @throws Does not throw for a valid operation name.
  */
 function operationHeader(operation: string): void {
-  header(`Mac Idle Keeper — LaunchAgent ${operation}`);
+  header(`Brewly — LaunchAgent ${operation}`);
   info('Service', label);
   info('Plist', plistPath);
 }
@@ -132,12 +132,12 @@ function operationHeader(operation: string): void {
  * @throws Does not throw during normal terminal output.
  *
  * @example
- * // mac-idle-keeper launch-agent --help
+ * // brewly launch-agent --help
  */
 function printHelp(): void {
-  header('Mac Idle Keeper — LaunchAgent help');
+  header('Brewly — LaunchAgent help');
   section('Usage');
-  item('mac-idle-keeper launch-agent <action> [options]');
+  item('brewly launch-agent <action> [options]');
   section('Actions');
   info('install', 'Create and load the per-user LaunchAgent.');
   info('status', 'Show installation, process, schedule, and recent activity state.');
@@ -164,11 +164,11 @@ function printHelp(): void {
   info('--power-on-offset-minutes N', 'Minutes before the monitor schedule for power-on.');
   info('-y, --yes', 'Remove the plist and all managed application data without prompting.');
   section('Examples');
-  item('mac-idle-keeper launch-agent install');
-  item('mac-idle-keeper launch-agent status');
-  item('mac-idle-keeper launch-agent logs --follow');
-  item('mac-idle-keeper launch-agent install --idle-days working_days --idle-start-time 07:00');
-  item('mac-idle-keeper launch-agent restart');
+  item('brewly launch-agent install');
+  item('brewly launch-agent status');
+  item('brewly launch-agent logs --follow');
+  item('brewly launch-agent install --idle-days working_days --idle-start-time 07:00');
+  item('brewly launch-agent restart');
 }
 
 /**
@@ -180,7 +180,7 @@ function printHelp(): void {
  *
  * @example
  * // Run through the package CLI:
- * // mac-idle-keeper launch-agent status
+ * // brewly launch-agent status
  */
 function status(): void {
   const exists = fs.existsSync(plistPath);
@@ -188,7 +188,7 @@ function status(): void {
     os.homedir(),
     'Library',
     'Application Support',
-    'mac-idle-keeper',
+    'brewly',
     'runtime-state.json',
   );
   const runtimeState = readRuntimeState(runtimeStatePath);
@@ -198,13 +198,7 @@ function status(): void {
   const logPath = config
     ? config.logFile
       ? path.resolve(config.logFile)
-      : path.join(
-          os.homedir(),
-          'Library',
-          'Application Support',
-          'mac-idle-keeper',
-          'mac-idle-keeper.log',
-        )
+      : path.join(os.homedir(), 'Library', 'Application Support', 'brewly', 'brewly.log')
     : null;
   const localNow = config ? localDateInTimeZone(new Date(), config.timezone) : null;
   const insideSchedule =
@@ -228,7 +222,7 @@ function status(): void {
     ? `${config.startTime}-${config.endTime} (${config.days.map((day) => dayNames[day]).join(', ')})`
     : 'NOT CONFIGURED';
 
-  header('Mac Idle Keeper — LaunchAgent Status');
+  header('Brewly — LaunchAgent Status');
   state('Installed', exists ? 'YES' : 'NO', exists ? 'green' : 'red');
   info('Plist', plistPath);
   state(
@@ -362,7 +356,7 @@ async function askToKeepApplicationData(): Promise<boolean> {
   const prompt = createInterface({ input: process.stdin, output: process.stdout });
   try {
     const answer = await prompt.question(
-      'Keep Mac Idle Keeper configuration, state, and logs after removing the LaunchAgent? [y/N] ',
+      'Keep Brewly configuration, state, and logs after removing the LaunchAgent? [y/N] ',
     );
     return /^(y|yes)$/i.test(answer.trim());
   } finally {
@@ -399,7 +393,7 @@ function removeManagedApplicationData(): string[] {
  *
  * @example
  * // Remove the agent and prompt before deleting managed application data:
- * // mac-idle-keeper agent uninstall
+ * // brewly agent uninstall
  */
 async function uninstall(options: UninstallOptions): Promise<void> {
   const keepApplicationData = options.assumeYes ? false : await askToKeepApplicationData();
@@ -421,7 +415,7 @@ async function uninstall(options: UninstallOptions): Promise<void> {
   if (fs.existsSync(powerScheduleStatePath)) {
     state('Application data', 'RETAINED', 'yellow');
     warning('A managed power schedule state still exists, so application data was not deleted.');
-    info('Next step', 'Run mac-idle-keeper power disable, then repeat agent uninstall --yes.');
+    info('Next step', 'Run brewly power disable, then repeat agent uninstall --yes.');
     throw new Error(
       'Complete removal was not finished because the managed power schedule must be cleaned up first.',
     );
@@ -492,17 +486,15 @@ async function main(): Promise<void> {
       await uninstall(parseUninstallOptions(process.argv.slice(3)));
       break;
     default:
-      header('Mac Idle Keeper — LaunchAgent command error');
-      error(
-        'Usage: mac-idle-keeper launch-agent <status|start|stop|pause|resume|restart|uninstall>',
-      );
+      header('Brewly — LaunchAgent command error');
+      error('Usage: brewly launch-agent <status|start|stop|pause|resume|restart|uninstall>');
       process.exitCode = 1;
   }
 }
 
 if (require.main === module) {
   void main().catch((cause: unknown) => {
-    header('Mac Idle Keeper — LaunchAgent operation failed');
+    header('Brewly — LaunchAgent operation failed');
     error(cause instanceof Error ? cause.message : String(cause));
     process.exitCode = 1;
   });

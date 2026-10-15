@@ -5,7 +5,7 @@ import { readRuntimeState, removeRuntimeState, writeRuntimeState } from '../../s
 
 describe('RuntimeState', () => {
   test('writes, reads, and removes runtime state', () => {
-    const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'mac-idle-keeper-runtime-'));
+    const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'brewly-runtime-'));
     const filePath = path.join(directory, 'nested', 'runtime-state.json');
     const state = {
       pid: 123,
@@ -32,7 +32,7 @@ describe('RuntimeState', () => {
   });
 
   test('rethrows unexpected filesystem errors while removing state', () => {
-    const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'mac-idle-keeper-runtime-'));
+    const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'brewly-runtime-'));
     const filePath = path.join(directory, 'runtime-state.json');
     fs.writeFileSync(filePath, '{}');
     const unlink = jest.spyOn(fs, 'unlinkSync').mockImplementationOnce(() => {

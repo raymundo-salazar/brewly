@@ -36,7 +36,7 @@ function ensureHidEventHelper(): string {
     throw new Error('IDLE_ACTION=hid-event is only supported on macOS.');
 
   const source = path.join(__dirname, '..', '..', '..', 'scripts', 'idle-reset.m');
-  const output = path.join(os.tmpdir(), 'mac-idle-keeper-hid-event-v6');
+  const output = path.join(os.tmpdir(), 'brewly-hid-event-v6');
   if (!fs.existsSync(output)) {
     execFileSync('/usr/bin/clang', ['-framework', 'ApplicationServices', source, '-o', output], {
       stdio: 'ignore',

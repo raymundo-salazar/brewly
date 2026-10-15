@@ -21,7 +21,7 @@ describe('Notifications', () => {
     notifier.started();
     notifier.stopped();
 
-    expect(TITLE).toBe('Mac Idle Keeper');
+    expect(TITLE).toBe('Brewly');
     expect(notifications).toEqual([
       { title: TITLE, body: 'The idle monitor has started.' },
       { title: TITLE, body: 'The idle monitor has stopped.' },

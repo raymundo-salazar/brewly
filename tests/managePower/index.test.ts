@@ -83,7 +83,7 @@ describe('managePower', () => {
   });
 
   test('detects the LaunchAgent prerequisite from the user plist path', () => {
-    const homeDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'mac-idle-keeper-home-'));
+    const homeDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'brewly-home-'));
     const plistPath = getLaunchAgentPlistPath(homeDirectory);
 
     expect(isLaunchAgentInstalled(homeDirectory)).toBe(false);
@@ -94,8 +94,8 @@ describe('managePower', () => {
 
   test('explains the exact sudo command for protected power mutations', () => {
     expect(sudoRequiredMessage('enable')).toBe(
-      'This command requires sudo. Re-run it as: sudo mac-idle-keeper power enable. No changes were made.',
+      'This command requires sudo. Re-run it as: sudo brewly power enable. No changes were made.',
     );
-    expect(sudoRequiredMessage('disable')).toContain('sudo mac-idle-keeper power disable');
+    expect(sudoRequiredMessage('disable')).toContain('sudo brewly power disable');
   });
 });

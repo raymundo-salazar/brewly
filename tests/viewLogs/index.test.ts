@@ -5,7 +5,7 @@ import { formatStoredLogLine, parseArgs, readLastLines } from '../../scripts/vie
 
 describe('viewLogs', () => {
   test('parses log options and reads the requested number of lines', () => {
-    const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'mac-idle-keeper-log-view-'));
+    const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'brewly-log-view-'));
     const filePath = path.join(directory, 'app.log');
     fs.writeFileSync(filePath, 'one\ntwo\nthree\n');
 

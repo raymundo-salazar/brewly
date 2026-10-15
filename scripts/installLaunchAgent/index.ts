@@ -10,7 +10,7 @@ import { loadEnvFile } from '../../src/env';
 import type { LaunchAgentPaths } from './types';
 
 process.on('uncaughtException', (cause: Error): void => {
-  header('Mac Idle Keeper — LaunchAgent installation failed');
+  header('Brewly — LaunchAgent installation failed');
   error(cause.message);
   process.exitCode = 1;
 });
@@ -18,7 +18,7 @@ process.on('uncaughtException', (cause: Error): void => {
 const projectDir = path.resolve(__dirname, '..', '..', '..');
 const workingDirectory = path.resolve(process.cwd());
 const launchAgentsDir = path.join(os.homedir(), 'Library', 'LaunchAgents');
-const plistPath = path.join(launchAgentsDir, 'com.local.mac-idle-keeper.plist');
+const plistPath = path.join(launchAgentsDir, 'com.local.brewly.plist');
 const electronPath = path.join(
   projectDir,
   'node_modules',
@@ -30,7 +30,7 @@ const electronPath = path.join(
   'Electron',
 );
 const mainPath = path.join(projectDir, 'dist', 'src', 'main', 'index.js');
-const logDir = path.join(os.homedir(), 'Library', 'Logs', 'mac-idle-keeper');
+const logDir = path.join(os.homedir(), 'Library', 'Logs', 'brewly');
 const configPath = getAgentConfigPath(os.homedir());
 const parsedArguments = parseConfigurationArguments(process.argv.slice(2));
 const environment = parsedArguments.environment;
@@ -47,7 +47,7 @@ const configurationSource = hasExplicitEnvironmentFile
   : isGlobalConfiguration
     ? 'defaults and command-line arguments'
     : environmentFilePath;
-const service = `gui/${process.getuid?.() ?? process.pid}/com.local.mac-idle-keeper`;
+const service = `gui/${process.getuid?.() ?? process.pid}/com.local.brewly`;
 const paths: LaunchAgentPaths = {
   projectDir,
   mainPath,
@@ -100,7 +100,7 @@ function createPlist(values: LaunchAgentPaths): string {
   return `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0"><dict>
-  <key>Label</key><string>com.local.mac-idle-keeper</string>
+  <key>Label</key><string>com.local.brewly</string>
   <key>ProgramArguments</key><array><string>${escapeXml(values.electronPath)}</string><string>${escapeXml(values.mainPath)}</string></array>
   <key>WorkingDirectory</key><string>${escapeXml(values.workingDirectory)}</string>
   <key>StandardOutPath</key><string>${escapeXml(path.join(values.logDir, 'launch-agent.stdout.log'))}</string>
@@ -146,7 +146,7 @@ function main(): void {
       `LaunchAgent was not loaded. Check ${path.join(logDir, 'launch-agent.stderr.log')}.`,
     );
   }
-  header('Mac Idle Keeper — LaunchAgent installed');
+  header('Brewly — LaunchAgent installed');
   success('Service loaded and ready to run at login.');
   info('Plist', plistPath);
   info('Configuration file', configPath);

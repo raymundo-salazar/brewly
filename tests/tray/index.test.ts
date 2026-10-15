@@ -74,10 +74,10 @@ describe('Tray', () => {
     expect(tray).toBeDefined();
     expect(nativeImage.createFromBuffer).toHaveBeenCalledTimes(5);
     expect(tray?.tooltips).toEqual([
-      'Mac Idle Keeper — Starting',
-      'Mac Idle Keeper — In schedule',
-      'Mac Idle Keeper — Outside schedule',
-      'Mac Idle Keeper — Error',
+      'Brewly — Starting',
+      'Brewly — In schedule',
+      'Brewly — Outside schedule',
+      'Brewly — Error',
     ]);
     expect(tray?.titles).toEqual(['', '', '', '']);
     expect(menu.buildFromTemplate).toHaveBeenCalledTimes(4);
@@ -273,7 +273,7 @@ describe('Tray', () => {
       enabled?: boolean;
       label?: string;
     }>;
-    expect(pausedTemplate[0]?.label).toBe('Mac Idle Keeper');
+    expect(pausedTemplate[0]?.label).toBe('Brewly');
     expect(pausedTemplate[1]?.label).toBe('Estado: Pausado');
     expect(pausedTemplate[3]).toEqual(expect.objectContaining({ label: 'Reanudar' }));
     expect(pausedTemplate[4]).toEqual(expect.objectContaining({ label: 'Detener' }));
@@ -338,7 +338,7 @@ describe('Tray', () => {
 
     const stoppedTemplate = menuTemplates.at(-1) as Array<{ label?: string }>;
     expect(stoppedTemplate.map((item) => item.label).filter(Boolean)).toEqual([
-      'Mac Idle Keeper',
+      'Brewly',
       'Status: Stopped',
       'Start',
     ]);

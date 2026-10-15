@@ -1,15 +1,16 @@
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 
-describe('MacIdleKeeper CLI', () => {
+describe('Brewly CLI', () => {
   test('prints help without starting Electron', () => {
-    const cli = path.join(__dirname, '..', '..', 'bin', 'macIdleKeeper', 'index.ts');
+    const cli = path.join(__dirname, '..', '..', 'bin', 'brewly', 'index.ts');
     const output = execFileSync(process.execPath, ['-r', 'ts-node/register', cli, 'help'], {
       encoding: 'utf8',
     });
-    expect(output).toMatch(/mac-idle-keeper start/);
+    expect(output).toMatch(/brewly start/);
     expect(output).toMatch(/agent/);
     expect(output).toMatch(/power/);
+    expect(output).toMatch(/migrate/);
     expect(output).toMatch(/launch-agent/);
     expect(output).toMatch(/start \| stop \| pause \| resume/);
     expect(output).toMatch(/--env-file PATH/);
@@ -30,7 +31,7 @@ describe('MacIdleKeeper CLI', () => {
       { encoding: 'utf8' },
     );
 
-    expect(output).toMatch(/Mac Idle Keeper — LaunchAgent help/);
+    expect(output).toMatch(/Brewly — LaunchAgent help/);
     expect(output).toMatch(/install: Create and load/);
     expect(output).toMatch(/start: Start a stopped service/);
     expect(output).toMatch(/--help, -h/);

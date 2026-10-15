@@ -24,7 +24,7 @@ describe('configArguments', () => {
         '--idle-action',
         'hid-event',
         '--idle-log-file',
-        '/tmp/mac-idle-keeper.log',
+        '/tmp/brewly.log',
         '--power-on-offset-minutes=10',
         'restart',
         '--follow',
@@ -43,7 +43,7 @@ describe('configArguments', () => {
       IDLE_END_HOUR: '17',
       IDLE_TIMEZONE: 'America/Monterrey',
       IDLE_ACTION: 'hid-event',
-      IDLE_LOG_FILE: '/tmp/mac-idle-keeper.log',
+      IDLE_LOG_FILE: '/tmp/brewly.log',
       POWER_ON_OFFSET_MINUTES: '10',
     });
     expect(configurationEnvironmentNames).toHaveLength(11);

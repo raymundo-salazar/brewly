@@ -5,7 +5,7 @@ import { loadEnvFile } from '../../src/env';
 
 describe('Env', () => {
   test('loads values, strips comments, and preserves existing environment values', () => {
-    const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'mac-idle-keeper-env-'));
+    const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'brewly-env-'));
     const filePath = path.join(directory, '.env');
     fs.writeFileSync(
       filePath,
@@ -26,17 +26,17 @@ describe('Env', () => {
 
   test('does nothing when the environment file does not exist', () => {
     const environment: Record<string, string | undefined> = {};
-    loadEnvFile('/tmp/mac-idle-keeper-missing.env', environment);
+    loadEnvFile('/tmp/brewly-missing.env', environment);
     expect(environment).toEqual({});
   });
 
   test('can use the process environment as the default target', () => {
-    const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'mac-idle-keeper-env-'));
+    const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'brewly-env-'));
     const filePath = path.join(directory, '.env');
-    fs.writeFileSync(filePath, 'MAC_IDLE_KEEPER_TEST_VALUE=enabled\n');
-    delete process.env.MAC_IDLE_KEEPER_TEST_VALUE;
+    fs.writeFileSync(filePath, 'BREWLY_TEST_VALUE=enabled\n');
+    delete process.env.BREWLY_TEST_VALUE;
     loadEnvFile(filePath);
-    expect(process.env.MAC_IDLE_KEEPER_TEST_VALUE).toBe('enabled');
-    delete process.env.MAC_IDLE_KEEPER_TEST_VALUE;
+    expect(process.env.BREWLY_TEST_VALUE).toBe('enabled');
+    delete process.env.BREWLY_TEST_VALUE;
   });
 });

@@ -20,7 +20,7 @@ const config: Config = {
 
 describe('agentConfig', () => {
   test('resolves, writes, and reads the persistent agent snapshot', () => {
-    const homeDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'mac-idle-keeper-config-'));
+    const homeDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'brewly-config-'));
     const filePath = getAgentConfigPath(homeDirectory);
 
     writeAgentConfig(filePath, config, 5, '/Users/example/.env');
@@ -34,7 +34,7 @@ describe('agentConfig', () => {
   });
 
   test('treats missing, malformed, and invalid snapshots as unavailable', () => {
-    const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'mac-idle-keeper-config-'));
+    const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'brewly-config-'));
     const filePath = path.join(directory, 'agent-config.json');
 
     expect(readAgentConfig(filePath)).toBeNull();

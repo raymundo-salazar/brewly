@@ -1,6 +1,6 @@
-# Contributing to Mac Idle Keeper
+# Contributing to Brewly
 
-Thank you for your interest in improving Mac Idle Keeper. Contributions are welcome in code, documentation, testing, maintenance, issue triage, and financial support.
+Thank you for your interest in improving Brewly. Contributions are welcome in code, documentation, testing, maintenance, issue triage, and financial support.
 
 ## Ways to contribute
 

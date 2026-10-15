@@ -2,7 +2,7 @@
 
 ## Project scope
 
-Mac Idle Keeper is a macOS-only Electron monitor exposed through a Node.js CLI. It detects system idle time on a schedule, keeps the Mac awake during the active window, and executes a configurable OS-level activity action when the threshold is exceeded.
+Brewly is a macOS-only Electron monitor exposed through a Node.js CLI. It detects system idle time on a schedule, keeps the Mac awake during the active window, and executes a configurable OS-level activity action when the threshold is exceeded.
 
 The project is intentionally application-independent. Keep runtime behavior and general documentation focused on authorized workstation continuity and operating-system-level actions.
 
@@ -18,7 +18,8 @@ pnpm run test:coverage
 pnpm run build
 pnpm run check
 pnpm pack --dry-run
-node dist/bin/macIdleKeeper/index.js help
+node dist/bin/brewly/index.js help
+pnpm migrate -- --dry-run
 ```
 
 The controlled manual profile is:
@@ -32,6 +33,8 @@ It uses `.env.test`, a 10-second interval, a 10-second threshold, and the real p
 ## Change guidelines
 
 - Preserve the global CLI and existing pnpm scripts unless a migration is documented.
+- Keep `brewly migrate` and `pnpm migrate` able to migrate both global npm and local source-checkout installations. Preserve the legacy effective configuration, stop the old service before installing the new one, verify the new service, and retain legacy data for rollback.
+- Every breaking release must extend `brewly migrate` to accept any supported previous version, not only the immediately preceding release. Use explicit version or schema detection and chain migrations when necessary (for example, `1.x -> 2.x -> 3.x`); keep migrations idempotent, support `--dry-run`, preserve rollback data, and add deterministic tests and documentation for each migration path.
 - Preserve `launch-agent` as a compatibility namespace; `agent` is its documented short alias. Keep power scheduling under the separate `power` namespace.
 - Keep the package macOS-only and compatible with Node.js 22.12+.
 - Add deterministic tests for behavior changes.
@@ -48,7 +51,7 @@ It uses `.env.test`, a 10-second interval, a 10-second threshold, and the real p
 - Use Conventional Commits with a clear scope. Link commits and pull requests to an issue or ticket when one exists; tracking references are recommended for traceability but are not a blocking requirement.
 - Keep persisted timestamps in UTC and localize only interactive display output.
 - Treat the effective configuration as immutable during a process lifetime; `.env` changes require restart.
-- Foreground and local source workflows may read `.env`. Global `agent install` and `agent restart` use defaults plus explicit `--idle-*`/`--power-*` options and must not read `.env` unless `--env-file` is explicitly supplied. They must write `~/Library/Application Support/mac-idle-keeper/agent-config.json`; the LaunchAgent, `agent status`, `power`, and `logs` commands must read that snapshot instead of rereading `.env`. Uninstall must remove the snapshot.
+- Foreground and local source workflows may read `.env`. Global `agent install` and `agent restart` use defaults plus explicit `--idle-*`/`--power-*` options and must not read `.env` unless `--env-file` is explicitly supplied. They must write `~/Library/Application Support/brewly/agent-config.json`; the LaunchAgent, `agent status`, `power`, and `logs` commands must read that snapshot instead of rereading `.env`. Uninstall must remove the snapshot.
 - Do not commit `.env`, logs, runtime state, generated tarballs, or machine-specific paths.
 - Do not use `sudo` or modify system permissions as part of repository changes.
 - Be careful with LaunchAgent operations; inspect generated plist paths before changing or removing them.
@@ -65,6 +68,7 @@ It uses `.env.test`, a 10-second interval, a 10-second threshold, and the real p
 - Run tests and `pnpm pack --dry-run` before a release.
 - The publish workflow validates tests and version alignment before using the `NPM_TOKEN` secret.
 - Release notes follow Keep a Changelog and include links to the related commit, issue, or ticket when available.
+- A breaking release is incomplete until its migration path is implemented in `brewly migrate`, validated from every supported previous version, and documented with upgrade and rollback guidance.
 
 ## Documentation map
 

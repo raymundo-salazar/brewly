@@ -26,14 +26,14 @@ Because the workflow runs on `pull_request`, the same quality gates are required
 Before publishing, it verifies that:
 
 ```text
-tag v1.4.0 == package.json version 1.4.0
+tag v2.0.0 == package.json version 2.0.0
 ```
 
 It then creates the npm tarball and publishes it publicly with npm provenance.
 
 ## Required repository configuration
 
-Create an Actions secret named `NPM_TOKEN` containing an npm automation token with permission to publish `mac-idle-keeper`. The workflow intentionally fails after tests if the secret is absent.
+Create an Actions secret named `NPM_TOKEN` containing an npm automation token with permission to publish `brewly`. The workflow intentionally fails after tests if the secret is absent.
 
 The npm account must have access to the package name. The first publication may require creating or claiming the package name manually, depending on npm account state.
 
@@ -55,8 +55,8 @@ pnpm pack --dry-run
 Update `package.json` and `CHANGELOG.md` to the same version, commit the release, create an annotated tag, and push both:
 
 ```bash
-git commit -m "chore: release v1.5.0"
-git tag -a v1.5.0 -m "Release v1.5.0"
+git commit -m "chore: release v2.0.0"
+git tag -a v2.0.0 -m "Release v2.0.0"
 git push origin main --tags
 ```
 

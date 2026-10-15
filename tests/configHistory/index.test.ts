@@ -19,7 +19,7 @@ const config = {
 
 describe('ConfigHistory', () => {
   test('records initialization and effective configuration changes', () => {
-    const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'mac-idle-keeper-config-'));
+    const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'brewly-config-'));
     const historyFile = path.join(directory, 'nested', 'config-history.json');
     const messages: string[] = [];
 
@@ -43,10 +43,10 @@ describe('ConfigHistory', () => {
   });
 
   test('handles unchanged, malformed, and non-default log paths', () => {
-    const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'mac-idle-keeper-config-'));
+    const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'brewly-config-'));
     const historyFile = path.join(directory, 'config-history.json');
     const messages: string[] = [];
-    const configured = { ...config, logFile: '/tmp/mac-idle-keeper.log' };
+    const configured = { ...config, logFile: '/tmp/brewly.log' };
 
     recordConfigChanges(historyFile, configured, (message) => messages.push(message));
     messages.length = 0;
@@ -63,7 +63,7 @@ describe('ConfigHistory', () => {
   });
 
   test('renders unknown day numbers without losing their value', () => {
-    const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'mac-idle-keeper-config-'));
+    const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'brewly-config-'));
     const historyFile = path.join(directory, 'config-history.json');
     const messages: string[] = [];
     recordConfigChanges(historyFile, { ...config, days: [9] }, (message) => messages.push(message));

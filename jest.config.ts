@@ -10,10 +10,11 @@ const config: Config = {
     'scripts/**/*.ts',
     'bin/**/*.ts',
     '!src/main/**',
-    '!bin/macIdleKeeper/**',
+    '!bin/brewly/**',
     '!scripts/installLaunchAgent/**',
     '!scripts/manageLaunchAgent/**',
     '!scripts/managePower/**',
+    '!scripts/migrate/**',
     '!scripts/viewLogs/**',
   ],
   coverageThreshold: {

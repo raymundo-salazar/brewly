@@ -53,15 +53,15 @@ Before publishing, verify the command entrypoint without starting Electron:
 
 ```bash
 pnpm run build
-node dist/bin/macIdleKeeper/index.js help
+node dist/bin/brewly/index.js help
 ```
 
 To test the package as npm will install it, build a local tarball and install that tarball into a disposable global prefix or test environment:
 
 ```bash
 npm pack
-npm install --global ./mac-idle-keeper-1.4.0.tgz
-mac-idle-keeper help
+npm install --global ./brewly-2.0.0.tgz
+brewly help
 ```
 
 Do not install the tarball over a production installation without first recording the current version and LaunchAgent configuration.
@@ -77,9 +77,17 @@ The package should include the compiled `dist/` CLI/runtime, the native helper s
 For the power schedule command, use the non-mutating preview before any manual macOS authorization:
 
 ```bash
-node dist/bin/macIdleKeeper/index.js power enable --dry-run
-node dist/bin/macIdleKeeper/index.js power status
+node dist/bin/brewly/index.js power enable --dry-run
+node dist/bin/brewly/index.js power status
 ```
+
+Preview the breaking-change migration without modifying the host:
+
+```bash
+node dist/bin/brewly/index.js migrate --dry-run
+```
+
+The migration command must be tested from both a global npm installation and a source checkout. The source equivalent is `pnpm migrate -- --dry-run`; an applied migration should preserve the legacy effective configuration while creating the current `com.local.brewly` plist.
 
 Do not run `power enable` or `power disable` automatically in CI. They modify host-level power scheduling and require an explicitly authorized macOS environment.
 
@@ -90,5 +98,5 @@ Before creating a release tag:
 1. Run `pnpm run check`.
 2. Run `pnpm pack --dry-run`.
 3. Confirm `package.json` and `CHANGELOG.md` use the same release version.
-4. Confirm the package exposes `dist/bin/macIdleKeeper/index.js` through the `mac-idle-keeper` bin entry.
+4. Confirm the package exposes `dist/bin/brewly/index.js` through the `brewly` bin entry.
 5. Confirm the tag will be exactly `v<package-version>`.
