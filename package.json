@@ -1,20 +1,26 @@
 {
-  "name": "mac-idle-keeper",
-  "version": "1.4.0",
+  "name": "brewly",
+  "version": "2.0.0",
   "private": false,
   "packageManager": "pnpm@11.18.0",
   "description": "Checks macOS system idle time on a weekday schedule and prevents long idle periods.",
+  "author": {
+    "name": "Raymundo Salazar",
+    "email": "hello@raymundosalazar.dev",
+    "url": "https://raymundosalazar.dev"
+  },
   "license": "MIT",
   "os": [
     "darwin"
   ],
   "bin": {
-    "mac-idle-keeper": "bin/mac-idle-keeper.js"
+    "brewly": "dist/bin/brewly/index.js"
   },
+  "types": "dist/src/index/index.d.ts",
   "files": [
-    "bin",
-    "src",
-    "scripts",
+    "dist",
+    "assets",
+    "scripts/idle-reset.m",
     ".env.example",
     "README.md",
     "CHANGELOG.md",
@@ -23,12 +29,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/raymundo-salazar/mac-idle-keeper.git"
+    "url": "git+ssh://git@raymundo.github.com/raymundo-salazar/brewly.git"
   },
   "bugs": {
-    "url": "https://github.com/raymundo-salazar/mac-idle-keeper/issues"
+    "url": "https://github.com/raymundo-salazar/brewly/issues"
   },
-  "homepage": "https://github.com/raymundo-salazar/mac-idle-keeper",
+  "homepage": "https://github.com/raymundo-salazar/brewly",
   "keywords": [
     "macos",
     "idle",
@@ -37,24 +43,67 @@
     "cli",
     "electron"
   ],
-  "main": "src/main.js",
+  "main": "dist/src/index/index.js",
   "scripts": {
-    "start": "electron .",
-    "start:test": "IDLE_ENV_FILE=.env.test electron .",
-    "check": "node --test --test-reporter spec",
-    "launch-agent:install": "node scripts/install-launch-agent.js",
-    "launch-agent:status": "node scripts/manage-launch-agent.js status",
-    "launch-agent:logs": "node scripts/view-logs.js",
-    "launch-agent:stop": "node scripts/manage-launch-agent.js stop",
-    "launch-agent:pause": "node scripts/manage-launch-agent.js pause",
-    "launch-agent:resume": "node scripts/manage-launch-agent.js resume",
-    "launch-agent:restart": "node scripts/manage-launch-agent.js restart",
-    "launch-agent:uninstall": "node scripts/manage-launch-agent.js uninstall"
+    "build": "rimraf dist && tsc -p tsconfig.json",
+    "clean": "rimraf dist coverage .tsbuildinfo",
+    "start": "pnpm build && electron .",
+    "start:test": "pnpm build && IDLE_ENV_FILE=.env.test electron .",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "jest --runInBand",
+    "test:coverage": "jest --coverage --runInBand",
+    "check": "pnpm run lint && pnpm run format:check && pnpm run test:coverage && pnpm run build",
+    "launch-agent:install": "pnpm build && IDLE_CONFIG_SOURCE=local node dist/scripts/installLaunchAgent/index.js",
+    "launch-agent:help": "pnpm build && node dist/scripts/manageLaunchAgent/index.js --help",
+    "launch-agent:status": "pnpm build && node dist/scripts/manageLaunchAgent/index.js status",
+    "launch-agent:logs": "pnpm build && node dist/scripts/viewLogs/index.js",
+    "launch-agent:start": "pnpm build && node dist/scripts/manageLaunchAgent/index.js start",
+    "launch-agent:stop": "pnpm build && node dist/scripts/manageLaunchAgent/index.js stop",
+    "launch-agent:pause": "pnpm build && node dist/scripts/manageLaunchAgent/index.js pause",
+    "launch-agent:resume": "pnpm build && node dist/scripts/manageLaunchAgent/index.js resume",
+    "launch-agent:restart": "pnpm build && IDLE_CONFIG_SOURCE=local node dist/scripts/manageLaunchAgent/index.js restart",
+    "launch-agent:uninstall": "pnpm build && node dist/scripts/manageLaunchAgent/index.js uninstall",
+    "agent:install": "pnpm build && IDLE_CONFIG_SOURCE=local node dist/scripts/installLaunchAgent/index.js",
+    "agent:help": "pnpm build && node dist/scripts/manageLaunchAgent/index.js --help",
+    "agent:status": "pnpm build && node dist/scripts/manageLaunchAgent/index.js status",
+    "agent:logs": "pnpm build && node dist/scripts/viewLogs/index.js",
+    "agent:start": "pnpm build && node dist/scripts/manageLaunchAgent/index.js start",
+    "agent:stop": "pnpm build && node dist/scripts/manageLaunchAgent/index.js stop",
+    "agent:pause": "pnpm build && node dist/scripts/manageLaunchAgent/index.js pause",
+    "agent:resume": "pnpm build && node dist/scripts/manageLaunchAgent/index.js resume",
+    "agent:restart": "pnpm build && IDLE_CONFIG_SOURCE=local node dist/scripts/manageLaunchAgent/index.js restart",
+    "agent:uninstall": "pnpm build && node dist/scripts/manageLaunchAgent/index.js uninstall",
+    "power:help": "pnpm build && node dist/scripts/managePower/index.js --help",
+    "power:status": "pnpm build && node dist/scripts/managePower/index.js status",
+    "power:enable": "pnpm build && node dist/scripts/managePower/index.js enable",
+    "power:disable": "pnpm build && node dist/scripts/managePower/index.js disable",
+    "migrate": "pnpm build && node dist/scripts/migrate/index.js",
+    "prepare": "husky",
+    "prepack": "pnpm run build",
+    "prepublishOnly": "pnpm run check"
   },
   "engines": {
-    "node": ">=22.12.0"
+    "node": ">=22.13.0"
   },
   "dependencies": {
     "electron": "^42.11.10"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.17.0",
+    "@types/jest": "^29.5.14",
+    "@types/node": "^22.10.5",
+    "eslint": "^9.17.0",
+    "eslint-config-prettier": "^9.1.0",
+    "husky": "^9.1.7",
+    "jest": "^29.7.0",
+    "jest-junit": "^16.0.0",
+    "prettier": "^3.4.2",
+    "rimraf": "^6.0.1",
+    "ts-jest": "^29.2.5",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.18.0"
   }
 }

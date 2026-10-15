@@ -33,7 +33,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Run tests before publishing
+      - name: Run quality gate before publishing
         run: pnpm run check
 
       - name: Validate tag and package versions
@@ -58,4 +58,4 @@ jobs:
             echo "NPM_TOKEN is not configured for this repository."
             exit 1
           fi
-          npm publish "mac-idle-keeper-${GITHUB_REF_NAME#v}.tgz" --access public --provenance
+          npm publish "brewly-${GITHUB_REF_NAME#v}.tgz" --access public --provenance

@@ -1,6 +1,6 @@
-# Contributing to Mac Idle Keeper
+# Contributing to Brewly
 
-Thank you for your interest in improving Mac Idle Keeper. Contributions are welcome in code, documentation, testing, maintenance, issue triage, and financial support.
+Thank you for your interest in improving Brewly. Contributions are welcome in code, documentation, testing, maintenance, issue triage, and financial support.
 
 ## Ways to contribute
 
@@ -31,6 +31,8 @@ Maintainers can help keep the project healthy by:
 - validating LaunchAgent behavior after upgrades;
 - keeping the README, CHANGELOG, tests, and default configuration synchronized.
 
+The project maintainer is [Raymundo Salazar](https://raymundosalazar.dev). For maintainer-related questions, contact [hello@raymundosalazar.dev](mailto:hello@raymundosalazar.dev).
+
 ## Development workflow
 
 1. Fork the repository and create a focused branch.
@@ -40,7 +42,7 @@ Maintainers can help keep the project healthy by:
    pnpm install
    ```
 
-   The published package is macOS-only and requires Node.js 22.12 or newer because Electron is a runtime dependency.
+   The published package is macOS-only and requires Node.js 22.13 or newer because Electron and the repository's pnpm toolchain require it.
 
 3. Make the change and add tests where appropriate.
 4. Run the quality check:
@@ -51,6 +53,10 @@ Maintainers can help keep the project healthy by:
 
 5. Update documentation and `CHANGELOG.md` when user-visible behavior changes.
 6. Open a pull request describing the problem, solution, testing performed, and any macOS permission requirements.
+
+## Commit and issue conventions
+
+Use [Conventional Commits](https://www.conventionalcommits.org/) with a clear scope, for example `feat(monitor): add configurable activity action`. Commits should be atomic and easy to revert. Link a commit or pull request to an issue or ticket when one exists; tracking references are recommended for traceability but are not required to create or merge a change.
 
 Before publishing a release, inspect the package contents with:
 
