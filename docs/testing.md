@@ -59,12 +59,10 @@ node dist/bin/brewly/index.js help
 To test the package as npm will install it, build a local tarball and install that tarball into a disposable global prefix or test environment:
 
 ```bash
-npm pack
-npm install --global ./brewly-2.0.0.tgz
-brewly help
+pnpm pack:local
 ```
 
-Do not install the tarball over a production installation without first recording the current version and LaunchAgent configuration.
+This command preserves the complete `npm pack` output and finishes with the exact local installation commands, including `brewly help` and `brewly agent status`. To create the tarball without the installation guidance, use `npm pack` directly. Do not install the tarball over a production installation without first recording the current version and LaunchAgent configuration.
 
 ## Inspect package contents without creating a tarball
 

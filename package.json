@@ -55,6 +55,7 @@
     "test": "jest --runInBand",
     "test:coverage": "jest --coverage --runInBand",
     "check": "pnpm run lint && pnpm run format:check && pnpm run test:coverage && pnpm run build",
+    "pack:local": "npm pack && node dist/scripts/packLocal/index.js",
     "launch-agent:install": "pnpm build && IDLE_CONFIG_SOURCE=local node dist/scripts/installLaunchAgent/index.js",
     "launch-agent:help": "pnpm build && node dist/scripts/manageLaunchAgent/index.js --help",
     "launch-agent:status": "pnpm build && node dist/scripts/manageLaunchAgent/index.js status",

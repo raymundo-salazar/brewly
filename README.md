@@ -551,6 +551,14 @@ Before publishing a release, inspect the npm package contents with:
 pnpm pack --dry-run
 ```
 
+To build and test the CLI from the current checkout as a global installation, use:
+
+```bash
+pnpm pack:local
+```
+
+This runs `npm pack`, keeps its complete output, and finishes with the exact commands to install and test the generated tarball locally. Use `npm pack` directly when you only need the tarball or package contents.
+
 Publishing is restricted to project maintainers:
 
 ```bash
