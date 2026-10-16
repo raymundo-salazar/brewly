@@ -3,7 +3,7 @@
   "version": "2.1.1",
   "private": false,
   "packageManager": "pnpm@11.18.0",
-  "description": "Checks macOS system idle time on a weekday schedule and prevents long idle periods.",
+  "description": "A macOS menu bar and CLI monitor for scheduled idle checks, sleep prevention, and workstation continuity.",
   "author": {
     "name": "Raymundo Salazar",
     "email": "hello@raymundosalazar.dev",
@@ -37,11 +37,15 @@
   "homepage": "https://github.com/raymundo-salazar/brewly",
   "keywords": [
     "macos",
-    "idle",
-    "activity",
-    "launchagent",
+    "macos-menu-bar",
+    "system-idle",
+    "idle-monitor",
+    "sleep-prevention",
+    "power-management",
+    "caffeinate",
     "cli",
-    "electron"
+    "electron",
+    "launchagent"
   ],
   "main": "dist/src/index/index.js",
   "scripts": {
