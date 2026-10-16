@@ -56,6 +56,8 @@ brewly help
 
 The package includes Electron and all runtime dependencies. macOS may ask for Accessibility or notification permissions the first time the monitor runs.
 
+The Electron macOS runtime may be downloaded on the first command that starts or installs the monitor if the package manager did not download it during installation. Brewly explains this first-use download because Electron is required to run the monitor process; read-only commands such as `brewly help`, `brewly status`, and `brewly power status` do not need to load Electron.
+
 ### Use the TypeScript/Node.js API
 
 The package also exposes its application-independent runtime components for integrations that need to compose configuration, scheduling, logging, or monitoring behavior:

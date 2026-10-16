@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 
+import fs from 'node:fs';
+import { createRequire } from 'node:module';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
-import electronModule from 'electron';
 import { error, header, info, item, section } from '../../src/cliOutput';
 import {
   configurationEnvironmentNames,
@@ -10,8 +11,40 @@ import {
 } from '../../src/configArguments';
 
 const packageRoot = path.resolve(__dirname, '..', '..', '..');
-const electronPath = electronModule as unknown as string;
+const requireModule = createRequire(__filename);
 const electronMainPath = path.join(packageRoot, 'dist', 'src', 'main', 'index.js');
+const electronBinaryPath = path.join(
+  packageRoot,
+  'node_modules',
+  'electron',
+  'dist',
+  'Electron.app',
+  'Contents',
+  'MacOS',
+  'Electron',
+);
+
+/**
+ * @function resolveElectronPath
+ * @description Resolves the Electron executable and explains a first-use binary download.
+ *
+ * @returns The Electron executable path provided by the Electron package.
+ * @throws Throws when Electron cannot be loaded or its binary cannot be downloaded.
+ *
+ * @example
+ * // brewly start
+ */
+function resolveElectronPath(): string {
+  if (!fs.existsSync(electronBinaryPath))
+    info(
+      'Electron runtime',
+      'Brewly needs Electron to run the monitor. Downloading the macOS runtime now; this happens only on first use.',
+    );
+  const electronModule = requireModule('electron') as unknown;
+  if (typeof electronModule !== 'string')
+    throw new Error('Electron did not provide a usable executable path.');
+  return electronModule;
+}
 
 /**
  * @function printHelp
@@ -102,7 +135,7 @@ function main(args: string[]): void {
   }
 
   if (command === 'start') {
-    run(electronPath, [electronMainPath, ...commandArgs], environment);
+    run(resolveElectronPath(), [electronMainPath, ...commandArgs], environment);
     return;
   }
 
@@ -142,6 +175,7 @@ function main(args: string[]): void {
       }
     }
     if (action === 'install') {
+      resolveElectronPath();
       run(
         process.execPath,
         [path.join(packageRoot, 'dist', 'scripts', 'installLaunchAgent', 'index.js')],
