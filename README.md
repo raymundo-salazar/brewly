@@ -1,5 +1,10 @@
 # Brewly
 
+[![npm version](https://img.shields.io/npm/v/brewly?logo=npm&label=npm)](https://www.npmjs.com/package/brewly)
+[![npm package](https://img.shields.io/badge/npm-view%20package-CB3837?logo=npm&logoColor=white)](https://www.npmjs.com/package/brewly)
+[![Tests](https://github.com/raymundo-salazar/brewly/actions/workflows/test.yml/badge.svg)](https://github.com/raymundo-salazar/brewly/actions/workflows/test.yml)
+[![Coverage](https://img.shields.io/badge/coverage-90%25%2B-brightgreen)](https://github.com/raymundo-salazar/brewly/actions/workflows/test.yml)
+
 <img src="assets/branding/logo-light.png" alt="Brewly logo" width="500" />
 
 Brewly is a macOS background monitor that detects extended system inactivity and generates configurable activity for user-authorized desktop work and workflows. It operates at the macOS level and does not require integration with a particular application.
@@ -19,8 +24,8 @@ During its active schedule it also runs a macOS `caffeinate` assertion to preven
 - Localized English or Spanish tray controls with native play, pause, and stop menu icons.
 - Foreground mode for testing and a per-user LaunchAgent for background operation.
 - Optional macOS wake or power-on scheduling aligned with the monitor's active window.
-- Colorized, human-readable output across the CLI commands, including LaunchAgent status and the last five activity actions.
-- Log inspection from the LaunchAgent command namespace, including real-time follow mode.
+- Colorized, human-readable output across the CLI commands, including agent status and the last five activity actions.
+- Log inspection through the `agent` and `logs` commands, including real-time follow mode.
 - CLI defaults and explicit configuration options, with `.env` support for development and contribution workflows.
 - Automated tests for scheduling, monitoring, runtime state, notifications, and LaunchAgent behavior.
 
@@ -77,7 +82,7 @@ pnpm install
 pnpm run check
 ```
 
-The project is currently released as `2.1.0`. See [CHANGELOG.md](CHANGELOG.md) for release notes.
+The project is currently released as `2.1.1`. See [CHANGELOG.md](CHANGELOG.md) for release notes.
 
 ## Configuration
 
