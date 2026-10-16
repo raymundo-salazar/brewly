@@ -4,9 +4,16 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+## [2.1.2] - 2026-10-16
+
 ### Fixed
 
 - Removed the `launch-agent` CLI namespace and pnpm script aliases; use `agent` instead.
+
+### Changed
+
+- Updated GitHub Actions runtimes to current Node.js-compatible action versions.
+- Improved npm metadata, repository discoverability, and release documentation.
 
 ## [2.1.1] - 2026-10-15
 
