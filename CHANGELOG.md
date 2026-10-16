@@ -4,6 +4,10 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+### Added
+
+- Added a GitHub Sponsors badge to the README for project support.
+
 ## [2.1.2] - 2026-10-16
 
 ### Fixed

@@ -4,6 +4,7 @@
 [![npm package](https://img.shields.io/badge/npm-view%20package-CB3837?logo=npm&logoColor=white)](https://www.npmjs.com/package/brewly)
 [![Tests](https://github.com/raymundo-salazar/brewly/actions/workflows/test.yml/badge.svg)](https://github.com/raymundo-salazar/brewly/actions/workflows/test.yml)
 [![Coverage](https://img.shields.io/badge/coverage-90%25%2B-brightgreen)](https://github.com/raymundo-salazar/brewly/actions/workflows/test.yml)
+[![GitHub Sponsors](https://img.shields.io/github/sponsors/raymundo-salazar?logo=githubsponsors&logoColor=white&label=Sponsor)](https://github.com/sponsors/raymundo-salazar)
 
 <img src="assets/branding/logo-light.png" alt="Brewly logo" width="500" />
 
