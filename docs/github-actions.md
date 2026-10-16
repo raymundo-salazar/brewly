@@ -26,7 +26,7 @@ Because the workflow runs on `pull_request`, the same quality gates are required
 Before publishing, it verifies that:
 
 ```text
-tag v2.0.0 == package.json version 2.0.0
+  tag v2.1.0 == package.json version 2.1.0
 ```
 
 It then creates the npm tarball and publishes it publicly with npm provenance.
@@ -55,8 +55,8 @@ pnpm pack --dry-run
 Update `package.json` and `CHANGELOG.md` to the same version, commit the release, create an annotated tag, and push both:
 
 ```bash
-git commit -m "chore: release v2.0.0"
-git tag -a v2.0.0 -m "Release v2.0.0"
+git commit -m "chore(release): prepare v2.1.0"
+git tag -a v2.1.0 -m "Release v2.1.0"
 git push origin main --tags
 ```
 

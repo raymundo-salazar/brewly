@@ -15,8 +15,8 @@ describe('packLocal', () => {
 
     main();
 
-    expect(output.join('\n')).toContain('brewly-2.0.0.tgz');
-    expect(output.join('\n')).toContain('npm install --global ./brewly-2.0.0.tgz');
+    expect(output.join('\n')).toMatch(/brewly-\d+\.\d+\.\d+\.tgz/);
+    expect(output.join('\n')).toMatch(/npm install --global \.\/brewly-\d+\.\d+\.\d+\.tgz/);
     expect(output.join('\n')).toContain('brewly help');
     expect(output.join('\n')).toContain('brewly agent status');
     logSpy.mockRestore();

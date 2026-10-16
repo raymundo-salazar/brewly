@@ -75,7 +75,7 @@ pnpm install
 pnpm run check
 ```
 
-The project is currently released as `2.0.0`. See [CHANGELOG.md](CHANGELOG.md) for release notes.
+The project is currently released as `2.1.0`. See [CHANGELOG.md](CHANGELOG.md) for release notes.
 
 ## Configuration
 

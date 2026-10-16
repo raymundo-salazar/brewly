@@ -4,6 +4,12 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+## [2.1.0] - 2026-10-15
+
+### Added
+
+- Added `pnpm pack:local` to create a local npm tarball and finish with human-readable installation and verification commands.
+
 ## [2.0.0] - 2026-10-14
 
 ### Changed
@@ -129,7 +135,8 @@ All notable changes to this project are documented here.
 - Initial stable release of the macOS idle monitor.
 - Weekday schedule, configurable `.env` support, physical HID activity, `caffeinate` awake guard, macOS notifications, and automated tests.
 
-[Unreleased]: https://github.com/raymundo-salazar/brewly/compare/v2.0.0...HEAD
+[Unreleased]: https://github.com/raymundo-salazar/brewly/compare/v2.1.0...HEAD
+[2.1.0]: https://github.com/raymundo-salazar/brewly/releases/tag/v2.1.0
 [2.0.0]: https://github.com/raymundo-salazar/brewly/releases/tag/v2.0.0
 [1.5.0]: https://github.com/raymundo-salazar/brewly/releases/tag/v1.5.0
 [1.4.0]: https://github.com/raymundo-salazar/brewly/releases/tag/v1.4.0
