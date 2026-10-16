@@ -29,7 +29,7 @@ Before publishing, it verifies that:
   tag v2.1.0 == package.json version 2.1.0
 ```
 
-It then creates the npm tarball and publishes it publicly with npm provenance.
+It then creates the npm tarball, extracts and validates the matching version section from `CHANGELOG.md`, and publishes the package publicly with npm provenance. Only after `npm publish` succeeds does it create a GitHub Release with the tag, version, changelog fragment, and the generated `brewly-<version>.tgz` package attached as a release asset. The heading may use brackets, a `v` prefix, an optional `Release` prefix, and an optional date, for example `## [2.1.0] - 2026-10-15` or `## Release v2.1.0`. The workflow requires `contents: write` for this final step.
 
 ## Required repository configuration
 
@@ -39,7 +39,7 @@ The npm account must have access to the package name. The first publication may 
 
 The workflow uses:
 
-- `contents: read` to check out source;
+- `contents: write` to check out source and create the GitHub Release after npm publication succeeds;
 - `id-token: write` for npm provenance;
 - npm registry setup through `actions/setup-node`.
 
@@ -66,5 +66,7 @@ Pushing the tag starts `publish.yml`. Do not manually run `npm publish` for the 
 
 - If tests fail, the package is not published.
 - If the tag and package versions differ, the package is not published.
+- If the matching changelog section is missing or contains only whitespace, the package is not published.
 - If `NPM_TOKEN` is missing or invalid, the package is not published.
+- If GitHub Release creation fails after npm publication, the npm package remains published and the release can be retried after correcting the workflow or repository state.
 - A failed workflow does not automatically move or delete a tag. Fix the cause, then follow the repository's release policy before retrying.

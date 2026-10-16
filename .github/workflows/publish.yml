@@ -6,7 +6,7 @@ on:
       - 'v*.*.*'
 
 permissions:
-  contents: read
+  contents: write
   id-token: write
 
 jobs:
@@ -49,5 +49,41 @@ jobs:
       - name: Build npm package
         run: pnpm pack
 
+      - name: Prepare release notes
+        shell: bash
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          awk -v version="$version" '
+            function normalized_heading(line) {
+              sub(/^##[[:space:]]*/, "", line)
+              sub(/^Release[[:space:]]+/, "", line)
+              sub(/^v/, "", line)
+              sub(/^\[/, "", line)
+              sub(/\].*$/, "", line)
+              sub(/[[:space:]].*$/, "", line)
+              return line
+            }
+            /^##[[:space:]]/ && normalized_heading($0) == version { in_release=1; next }
+            in_release && /^##[[:space:]]/ { exit }
+            in_release { print }
+          ' CHANGELOG.md > release-notes.md
+
+          if ! grep -q '[^[:space:]]' release-notes.md; then
+            echo "No changelog section found for version $version."
+            exit 1
+          fi
+
       - name: Publish package
         run: npm publish "brewly-${GITHUB_REF_NAME#v}.tgz" --access public
+
+      - name: Create GitHub Release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          gh release create "$GITHUB_REF_NAME" \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "Brewly $GITHUB_REF_NAME" \
+            --notes-file release-notes.md \
+            "brewly-${version}.tgz"
