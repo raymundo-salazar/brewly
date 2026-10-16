@@ -4,6 +4,13 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+## [2.1.1] - 2026-10-15
+
+### Changed
+
+- Improved the automated npm publishing and GitHub release workflow.
+- Configured npm Trusted Publishing with GitHub Actions.
+
 ## [2.1.0] - 2026-10-15
 
 ### Added
