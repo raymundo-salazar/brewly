@@ -66,9 +66,16 @@ It uses `.env.test`, a 10-second interval, a 10-second threshold, and the real p
 - Use a minor version for backward-compatible features and a patch version for fixes.
 - Release tags use the exact format `vX.Y.Z` and must match `package.json` without the leading `v`.
 - Run tests and `pnpm pack --dry-run` before a release.
-- The publish workflow validates tests and version alignment before using the `NPM_TOKEN` secret.
+- The publish workflow validates tests and version alignment before publishing through npm Trusted Publishing with OIDC.
 - Release notes follow Keep a Changelog and include links to the related commit, issue, or ticket when available.
 - A breaking release is incomplete until its migration path is implemented in `brewly migrate`, validated from every supported previous version, and documented with upgrade and rollback guidance.
+- When the user requests a new Brewly release, follow this exact sequence:
+  1. Update `package.json` and `CHANGELOG.md` to the same new version.
+  2. Run `pnpm run check` and `pnpm pack --dry-run`.
+  3. Create the release commit on `main` and push it to `origin/main`.
+  4. Create the annotated tag `vX.Y.Z` and push that tag.
+  5. Let GitHub Actions run the quality gate, publish to npm through OIDC trusted publishing, and create the GitHub Release.
+- Do not run `npm publish` manually during this release flow. The tag-triggered workflow is the only publication path.
 
 ## Documentation map
 

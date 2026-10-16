@@ -8,9 +8,9 @@ The repository uses two workflows under `.github/workflows/`.
 
 It:
 
-1. checks out the repository;
-2. installs pnpm 11.18.0;
-3. uses Node.js 22.13 on `macos-latest`;
+1. checks out the repository with actions/checkout@v7;
+2. installs pnpm 11.18.0 with pnpm/action-setup@v6;
+3. uses Node.js 22.13 on `macos-latest` with actions/setup-node@v7;
 4. installs dependencies with `pnpm install --frozen-lockfile`;
 5. runs `pnpm run check`, which enforces ESLint, Prettier, Jest coverage, and the TypeScript build;
 6. validates the package contents with `pnpm pack --dry-run`.
@@ -33,9 +33,7 @@ It then creates the npm tarball, extracts and validates the matching version sec
 
 ## Required repository configuration
 
-Create an Actions secret named `NPM_TOKEN` containing an npm automation token with permission to publish `brewly`. The workflow intentionally fails after tests if the secret is absent.
-
-The npm account must have access to the package name. The first publication may require creating or claiming the package name manually, depending on npm account state.
+Configure npm Trusted Publishing for the `brewly` package using this GitHub repository and the `publish.yml` workflow. The workflow uses OIDC, so no long-lived `NPM_TOKEN` secret is required. The npm account must own or have publish access to the package name.
 
 The workflow uses:
 
@@ -52,12 +50,19 @@ pnpm run check
 pnpm pack --dry-run
 ```
 
-Update `package.json` and `CHANGELOG.md` to the same version, commit the release, create an annotated tag, and push both:
+Update `package.json` and `CHANGELOG.md` to the same version, run the quality checks, commit and push `main`, then create and push an annotated tag:
 
 ```bash
-git commit -m "chore(release): prepare v2.1.0"
-git tag -a v2.1.0 -m "Release v2.1.0"
-git push origin main --tags
+git add package.json CHANGELOG.md
+git commit -m "chore(release): prepare v2.1.1"
+git push origin main
+```
+
+Then create and publish the tag:
+
+```bash
+git tag -a v2.1.1 -m "Release v2.1.1"
+git push origin v2.1.1
 ```
 
 Pushing the tag starts `publish.yml`. Do not manually run `npm publish` for the same tag unless the workflow has been intentionally disabled and the release state has been checked.
@@ -67,6 +72,6 @@ Pushing the tag starts `publish.yml`. Do not manually run `npm publish` for the 
 - If tests fail, the package is not published.
 - If the tag and package versions differ, the package is not published.
 - If the matching changelog section is missing or contains only whitespace, the package is not published.
-- If `NPM_TOKEN` is missing or invalid, the package is not published.
+- If npm Trusted Publishing is not configured for this repository and workflow, the package is not published.
 - If GitHub Release creation fails after npm publication, the npm package remains published and the release can be retried after correcting the workflow or repository state.
 - A failed workflow does not automatically move or delete a tag. Fix the cause, then follow the repository's release policy before retrying.
