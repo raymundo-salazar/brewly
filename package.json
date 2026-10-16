@@ -29,7 +29,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@raymundo.github.com/raymundo-salazar/brewly.git"
+    "url": "git+https://github.com/raymundo-salazar/brewly.git"
   },
   "bugs": {
     "url": "https://github.com/raymundo-salazar/brewly/issues"
