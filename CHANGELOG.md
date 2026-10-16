@@ -4,6 +4,10 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+### Fixed
+
+- Removed the `launch-agent` CLI namespace and pnpm script aliases; use `agent` instead.
+
 ## [2.1.1] - 2026-10-15
 
 ### Changed

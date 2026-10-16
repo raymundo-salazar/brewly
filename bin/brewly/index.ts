@@ -59,14 +59,13 @@ function printHelp(): void {
   item('brewly <command> [options]');
   section('Commands');
   info('start', 'Start the monitor in the current session.');
-  info('agent', 'Short alias for LaunchAgent management.');
-  info('launch-agent', 'Install and manage the background LaunchAgent.');
+  info('agent', 'Install and manage the background LaunchAgent.');
   info('power', 'Inspect and manage scheduled macOS wake or power-on events.');
   info('migrate', 'Migrate a legacy installation while preserving its effective configuration.');
   info('logs', 'Show recent application logs or follow them live.');
   info('help', 'Show this command reference.');
   section('LaunchAgent actions');
-  item('agent <action> | launch-agent <action>');
+  item('agent <action>');
   item('Actions: install | status | logs | start | stop | pause | resume | restart | uninstall');
   section('Power schedule actions');
   item('power: status | enable | disable');
@@ -88,11 +87,11 @@ function printHelp(): void {
   section('Examples');
   item('brewly start');
   item('brewly agent status');
-  item('brewly launch-agent install');
+  item('brewly agent install');
   item('brewly power enable --dry-run');
   item('brewly power status');
   item('brewly agent install --idle-days working_days --idle-start-time 07:00');
-  item('brewly launch-agent --help');
+  item('brewly agent --help');
   item('brewly logs --follow');
   item('brewly migrate --dry-run');
 }
@@ -123,7 +122,7 @@ function run(command: string, args: string[], environment: NodeJS.ProcessEnv = p
  * @throws Throws for unknown commands or invalid command arguments.
  *
  * @example
- * // brewly launch-agent status
+ * // brewly agent status
  */
 function main(args: string[]): void {
   const parsed = parseConfigurationArguments(args);
@@ -157,7 +156,7 @@ function main(args: string[]): void {
     return;
   }
 
-  if (command === 'launch-agent' || command === 'agent') {
+  if (command === 'agent') {
     const [action, ...actionArgs] = commandArgs;
     if (!action)
       throw new Error(`${command} requires an action. Run brewly ${command} --help for usage.`);

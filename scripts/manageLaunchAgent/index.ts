@@ -57,9 +57,7 @@ function launchctl(args: string[], allowFailure = false): void {
  */
 function requirePlist(): void {
   if (!fs.existsSync(plistPath))
-    throw new Error(
-      `LaunchAgent plist not found: ${plistPath}. Run brewly launch-agent install first.`,
-    );
+    throw new Error(`LaunchAgent plist not found: ${plistPath}. Run brewly agent install first.`);
 }
 
 /**
@@ -102,7 +100,7 @@ function loadService(): void {
  *
  * @example
  * // Start a previously stopped service:
- * // brewly launch-agent start
+ * // brewly agent start
  */
 function startService(): void {
   requirePlist();
@@ -132,12 +130,12 @@ function operationHeader(operation: string): void {
  * @throws Does not throw during normal terminal output.
  *
  * @example
- * // brewly launch-agent --help
+ * // brewly agent --help
  */
 function printHelp(): void {
   header('Brewly — LaunchAgent help');
   section('Usage');
-  item('brewly launch-agent <action> [options]');
+  item('brewly agent <action> [options]');
   section('Actions');
   info('install', 'Create and load the per-user LaunchAgent.');
   info('status', 'Show installation, process, schedule, and recent activity state.');
@@ -164,11 +162,11 @@ function printHelp(): void {
   info('--power-on-offset-minutes N', 'Minutes before the monitor schedule for power-on.');
   info('-y, --yes', 'Remove the plist and all managed application data without prompting.');
   section('Examples');
-  item('brewly launch-agent install');
-  item('brewly launch-agent status');
-  item('brewly launch-agent logs --follow');
-  item('brewly launch-agent install --idle-days working_days --idle-start-time 07:00');
-  item('brewly launch-agent restart');
+  item('brewly agent install');
+  item('brewly agent status');
+  item('brewly agent logs --follow');
+  item('brewly agent install --idle-days working_days --idle-start-time 07:00');
+  item('brewly agent restart');
 }
 
 /**
@@ -180,7 +178,7 @@ function printHelp(): void {
  *
  * @example
  * // Run through the package CLI:
- * // brewly launch-agent status
+ * // brewly agent status
  */
 function status(): void {
   const exists = fs.existsSync(plistPath);
@@ -487,7 +485,7 @@ async function main(): Promise<void> {
       break;
     default:
       header('Brewly — LaunchAgent command error');
-      error('Usage: brewly launch-agent <status|start|stop|pause|resume|restart|uninstall>');
+      error('Usage: brewly agent <status|start|stop|pause|resume|restart|uninstall>');
       process.exitCode = 1;
   }
 }

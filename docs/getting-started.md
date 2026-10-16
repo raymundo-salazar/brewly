@@ -107,21 +107,19 @@ When the monitor process is running, Brewly also places a status indicator in th
 Install and manage the per-user LaunchAgent through the global CLI:
 
 ```bash
-brewly launch-agent install
-brewly launch-agent status
-brewly launch-agent logs --follow
-brewly launch-agent --help
+brewly agent install
+brewly agent status
+brewly agent logs --follow
+brewly agent --help
 ```
 
 Available actions are `install`, `status`, `logs`, `start`, `stop`, `pause`, `resume`, `restart`, and `uninstall`.
 
-CLI responses use consistent human-readable sections, labeled values, semantic colors when supported by the terminal, and actionable messages. `launch-agent status` provides the most complete state summary; `logs` provides the event stream.
+CLI responses use consistent human-readable sections, labeled values, semantic colors when supported by the terminal, and actionable messages. `agent status` provides the most complete state summary; `logs` provides the event stream.
 
 After uninstall, when neither the plist nor runtime state exists, status reports `NOT CONFIGURED` instead of presenting the local `.env` schedule as active.
 
-The source checkout exposes equivalent pnpm scripts such as `pnpm run launch-agent:install`, `pnpm run launch-agent:start`, and `pnpm run launch-agent:status`.
-
-The shorter `agent` namespace is also available through the global CLI and `agent:*` pnpm scripts. The original `launch-agent` namespace remains supported for compatibility.
+The source checkout exposes equivalent pnpm scripts such as `pnpm run agent:install`, `pnpm run agent:start`, and `pnpm run agent:status`.
 
 The lifecycle commands are intentionally distinct: `stop` stops the current process while keeping the plist installed, and `start` loads it again from the beginning. `pause` disables the service while preserving its installed configuration, and `resume` enables and loads that paused service. `restart` refreshes the plist and starts the service.
 

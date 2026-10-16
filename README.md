@@ -220,20 +220,13 @@ For detection-only testing, use `IDLE_ACTION=none`. This logs detections without
 With the global CLI, install and manage the per-user macOS LaunchAgent with:
 
 ```bash
-brewly launch-agent install
-brewly launch-agent status
-brewly launch-agent logs --follow
-brewly launch-agent --help
-```
-
-The shorter `agent` namespace is an equivalent alias:
-
-```bash
+brewly agent install
 brewly agent status
-brewly agent start
+brewly agent logs --follow
+brewly agent --help
 ```
 
-The CLI also supports `start`, `stop`, `pause`, `resume`, `restart`, and `uninstall` after `launch-agent` or `agent`.
+The `agent` namespace supports `install`, `status`, `logs`, `start`, `stop`, `pause`, `resume`, `restart`, and `uninstall`.
 
 All CLI commands use a consistent human-readable response format. Each response includes a descriptive header, labeled details, semantic status colors when the terminal supports them, and actionable success or error messages. Use `status` for the most complete runtime view and `logs` when you need the application event stream.
 
@@ -258,7 +251,7 @@ pnpm migrate
 Install the per-user macOS LaunchAgent:
 
 ```bash
-pnpm run launch-agent:install
+pnpm run agent:install
 ```
 
 The LaunchAgent starts at login, relaunches the monitor after an unexpected failure, and uses the persisted configuration snapshot created by install or restart. A normal stop from the tray does not relaunch it. It is scoped to the current user session; it does not run before login.
@@ -266,17 +259,17 @@ The LaunchAgent starts at login, relaunches the monitor after an unexpected fail
 ### LaunchAgent commands
 
 ```bash
-pnpm run launch-agent:status      # Show runtime status and recent activity
-pnpm run launch-agent:help        # Show LaunchAgent command help
-pnpm run launch-agent:logs        # Show the last 50 application log lines
-pnpm run launch-agent:logs -- --follow  # Follow the application log in real time
-pnpm run launch-agent:start      # Start a stopped service
-pnpm run launch-agent:stop       # Stop the process; keep the plist installed
-pnpm run launch-agent:pause      # Pause and disable automatic relaunch
-pnpm run launch-agent:resume     # Resume a paused service
-pnpm run launch-agent:restart    # Refresh the plist and restart the service
-pnpm run launch-agent:uninstall  # Stop the service and prompt about managed data
-pnpm run launch-agent:uninstall -- --yes  # Remove the plist and managed data
+pnpm run agent:status      # Show runtime status and recent activity
+pnpm run agent:help        # Show LaunchAgent command help
+pnpm run agent:logs        # Show the last 50 application log lines
+pnpm run agent:logs -- --follow  # Follow the application log in real time
+pnpm run agent:start      # Start a stopped service
+pnpm run agent:stop       # Stop the process; keep the plist installed
+pnpm run agent:pause      # Pause and disable automatic relaunch
+pnpm run agent:resume     # Resume a paused service
+pnpm run agent:restart    # Refresh the plist and restart the service
+pnpm run agent:uninstall  # Stop the service and prompt about managed data
+pnpm run agent:uninstall -- --yes  # Remove the plist and managed data
 ```
 
 Source-checkout install and restart commands accept the same configuration options after `--`; these local commands may also load `.env`:
@@ -334,13 +327,13 @@ Uninstalling the LaunchAgent does not automatically remove a power schedule. Run
 After changing local `.env` values, restart the LaunchAgent so the running process loads the new values:
 
 ```bash
-pnpm run launch-agent:restart
+pnpm run agent:restart
 ```
 
 ## Status and runtime state
 
 ```bash
-pnpm run launch-agent:status
+pnpm run agent:status
 ```
 
 The status command reports:
@@ -353,7 +346,7 @@ The status command reports:
 - the last check and last check status;
 - the last five executed activity actions.
 
-When neither the LaunchAgent plist nor runtime state exists, `launch-agent:status` reports `Configuration: NOT CONFIGURED`, `Runtime schedule: NOT CONFIGURED`, and `Log: NOT CONFIGURED`. Values still present in a local `.env` are not treated as an active agent configuration.
+When neither the LaunchAgent plist nor runtime state exists, `agent:status` reports `Configuration: NOT CONFIGURED`, `Runtime schedule: NOT CONFIGURED`, and `Log: NOT CONFIGURED`. Values still present in a local `.env` are not treated as an active agent configuration.
 
 The monitor writes its effective startup configuration to:
 
@@ -361,7 +354,7 @@ The monitor writes its effective startup configuration to:
 ~/Library/Application Support/brewly/runtime-state.json
 ```
 
-This lets `launch-agent:status` report the configuration actually loaded by the process instead of rereading a newer `.env` file that has not been applied yet.
+This lets `agent:status` report the configuration actually loaded by the process instead of rereading a newer `.env` file that has not been applied yet.
 
 The previous effective configuration is persisted at:
 
@@ -394,18 +387,18 @@ The log command reads the application log. By default it prints the last 50 line
 
 ```bash
 brewly logs
-pnpm run launch-agent:logs
+pnpm run agent:logs
 ```
 
 Use `--follow` (or `-f`) to keep the command open, and `--lines` (or `-n`) to change the number of initial lines:
 
 ```bash
 brewly logs --follow
-pnpm run launch-agent:logs -- --follow
-pnpm run launch-agent:logs -- --lines 100
+pnpm run agent:logs -- --follow
+pnpm run agent:logs -- --lines 100
 ```
 
-Application log entries are stored with UTC timestamps (`Z`) so the file remains unambiguous across machines and timezone changes. The Electron console, `launch-agent:logs`, and `launch-agent:status` convert those timestamps to the effective `IDLE_TIMEZONE` (or `America/Monterrey` by default) and show the timezone beside each displayed timestamp. Direct tools such as `tail` show the stored UTC representation.
+Application log entries are stored with UTC timestamps (`Z`) so the file remains unambiguous across machines and timezone changes. The Electron console, `agent:logs`, and `agent:status` convert those timestamps to the effective `IDLE_TIMEZONE` (or `America/Monterrey` by default) and show the timezone beside each displayed timestamp. Direct tools such as `tail` show the stored UTC representation.
 
 The monitor shows a macOS notification when it starts and when it stops. When running directly with `pnpm start`, notifications are sent through `osascript`; macOS may require notification permission for Terminal or the shell application.
 
@@ -455,7 +448,7 @@ The activity action does not run continuously; it runs only after the idle thres
 Check the status and process logs:
 
 ```bash
-pnpm run launch-agent:status
+pnpm run agent:status
 tail -f "$HOME/Library/Logs/brewly/launch-agent.stderr.log"
 ```
 
@@ -468,7 +461,7 @@ plutil -lint "$HOME/Library/LaunchAgents/com.local.brewly.plist"
 If the plist was generated by an older project version, refresh it with:
 
 ```bash
-pnpm run launch-agent:restart
+pnpm run agent:restart
 ```
 
 ### The process runs but uses old settings
@@ -476,13 +469,13 @@ pnpm run launch-agent:restart
 For a source-checkout development or contribution workflow, the monitor loads `.env` only at startup. Restart it:
 
 ```bash
-pnpm run launch-agent:restart
+pnpm run agent:restart
 ```
 
 Then verify the effective runtime configuration:
 
 ```bash
-pnpm run launch-agent:status
+pnpm run agent:status
 ```
 
 ### Idle time does not reset

@@ -11,7 +11,7 @@ describe('Brewly CLI', () => {
     expect(output).toMatch(/agent/);
     expect(output).toMatch(/power/);
     expect(output).toMatch(/migrate/);
-    expect(output).toMatch(/launch-agent/);
+    expect(output).not.toMatch(/launch-agent/);
     expect(output).toMatch(/start \| stop \| pause \| resume/);
     expect(output).toMatch(/--env-file PATH/);
   });
@@ -35,5 +35,15 @@ describe('Brewly CLI', () => {
     expect(output).toMatch(/install: Create and load/);
     expect(output).toMatch(/start: Start a stopped service/);
     expect(output).toMatch(/--help, -h/);
+  });
+
+  test('rejects the removed launch-agent namespace', () => {
+    const cli = path.join(__dirname, '..', '..', 'bin', 'brewly', 'index.ts');
+
+    expect(() =>
+      execFileSync(process.execPath, ['-r', 'ts-node/register', cli, 'launch-agent', 'status'], {
+        encoding: 'utf8',
+      }),
+    ).toThrow(/Unknown command: launch-agent/);
   });
 });
