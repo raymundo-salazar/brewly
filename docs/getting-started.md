@@ -17,6 +17,7 @@ It is intended for user-authorized workstation continuity, such as long-running 
 ```bash
 npm install --global brewly
 brewly help
+brewly --version
 ```
 
 The package includes Electron as a runtime dependency and exposes the `brewly` executable.

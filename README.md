@@ -58,6 +58,7 @@ The recommended user installation is through npm:
 ```bash
 npm install --global brewly
 brewly help
+brewly --version
 ```
 
 The package includes Electron and all runtime dependencies. macOS may ask for Accessibility or notification permissions the first time the monitor runs.

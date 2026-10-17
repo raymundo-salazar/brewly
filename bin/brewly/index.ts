@@ -9,9 +9,14 @@ import {
   configurationEnvironmentNames,
   parseConfigurationArguments,
 } from '../../src/configArguments';
+import type { PackageManifest } from './types';
 
 const packageRoot = path.resolve(__dirname, '..', '..', '..');
 const requireModule = createRequire(__filename);
+const packageJsonCandidates = [
+  path.join(packageRoot, 'package.json'),
+  path.resolve(__dirname, '..', '..', 'package.json'),
+];
 const electronMainPath = path.join(packageRoot, 'dist', 'src', 'main', 'index.js');
 const electronBinaryPath = path.join(
   packageRoot,
@@ -47,6 +52,41 @@ function resolveElectronPath(): string {
 }
 
 /**
+ * @function readPackageVersion
+ * @description Reads the published package version from the nearest package manifest.
+ *
+ * @returns The semantic version exposed by the Brewly package.
+ * @throws Throws when no package manifest can be found or its version is invalid.
+ */
+function readPackageVersion(): string {
+  for (const packageJsonPath of packageJsonCandidates) {
+    if (!fs.existsSync(packageJsonPath)) continue;
+    try {
+      const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8')) as PackageManifest;
+      if (typeof packageJson.version === 'string' && packageJson.version.length > 0)
+        return packageJson.version;
+    } catch {
+      continue;
+    }
+  }
+  throw new Error('Brewly package manifest does not contain a valid version.');
+}
+
+/**
+ * @function printVersion
+ * @description Prints the installed Brewly package version without starting Electron.
+ *
+ * @returns Nothing; the version is written to standard output.
+ * @throws Does not throw when the package manifest is available.
+ *
+ * @example
+ * // brewly --version
+ */
+function printVersion(): void {
+  console.log('Brewly v' + readPackageVersion());
+}
+
+/**
  * @function printHelp
  * @description Prints the global CLI usage and command examples.
  *
@@ -63,6 +103,7 @@ function printHelp(): void {
   info('power', 'Inspect and manage scheduled macOS wake or power-on events.');
   info('migrate', 'Migrate a legacy installation while preserving its effective configuration.');
   info('logs', 'Show recent application logs or follow them live.');
+  info('--version, -v', 'Show the installed Brewly version.');
   info('help', 'Show this command reference.');
   section('LaunchAgent actions');
   item('agent <action>');
@@ -128,6 +169,10 @@ function main(args: string[]): void {
   const parsed = parseConfigurationArguments(args);
   const { environment, remaining } = parsed;
   const [command = 'start', ...commandArgs] = remaining;
+  if (command === '--version' || command === '-v' || command === 'version') {
+    printVersion();
+    return;
+  }
   if (command === 'help' || command === '--help' || command === '-h') {
     printHelp();
     return;

@@ -16,6 +16,15 @@ describe('Brewly CLI', () => {
     expect(output).toMatch(/--env-file PATH/);
   });
 
+  test.each(['--version', '-v'])('prints the package version for %s', (versionFlag) => {
+    const cli = path.join(__dirname, '..', '..', 'bin', 'brewly', 'index.ts');
+    const output = execFileSync(process.execPath, ['-r', 'ts-node/register', cli, versionFlag], {
+      encoding: 'utf8',
+    });
+
+    expect(output.trim()).toMatch(/^Brewly v\d+\.\d+\.\d+$/);
+  });
+
   test('prints dedicated LaunchAgent help with the nested help flag', () => {
     const manageScript = path.join(
       __dirname,

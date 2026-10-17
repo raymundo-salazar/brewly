@@ -4,8 +4,11 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+## [2.1.3] - 2026-10-17
+
 ### Added
 
+- Added `brewly --version` and `brewly -v` to display the installed package version.
 - Added a GitHub Sponsors badge to the README for project support.
 
 ## [2.1.2] - 2026-10-16
