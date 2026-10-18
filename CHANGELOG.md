@@ -4,6 +4,12 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+## [2.1.4] - 2026-10-18
+
+### Fixed
+
+- Added a non-blocking, colorized CLI alert for newer published Brewly versions, including the global installation command.
+
 ## [2.1.3] - 2026-10-17
 
 ### Added

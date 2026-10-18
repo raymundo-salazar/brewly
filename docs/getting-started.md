@@ -20,6 +20,12 @@ brewly help
 brewly --version
 ```
 
+When npm has a newer Brewly release, the CLI shows a non-blocking notice with the exact update command:
+
+```text
+Run: npm install --global brewly@latest
+```
+
 The package includes Electron as a runtime dependency and exposes the `brewly` executable.
 
 If the package manager did not download Electron's macOS runtime during installation, Brewly downloads it the first time a monitor-dependent command runs, such as `brewly start` or `brewly agent install`. Brewly prints why the download is needed. Read-only commands such as `brewly help`, `brewly agent status`, and `brewly power status` do not load Electron.

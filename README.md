@@ -61,6 +61,12 @@ brewly help
 brewly --version
 ```
 
+When a newer version is available, Brewly displays the published version and the exact command to update the global CLI:
+
+```text
+Run: npm install --global brewly@latest
+```
+
 The package includes Electron and all runtime dependencies. macOS may ask for Accessibility or notification permissions the first time the monitor runs.
 
 The Electron macOS runtime may be downloaded on the first command that starts or installs the monitor if the package manager did not download it during installation. Brewly explains this first-use download because Electron is required to run the monitor process; read-only commands such as `brewly help`, `brewly status`, and `brewly power status` do not need to load Electron.

@@ -9,6 +9,7 @@ import {
   configurationEnvironmentNames,
   parseConfigurationArguments,
 } from '../../src/configArguments';
+import { checkForUpdate, formatUpdateNotice } from '../../src/updateCheck';
 import type { PackageManifest } from './types';
 
 const packageRoot = path.resolve(__dirname, '..', '..', '..');
@@ -165,7 +166,8 @@ function run(command: string, args: string[], environment: NodeJS.ProcessEnv = p
  * @example
  * // brewly agent status
  */
-function main(args: string[]): void {
+async function main(args: string[]): Promise<void> {
+  await announceUpdate();
   const parsed = parseConfigurationArguments(args);
   const { environment, remaining } = parsed;
   const [command = 'start', ...commandArgs] = remaining;
@@ -261,11 +263,23 @@ function main(args: string[]): void {
   throw new Error(`Unknown command: ${command}. Run brewly help for usage.`);
 }
 
-try {
-  main(process.argv.slice(2));
-} catch (cause: unknown) {
+/**
+ * @function announceUpdate
+ * @description Checks for a newer published version and prints an installation instruction when available.
+ * The check is opt-out for tests and never blocks or fails the requested command.
+ *
+ * @returns A promise that resolves after the optional registry check completes.
+ * @throws Does not throw; update-check failures are intentionally ignored.
+ */
+async function announceUpdate(): Promise<void> {
+  if (process.env.BREWLY_DISABLE_UPDATE_CHECK === '1') return;
+  const update = await checkForUpdate(readPackageVersion());
+  if (update) console.log(`\n${formatUpdateNotice(update)}\n`);
+}
+
+void main(process.argv.slice(2)).catch((cause: unknown) => {
   error(`Command failed: ${cause instanceof Error ? cause.message : String(cause)}`);
   process.exitCode = 1;
-}
+});
 
 export type { ParsedEnvironmentArguments } from './types';

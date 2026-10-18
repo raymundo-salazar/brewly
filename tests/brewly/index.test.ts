@@ -6,6 +6,7 @@ describe('Brewly CLI', () => {
     const cli = path.join(__dirname, '..', '..', 'bin', 'brewly', 'index.ts');
     const output = execFileSync(process.execPath, ['-r', 'ts-node/register', cli, 'help'], {
       encoding: 'utf8',
+      env: { ...process.env, BREWLY_DISABLE_UPDATE_CHECK: '1' },
     });
     expect(output).toMatch(/brewly start/);
     expect(output).toMatch(/agent/);
@@ -20,6 +21,7 @@ describe('Brewly CLI', () => {
     const cli = path.join(__dirname, '..', '..', 'bin', 'brewly', 'index.ts');
     const output = execFileSync(process.execPath, ['-r', 'ts-node/register', cli, versionFlag], {
       encoding: 'utf8',
+      env: { ...process.env, BREWLY_DISABLE_UPDATE_CHECK: '1' },
     });
 
     expect(output.trim()).toMatch(/^Brewly v\d+\.\d+\.\d+$/);
@@ -52,6 +54,7 @@ describe('Brewly CLI', () => {
     expect(() =>
       execFileSync(process.execPath, ['-r', 'ts-node/register', cli, 'launch-agent', 'status'], {
         encoding: 'utf8',
+        env: { ...process.env, BREWLY_DISABLE_UPDATE_CHECK: '1' },
       }),
     ).toThrow(/Unknown command: launch-agent/);
   });
