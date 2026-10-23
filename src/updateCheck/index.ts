@@ -1,5 +1,5 @@
 import { DEFAULT_REGISTRY_URL, DEFAULT_TIMEOUT_MS, UPDATE_COMMAND } from './constants';
-import { paint } from '../cliOutput';
+import { formatNotice } from '../cliNotice';
 import type { LatestPackageMetadata, UpdateCheckOptions, UpdateResult } from './types';
 
 /**
@@ -86,38 +86,12 @@ export async function checkForUpdate(
  * @throws Does not throw for a valid update result.
  */
 export function formatUpdateNotice(update: UpdateResult): string {
-  const innerWidth = 64;
-  const artWidth = 22;
-  const art = [
-    '            )',
-    '      .--"(" "--.',
-    "    .-|`'-----'`|",
-    '    | |         |',
-    '    \\ |         |',
-    '     `\\         /',
-    '       `"-----"`',
-  ];
-  const versions = `${update.currentVersion}  →  ${update.latestVersion}`;
-  const row = (left: string, right = '', styledRight = right): string => {
-    const leftSegment = left.padEnd(artWidth, ' ');
-    const rightPadding = ' '.repeat(innerWidth - artWidth - right.length);
-    return `${paint('│', 'yellow')}${paint(leftSegment, 'gray')}${styledRight}${rightPadding}${paint('│', 'yellow')}`;
-  };
-  const styledVersions = `${paint(update.currentVersion, 'gray')}  ${paint('→', 'gray')}  ${paint(paint(update.latestVersion, 'cyan'), 'bold')}`;
-
-  return [
-    paint(`╭${'─'.repeat(innerWidth)}╮`, 'yellow'),
-    row(''),
-    row(art[0]!, 'BREWLY', paint(paint('BREWLY', 'cyan'), 'bold')),
-    row(art[1]!),
-    row(art[2]!, 'A fresh update is ready!', paint('A fresh update is ready!', 'gray')),
-    row(art[3]!, versions, styledVersions),
-    row(art[4]!),
-    row(art[5]!, update.command, paint(paint(update.command, 'gray'), 'bold')),
-    row(art[6]!),
-    row(''),
-    paint(`╰${'─'.repeat(innerWidth)}╯`, 'yellow'),
-  ].join('\n');
+  return formatNotice({
+    command: update.command,
+    currentVersion: update.currentVersion,
+    latestVersion: update.latestVersion,
+    message: 'A fresh update is ready!',
+  });
 }
 
 export type { UpdateCheckOptions, UpdateResponse, UpdateResult } from './types';

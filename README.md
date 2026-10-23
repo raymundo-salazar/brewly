@@ -67,6 +67,40 @@ When a newer version is available, Brewly displays the published version and the
 Run: npm install --global brewly@latest
 ```
 
+After 30 days of interactive CLI use, Brewly may show a compact feedback reminder titled `Brewly · Your Voice Matters`. It is never shown by the background LaunchAgent, appears at most once every 30 days, and points to `brewly feedback` for the complete feedback guide. The reminder state is stored under `~/Library/Application Support/brewly/`.
+
+The full feedback command opens an interactive, human-readable feedback guide. Move through destinations with the Up/Down arrow keys and press Enter, or use a shortcut directly:
+
+```bash
+brewly feedback
+brewly feedback bug
+brewly feedback idea --no-open
+brewly feedback star
+```
+
+Use `brewly feedback --help` to see every destination. When a browser cannot be opened, Brewly prints the URL so it can be opened manually.
+
+Feedback reminders begin after seven days of eligible interactive use, then use a 15-day second interval and 30-day recurring intervals. They are limited to three notices per 24-hour window, with at least four hours between notices, and never run from the background LaunchAgent. Manage them with:
+
+```bash
+brewly feedback reminders
+brewly feedback reminders enable
+brewly feedback reminders disable
+brewly feedback reminders reset
+```
+
+For local visual checks, the repository provides scripts that do not modify the real reminder state:
+
+```bash
+pnpm run feedback:test  # Preview the recurring reminder card
+pnpm run feedback:show  # Preview the explicit feedback command
+pnpm run feedback:full:test      # Preview the full card without opening a browser
+pnpm run feedback:bug:test       # Preview a direct bug-report flow
+pnpm run feedback:star:test      # Preview the GitHub star flow
+pnpm run feedback:help:test      # Preview feedback command help
+pnpm run feedback:reminders:test # Preview reminder status
+```
+
 The package includes Electron and all runtime dependencies. macOS may ask for Accessibility or notification permissions the first time the monitor runs.
 
 The Electron macOS runtime may be downloaded on the first command that starts or installs the monitor if the package manager did not download it during installation. Brewly explains this first-use download because Electron is required to run the monitor process; read-only commands such as `brewly help`, `brewly status`, and `brewly power status` do not need to load Electron.

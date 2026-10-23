@@ -26,6 +26,16 @@ When npm has a newer Brewly release, the CLI shows a non-blocking notice with th
 Run: npm install --global brewly@latest
 ```
 
+After seven days of interactive CLI use, Brewly may display a compact `Brewly · Your Voice Matters` reminder. A second reminder may appear 15 days after the first, followed by 30-day intervals. Reminders are limited to three per 24-hour window, separated by at least four hours. They are never emitted by the background LaunchAgent, CI, help, version, or feedback commands. Its state is stored at `~/Library/Application Support/brewly/feedback-state.json`.
+
+To display the complete feedback guide at any time, run:
+
+```bash
+brewly feedback
+```
+
+The command offers interactive destinations for bug reports, feature ideas, questions, community discussions, GitHub stars, and sponsorship. Use `brewly feedback --no-open` to print the selected URL without opening the browser. Use `brewly feedback reminders` to inspect or manage reminder preferences. Running `brewly feedback` voluntarily starts the next automatic reminder cycle 30 days later.
+
 The package includes Electron as a runtime dependency and exposes the `brewly` executable.
 
 If the package manager did not download Electron's macOS runtime during installation, Brewly downloads it the first time a monitor-dependent command runs, such as `brewly start` or `brewly agent install`. Brewly prints why the download is needed. Read-only commands such as `brewly help`, `brewly agent status`, and `brewly power status` do not load Electron.

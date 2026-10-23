@@ -47,10 +47,29 @@ export function parseArgs(args: string[]): LogOptions {
     if (arg === '--follow' || arg === '-f') options.follow = true;
     else if (arg === '--lines' || arg === '-n') options.lines = Number(args[++index]);
     else if (arg?.startsWith('--lines=')) options.lines = Number(arg.slice('--lines='.length));
+    else if (arg === 'help' || arg === '--help' || arg === '-h') return options;
+    else throw new Error(`Unknown logs option: ${arg}. Run brewly logs --help for usage.`);
   }
   if (!Number.isInteger(options.lines) || options.lines < 1)
     throw new Error('--lines must be a positive integer.');
   return options;
+}
+
+/**
+ * @function printHelp
+ * @description Prints the usage reference for the logs command.
+ *
+ * @returns Nothing; usage text is written to standard output.
+ * @throws Does not throw during normal terminal output.
+ */
+export function printHelp(): void {
+  header('Brewly — Logs help');
+  section('Usage');
+  item('brewly logs [options]');
+  section('Options');
+  info('--lines N, -n N', 'Display the last N entries.');
+  info('--follow, -f', 'Continue displaying new entries as they are written.');
+  info('--help, -h', 'Show this command reference.');
 }
 
 /**
@@ -157,7 +176,12 @@ function followFile(filePath: string, initialOffset: number, timeZone: string): 
  * // brewly logs --lines 20 --follow
  */
 export function main(): void {
-  const options = parseArgs(process.argv.slice(2));
+  const args = process.argv.slice(2);
+  if (args.includes('help') || args.includes('--help') || args.includes('-h')) {
+    printHelp();
+    return;
+  }
+  const options = parseArgs(args);
   const context = resolveLogContext();
   if (!fs.existsSync(context.filePath)) throw new Error(`Log file not found: ${context.filePath}`);
 

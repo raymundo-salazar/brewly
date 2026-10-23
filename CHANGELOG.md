@@ -4,6 +4,26 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+## [2.1.6] - 2026-10-22
+
+### Fixed
+
+- Added consistent `help`, `--help`, and `-h` handling across CLI commands and improved unknown-command and option errors.
+
+## [2.1.5] - 2026-10-22
+
+### Added
+
+- Added a periodic interactive feedback reminder with the shared Brewly notice design and `brewly@raymundosalazar.dev` as the contact address.
+- Added the interactive `brewly feedback` selector with arrow-key navigation and direct destination shortcuts.
+- Added browser-opening feedback flows for bug reports, feature ideas, questions, discussions, GitHub stars, and sponsorship.
+- Added `brewly feedback reminders` management commands and controlled feedback preview scripts.
+
+### Changed
+
+- Improved feedback cards and selectors for compact terminal widths, readable spacing, muted descriptions, and colored active options.
+- Made feedback reminder persistence non-blocking so it cannot prevent a selected destination from opening.
+
 ## [2.1.4] - 2026-10-18
 
 ### Fixed

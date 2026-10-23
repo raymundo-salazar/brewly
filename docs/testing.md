@@ -49,6 +49,22 @@ Use `Ctrl+C` to stop it. For detection-only testing, set `IDLE_ACTION=none` in a
 
 ## Test the installed CLI locally
 
+### Preview feedback notices
+
+Use the dedicated scripts to inspect both feedback experiences without waiting 30 days or modifying the real reminder state:
+
+```bash
+pnpm run feedback:test
+pnpm run feedback:show
+pnpm run feedback:full:test
+pnpm run feedback:bug:test
+pnpm run feedback:star:test
+pnpm run feedback:help:test
+pnpm run feedback:reminders:test
+```
+
+`feedback:test` renders the short periodic reminder in controlled test mode. `feedback:show` renders the interactive feedback command; in a real terminal, move through destinations with the Up/Down arrow keys and press Enter to select one. The additional scripts exercise the full card, direct destinations, help, and reminder status without opening a browser. Direct scripts use `--no-open` so they are safe to run in automated or remote sessions.
+
 Before publishing, verify the command entrypoint without starting Electron:
 
 ```bash

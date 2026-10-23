@@ -12,6 +12,7 @@ describe('Brewly CLI', () => {
     expect(output).toMatch(/agent/);
     expect(output).toMatch(/power/);
     expect(output).toMatch(/migrate/);
+    expect(output).toMatch(/feedback/);
     expect(output).not.toMatch(/launch-agent/);
     expect(output).toMatch(/start \| stop \| pause \| resume/);
     expect(output).toMatch(/--env-file PATH/);
@@ -25,6 +26,19 @@ describe('Brewly CLI', () => {
     });
 
     expect(output.trim()).toMatch(/^Brewly v\d+\.\d+\.\d+$/);
+  });
+
+  test('prints the explicit feedback card without starting Electron', () => {
+    const cli = path.join(__dirname, '..', '..', 'bin', 'brewly', 'index.ts');
+    const output = execFileSync(process.execPath, ['-r', 'ts-node/register', cli, 'feedback'], {
+      encoding: 'utf8',
+      env: { ...process.env, BREWLY_DISABLE_UPDATE_CHECK: '1' },
+    });
+
+    expect(output).toMatch(/Thank you for using Brewly!/);
+    expect(output).toMatch(/Thank you for using Brewly/);
+    expect(output).toMatch(/Brewly · v2\.1\.6/);
+    expect(output).not.toMatch(/A fresh update is ready!/);
   });
 
   test('prints dedicated LaunchAgent help with the nested help flag', () => {

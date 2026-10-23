@@ -10,6 +10,15 @@ import {
   parseConfigurationArguments,
 } from '../../src/configArguments';
 import { checkForUpdate, formatUpdateNotice } from '../../src/updateCheck';
+import { runFeedback } from '../../src/feedback';
+import {
+  formatFeedbackNotice,
+  getFeedbackPrompt,
+  getFeedbackReminder,
+  getFeedbackReminderStatus,
+  recordFeedbackInteraction,
+  updateFeedbackReminders,
+} from '../../src/feedbackPrompt';
 import type { PackageManifest } from './types';
 
 const packageRoot = path.resolve(__dirname, '..', '..', '..');
@@ -104,6 +113,7 @@ function printHelp(): void {
   info('power', 'Inspect and manage scheduled macOS wake or power-on events.');
   info('migrate', 'Migrate a legacy installation while preserving its effective configuration.');
   info('logs', 'Show recent application logs or follow them live.');
+  info('feedback', 'Show the feedback contact card.');
   info('--version, -v', 'Show the installed Brewly version.');
   info('help', 'Show this command reference.');
   section('LaunchAgent actions');
@@ -126,6 +136,8 @@ function printHelp(): void {
   info('--power-on-offset-minutes N', 'Minutes before the monitor schedule for power-on.');
   info('--follow', 'Continue displaying new log entries.');
   info('--lines N', 'Display the last N log entries.');
+  item('brewly feedback --help');
+  item('brewly feedback bug --no-open');
   section('Examples');
   item('brewly start');
   item('brewly agent status');
@@ -136,6 +148,30 @@ function printHelp(): void {
   item('brewly agent --help');
   item('brewly logs --follow');
   item('brewly migrate --dry-run');
+}
+
+/**
+ * @function printStartHelp
+ * @description Prints the usage reference for the foreground monitor command.
+ *
+ * @returns Nothing; usage text is written to standard output.
+ * @throws Does not throw during normal terminal output.
+ */
+function printStartHelp(): void {
+  header('Brewly — Start help');
+  section('Usage');
+  item('brewly start [configuration options]');
+  section('Description');
+  info('start', 'Run the monitor in the current terminal session.');
+  section('Options');
+  info('--idle-check-interval-ms N', 'Polling interval in milliseconds.');
+  info('--idle-threshold-seconds N', 'Idle threshold in seconds.');
+  info('--idle-days VALUE', 'Days: all_week, weekend, working_days, or a list.');
+  info('--idle-start-time HH:MM', 'Schedule start time.');
+  info('--idle-end-time HH:MM', 'Schedule end time.');
+  info('--idle-timezone ZONE', 'IANA timezone used by the monitor.');
+  info('--idle-action NAME', 'Operating-system activity action.');
+  info('--help, -h', 'Show this command reference.');
 }
 
 /**
@@ -171,6 +207,18 @@ async function main(args: string[]): Promise<void> {
   const parsed = parseConfigurationArguments(args);
   const { environment, remaining } = parsed;
   const [command = 'start', ...commandArgs] = remaining;
+  if (command === 'feedback') {
+    if (commandArgs[0] === 'reminders') {
+      handleFeedbackReminders(commandArgs.slice(1));
+      return;
+    }
+    await runFeedback(commandArgs, {
+      noOpen: commandArgs.includes('--no-open'),
+      onInteraction: () => recordFeedbackInteraction(),
+      version: readPackageVersion(),
+    });
+    return;
+  }
   if (command === '--version' || command === '-v' || command === 'version') {
     printVersion();
     return;
@@ -181,7 +229,12 @@ async function main(args: string[]): Promise<void> {
   }
 
   if (command === 'start') {
+    if (commandArgs.includes('--help') || commandArgs.includes('-h') || commandArgs[0] === 'help') {
+      printStartHelp();
+      return;
+    }
     run(resolveElectronPath(), [electronMainPath, ...commandArgs], environment);
+    announceFeedback();
     return;
   }
 
@@ -191,6 +244,7 @@ async function main(args: string[]): Promise<void> {
       [path.join(packageRoot, 'dist', 'scripts', 'viewLogs', 'index.js'), ...commandArgs],
       environment,
     );
+    announceFeedback();
     return;
   }
 
@@ -200,6 +254,7 @@ async function main(args: string[]): Promise<void> {
       [path.join(packageRoot, 'dist', 'scripts', 'migrate', 'index.js'), ...commandArgs],
       environment,
     );
+    announceFeedback();
     return;
   }
 
@@ -207,6 +262,14 @@ async function main(args: string[]): Promise<void> {
     const [action, ...actionArgs] = commandArgs;
     if (!action)
       throw new Error(`${command} requires an action. Run brewly ${command} --help for usage.`);
+    if (action === 'help' || action === '--help' || action === '-h') {
+      run(
+        process.execPath,
+        [path.join(packageRoot, 'dist', 'scripts', 'manageLaunchAgent', 'index.js'), 'help'],
+        environment,
+      );
+      return;
+    }
     if (action === 'install' || action === 'restart') {
       environment.IDLE_CONFIG_SOURCE = 'global';
       for (const key of configurationEnvironmentNames) delete environment[key];
@@ -227,6 +290,7 @@ async function main(args: string[]): Promise<void> {
         [path.join(packageRoot, 'dist', 'scripts', 'installLaunchAgent', 'index.js')],
         environment,
       );
+      announceFeedback();
       return;
     }
     if (action === 'logs') {
@@ -235,6 +299,7 @@ async function main(args: string[]): Promise<void> {
         [path.join(packageRoot, 'dist', 'scripts', 'viewLogs', 'index.js'), ...actionArgs],
         environment,
       );
+      announceFeedback();
       return;
     }
     run(
@@ -246,21 +311,99 @@ async function main(args: string[]): Promise<void> {
       ],
       environment,
     );
+    announceFeedback();
     return;
   }
 
   if (command === 'power') {
     const [action, ...actionArgs] = commandArgs;
     if (!action) throw new Error('power requires an action. Run brewly power --help for usage.');
+    if (action === 'help' || action === '--help' || action === '-h') {
+      run(
+        process.execPath,
+        [path.join(packageRoot, 'dist', 'scripts', 'managePower', 'index.js'), 'help'],
+        environment,
+      );
+      return;
+    }
     run(
       process.execPath,
       [path.join(packageRoot, 'dist', 'scripts', 'managePower', 'index.js'), action, ...actionArgs],
       environment,
     );
+    announceFeedback();
     return;
   }
 
   throw new Error(`Unknown command: ${command}. Run brewly help for usage.`);
+}
+
+/**
+ * @function handleFeedbackReminders
+ * @description Handles feedback reminder status and lifecycle commands.
+ *
+ * @param args - Reminder action arguments.
+ * @returns Nothing.
+ * @throws Throws when an unknown reminder action is provided.
+ */
+function handleFeedbackReminders(args: string[]): void {
+  const action = args[0];
+  if (action === '--help' || action === '-h') {
+    console.log(
+      'Brewly — Feedback reminder help\n\nUsage\n  brewly feedback reminders [status|enable|disable|reset]',
+    );
+    return;
+  }
+  if (!action || action === 'status') {
+    const status = getFeedbackReminderStatus();
+    console.log('☕ BREWLY · Feedback Reminders\n');
+    console.log(`Status              ${status.enabled ? 'Enabled' : 'Disabled'}`);
+    console.log(`First reminder      ${status.firstReminder}`);
+    console.log(`Repeat interval     ${status.repeatInterval}`);
+    console.log(`Max per cycle       ${status.maxPerWindow} reminders`);
+    console.log(`Minimum interval    ${status.minimumInterval}`);
+    console.log(`Display window      ${status.window}`);
+    console.log(`\nLast reminder       ${status.lastReminder ?? 'Not yet shown'}`);
+    console.log(`Next eligible       ${status.nextEligible ?? 'After first use + 7 days'}`);
+    console.log(
+      '\nManage reminders:\n  brewly feedback reminders enable\n  brewly feedback reminders disable\n  brewly feedback reminders reset',
+    );
+    return;
+  }
+  if (action !== 'enable' && action !== 'disable' && action !== 'reset')
+    throw new Error(`Unknown reminder action: ${action}`);
+  updateFeedbackReminders(action);
+  if (action === 'disable')
+    console.log(
+      "✓ Feedback reminders disabled.\n\n  You won't see feedback reminders again\n  unless you choose to enable them.\n\n  To enable them again:\n  brewly feedback reminders enable",
+    );
+  if (action === 'enable')
+    console.log(
+      '✓ Feedback reminders enabled.\n\n  Your next reminder will appear after\n  30 days of eligible usage.',
+    );
+  if (action === 'reset')
+    console.log(
+      '✓ Feedback reminder cycle reset.\n\n  The first reminder will be eligible after 7 days.',
+    );
+}
+
+/**
+ * @function announceFeedback
+ * @description Shows the 30-day feedback reminder only during interactive CLI usage.
+ * Background Electron and LaunchAgent processes do not execute this CLI path.
+ *
+ * @returns Nothing; the notice is written to standard output when due.
+ * @throws Does not throw for unavailable reminder state.
+ */
+function announceFeedback(): void {
+  const prompt =
+    process.env.BREWLY_FEEDBACK_TEST === '1'
+      ? getFeedbackReminder()
+      : getFeedbackPrompt({
+          interactive: Boolean(process.stdin.isTTY && process.stdout.isTTY),
+        });
+  if (process.exitCode && process.exitCode !== 0) return;
+  if (prompt) process.stderr.write(`\n${formatFeedbackNotice(prompt)}\n\n`);
 }
 
 /**
